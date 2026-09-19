@@ -1,0 +1,134 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile and settings in ClientumCRM",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "avatar": { "type": "string" },
+        "role": { "type": "string" },
+        "company": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "email", "name"]
+    },
+    "Opportunity": {
+      "title": "Opportunity",
+      "description": "Sales pipeline deal",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "amount": { "type": "number" },
+        "currency": { "type": "string" },
+        "stage": { "type": "string" },
+        "closeDate": { "type": "string" },
+        "probability": { "type": "number" },
+        "companyId": { "type": "string" },
+        "companyName": { "type": "string" },
+        "contactId": { "type": "string" },
+        "contactName": { "type": "string" },
+        "assignedTo": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "priority": { "type": "string" },
+        "type": { "type": "string" }
+      },
+      "required": ["id", "name", "amount", "stage", "assignedTo"]
+    },
+    "Company": {
+      "title": "Company",
+      "description": "Organization or business account",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "domain": { "type": "string" },
+        "industry": { "type": "string" },
+        "tier": { "type": "string" },
+        "healthScore": { "type": "number" },
+        "assignedTo": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "name", "assignedTo"]
+    },
+    "Person": {
+      "title": "Person",
+      "description": "Individual contact or lead",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "jobTitle": { "type": "string" },
+        "companyId": { "type": "string" },
+        "status": { "type": "string" },
+        "assignedTo": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "firstName", "email", "assignedTo"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "CRM action item or reminder",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "dueDate": { "type": "string" },
+        "priority": { "type": "string" },
+        "status": { "type": "string" },
+        "assignedTo": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "title", "dueDate", "status", "assignedTo"]
+    },
+    "Activity": {
+      "title": "Activity",
+      "description": "Audit event, call log, meeting, or note",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "author": { "type": "string" },
+        "targetType": { "type": "string" },
+        "targetId": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "type", "title", "author", "targetType", "targetId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile documents"
+    },
+    "/users/{userId}/opportunities/{opportunityId}": {
+      "schema": "Opportunity",
+      "description": "User-owned opportunities"
+    },
+    "/users/{userId}/companies/{companyId}": {
+      "schema": "Company",
+      "description": "User-owned companies"
+    },
+    "/users/{userId}/people/{personId}": {
+      "schema": "Person",
+      "description": "User-owned contacts"
+    },
+    "/users/{userId}/tasks/{taskId}": {
+      "schema": "Task",
+      "description": "User-owned tasks"
+    },
+    "/users/{userId}/activities/{activityId}": {
+      "schema": "Activity",
+      "description": "User-owned activity timeline"
+    }
+  }
+}

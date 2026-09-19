@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es-AR" class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="application-name" content="ClientumOS" />
+    <meta name="theme-color" content="#0f172a" />
+    <link rel="canonical" href="https://clientum.com.ar/" />
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('clientum_theme') || localStorage.getItem('theme');
+          var isDark = false;
+          if (saved === 'dark') {
+            isDark = true;
+          } else if (saved === 'light') {
+            isDark = false;
+          } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            isDark = true;
+          }
+          var root = document.documentElement;
+          if (isDark) {
+            root.classList.add('dark');
+            root.classList.remove('light');
+            root.setAttribute('data-theme', 'dark');
+            root.setAttribute('data-mode', 'dark');
+            root.style.colorScheme = 'dark';
+          } else {
+            root.classList.add('light');
+            root.classList.remove('dark');
+            root.setAttribute('data-theme', 'light');
+            root.setAttribute('data-mode', 'light');
+            root.style.colorScheme = 'light';
+          }
+        } catch(e) {}
+      })();
+    </script>
+    <title>Remix ClientumCRM | Modern Open-Source CRM & Sales Pipeline</title>
+    <meta
+      name="description"
+      content="Modern open-source CRM for teams to manage customer contacts, company info, and sales pipelines with customizable Kanban and table views, custom fields studio, user roles with granular permissions, and workflow automations."
+    />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://clientum.com.ar/" />
+    <meta
+      property="og:title"
+      content="Remix ClientumCRM | Modern Open-Source CRM & Sales Pipeline"
+    />
+    <meta
+      property="og:description"
+      content="Modern open-source CRM for teams to manage customer contacts, company info, and sales pipelines with customizable Kanban and table views, custom fields studio, user roles with granular permissions, and workflow automations."
+    />
+    <meta property="og:image" content="https://clientum.com.ar/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="ClientumOS, sistema operativo comercial para PyMEs argentinas" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="ClientumOS | Sistema operativo comercial para PyMEs argentinas"
+    />
+    <meta
+      name="twitter:description"
+      content="Sistema operativo comercial para PyMEs argentinas: CRM, WhatsApp, IA, Facturación AFIP, Cobros Mercado Pago y Automatización."
+    />
+    <meta name="twitter:image" content="https://clientum.com.ar/og-image.png" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://clientum.com.ar/#organization",
+            "name": "ClientumCRM",
+            "url": "https://clientum.com.ar",
+            "logo": "https://clientum.com.ar/og-image.png",
+            "description": "CRM comercial y plataforma omnicanal para PyMEs en Argentina y Latinoamérica.",
+            "address": {
+              "@type": "PostalAddress",
+              "addressCountry": "AR"
+            }
+          },
+          {
+            "@type": "SoftwareApplication",
+            "@id": "https://clientum.com.ar/#software",
+            "name": "ClientumCRM",
+            "operatingSystem": "Web",
+            "applicationCategory": "BusinessApplication",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "description": "CRM comercial argentino con integración de WhatsApp, pipeline Kanban, prospección con Google Maps y facturación electrónica AFIP."
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body
+    class="h-full antialiased selection:bg-[#0056B3] selection:text-white font-sans"
+  >
+    <div id="root" class="h-full flex flex-col"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
