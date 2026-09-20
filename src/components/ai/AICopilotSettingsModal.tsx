@@ -28,6 +28,9 @@ interface AICopilotSettingsModalProps {
 
 interface ProviderStatus {
   preferredProvider: string;
+  activeModel?: string;
+  activeModelDisplayName?: string;
+  hasActiveKey?: boolean;
   openRouter: {
     configured: boolean;
     model: string;
@@ -115,7 +118,7 @@ export interface KeyVerificationState {
 export const AICopilotSettingsModal: React.FC<AICopilotSettingsModalProps> = ({ isOpen, onClose }) => {
   const { currentUser, showToast, language } = useCRM();
 
-  const [activeTab, setActiveTab] = useState<'openrouter' | 'openai' | 'gemini'>('openrouter');
+  const [activeTab, setActiveTab] = useState<'copilot-config' | 'openrouter' | 'openai' | 'gemini'>('copilot-config');
   const [preferredProvider, setPreferredProvider] = useState<'openrouter' | 'openai' | 'gemini'>('openrouter');
 
   // Input states
@@ -424,6 +427,7 @@ export const AICopilotSettingsModal: React.FC<AICopilotSettingsModalProps> = ({ 
       await loadProviderStatus();
       setOpenRouterKey('');
       setOpenAIKey('');
+      window.dispatchEvent(new CustomEvent('ai-copilot-settings-updated'));
     } catch (err: any) {
       showToast(err.message || 'Error al guardar credenciales', 'error');
     } finally {
@@ -656,12 +660,26 @@ export const AICopilotSettingsModal: React.FC<AICopilotSettingsModalProps> = ({ 
           </div>
 
           {/* Provider Tabs Header */}
-          <div className="flex border-b border-slate-200 dark:border-slate-800">
+          <div className="flex border-b border-slate-200 dark:border-slate-800 overflow-x-auto custom-scrollbar">
+            <button
+              type="button"
+              id="tab-copilot-config"
+              onClick={() => setActiveTab('copilot-config')}
+              className={`pb-2.5 px-4 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+                activeTab === 'copilot-config'
+                  ? 'border-cyan-500 text-cyan-600 dark:text-cyan-400'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+              }`}
+            >
+              <Bot className="w-3.5 h-3.5" />
+              <span>{language === 'es' ? 'Configuración Copilot' : 'Copilot Configuration'}</span>
+            </button>
+
             <button
               type="button"
               id="tab-openrouter"
               onClick={() => setActiveTab('openrouter')}
-              className={`pb-2.5 px-4 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`pb-2.5 px-4 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
                 activeTab === 'openrouter'
                   ? 'border-cyan-500 text-cyan-600 dark:text-cyan-400'
                   : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
@@ -687,7 +705,7 @@ export const AICopilotSettingsModal: React.FC<AICopilotSettingsModalProps> = ({ 
               type="button"
               id="tab-openai"
               onClick={() => setActiveTab('openai')}
-              className={`pb-2.5 px-4 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`pb-2.5 px-4 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
                 activeTab === 'openai'
                   ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400'
                   : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
@@ -713,7 +731,7 @@ export const AICopilotSettingsModal: React.FC<AICopilotSettingsModalProps> = ({ 
               type="button"
               id="tab-gemini"
               onClick={() => setActiveTab('gemini')}
-              className={`pb-2.5 px-4 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`pb-2.5 px-4 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
                 activeTab === 'gemini'
                   ? 'border-blue-500 text-blue-600 dark:text-blue-400'
                   : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
@@ -723,6 +741,529 @@ export const AICopilotSettingsModal: React.FC<AICopilotSettingsModalProps> = ({ 
               <span>Gemini Plataforma</span>
             </button>
           </div>
+
+          {/* Tab 0: Copilot Configuration */}
+          {activeTab === 'copilot-config' && (
+            <div id="copilot-configuration-section" className="space-y-5 animate-fade-in">
+              {/* Active Model Status & Test Connection Hero Card */}
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-900 via-[#132238] to-cyan-950 border border-cyan-500/25 shadow-lg text-white space-y-3.5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-cyan-500/20 border border-cyan-400/30 flex items-center justify-center text-cyan-300 shrink-0">
+                      <Bot className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm text-white flex items-center gap-2">
+                        <span>{language === 'es' ? 'Configuración de Copilot' : 'Copilot Configuration'}</span>
+                        <span className="px-2 py-0.5 rounded-full text-[9.5px] font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                          {language === 'es' ? 'Preferencia de IA' : 'AI Preference'}
+                        </span>
+                      </h4>
+                      <p className="text-xs text-slate-300">
+                        {language === 'es'
+                          ? 'Elige el modelo de IA preferido para impulsar las respuestas y sugerencias del Copilot según tus claves provistas.'
+                          : 'Select your preferred AI model to power Copilot responses based on the API keys provided.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status and Action Row */}
+                <div className="pt-3 border-t border-slate-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div className="space-y-1">
+                    <div className="text-[10.5px] uppercase font-bold tracking-wider text-slate-400">
+                      {language === 'es' ? 'Modelo Activo para Tratos:' : 'Active Deal AI Model:'}
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-bold text-sm text-cyan-300 flex items-center gap-1.5">
+                        <Sparkles className="w-4 h-4 text-cyan-400" />
+                        {preferredProvider === 'openrouter'
+                          ? (OPENROUTER_MODELS.find((m) => m.id === openRouterModel)?.name || openRouterModel)
+                          : preferredProvider === 'openai'
+                          ? (OPENAI_MODELS.find((m) => m.id === openAIModel)?.name || openAIModel)
+                          : 'Gemini 2.5 Flash'}
+                      </span>
+                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+                        {preferredProvider === 'openrouter' ? 'OpenRouter' : preferredProvider === 'openai' ? 'OpenAI' : 'Google Gemini'}
+                      </span>
+
+                      {/* Live Key Status Badge */}
+                      <span
+                        id="copilot-config-key-status-pill"
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-semibold border ${
+                          (preferredProvider === 'openrouter' && (openRouterVerification.status === 'active' || providerStatus?.openRouter.configured)) ||
+                          (preferredProvider === 'openai' && (openAIVerification.status === 'active' || providerStatus?.openai.configured)) ||
+                          preferredProvider === 'gemini'
+                            ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'
+                            : 'bg-amber-500/15 border-amber-500/30 text-amber-300'
+                        }`}
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            (preferredProvider === 'openrouter' && (openRouterVerification.status === 'active' || providerStatus?.openRouter.configured)) ||
+                            (preferredProvider === 'openai' && (openAIVerification.status === 'active' || providerStatus?.openai.configured)) ||
+                            preferredProvider === 'gemini'
+                              ? 'bg-emerald-400'
+                              : 'bg-amber-400 animate-pulse'
+                          }`}
+                        />
+                        {(preferredProvider === 'openrouter' && (openRouterVerification.status === 'active' || providerStatus?.openRouter.configured)) ||
+                        (preferredProvider === 'openai' && (openAIVerification.status === 'active' || providerStatus?.openai.configured)) ||
+                        preferredProvider === 'gemini'
+                          ? (language === 'es' ? 'Clave Activa y Funcional' : 'Active & Functional Key')
+                          : (language === 'es' ? 'Sin Clave Detectada' : 'No Key Detected')}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Primary Test Connection Button */}
+                  <button
+                    type="button"
+                    id="btn-test-connection-copilot"
+                    onClick={() => handleTestConnection(preferredProvider === 'openai' ? 'openai' : 'openrouter')}
+                    disabled={isTesting || (preferredProvider !== 'gemini' && !providerStatus?.hasActiveKey && !openRouterKey.trim() && !openAIKey.trim())}
+                    className="shrink-0 px-3.5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs inline-flex items-center gap-1.5 shadow-md shadow-cyan-500/25 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    title={language === 'es' ? 'Enviar solicitud a la API para verificar la conexión' : 'Trigger API test request to verify connection'}
+                  >
+                    <RotateCw className={`w-3.5 h-3.5 ${isTesting ? 'animate-spin' : ''}`} />
+                    <span>
+                      {isTesting
+                        ? (language === 'es' ? 'Probando Conexión...' : 'Testing...')
+                        : (language === 'es' ? 'Test Connection' : 'Test Connection')}
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Test Connection Visual Feedback Banner: Green Checkmark or Red Error Alert */}
+              {testResult && (
+                <div
+                  id="copilot-test-feedback-banner"
+                  className={`p-4 rounded-xl border flex items-start gap-3.5 text-xs animate-fade-in shadow-sm ${
+                    testResult.success
+                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-900 dark:text-emerald-200'
+                      : 'bg-rose-500/10 border-rose-500/30 text-rose-900 dark:text-rose-200'
+                  }`}
+                >
+                  {testResult.success ? (
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                  ) : (
+                    <AlertCircle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+                  )}
+                  <div className="space-y-1 flex-1 min-w-0">
+                    <div className="font-bold text-sm flex items-center gap-2 flex-wrap">
+                      <span>
+                        {testResult.success
+                          ? (language === 'es' ? 'Conexión Activa y Funcional' : 'Connection Active & Functional')
+                          : (language === 'es' ? 'Error al Verificar Conexión' : 'Connection Verification Error')}
+                      </span>
+                      {testResult.success ? (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-500/20 text-emerald-700 dark:text-emerald-300">
+                          HTTP 200 OK • Verificada
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-rose-500/20 text-rose-700 dark:text-rose-300">
+                          Error de Autenticación
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs opacity-90 leading-relaxed break-words">
+                      {testResult.message || testResult.error}
+                    </div>
+                    {testResult.timestamp && (
+                      <div className="text-[10.5px] opacity-70">
+                        {language === 'es' ? 'Comprobación efectuada a las:' : 'Checked at:'} {testResult.timestamp}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Model Selection from Available Keys Grid */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                    {language === 'es' ? 'Selecciona tu Modelo de IA Preferido' : 'Select Preferred AI Model'}
+                  </label>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                    {language === 'es' ? 'Guardado cifrado en tu perfil' : 'Saved encrypted in your profile'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {/* Model 1: Claude 3.5 Sonnet (OpenRouter) */}
+                  <div
+                    id="model-card-claude-35-sonnet"
+                    onClick={() => {
+                      setPreferredProvider('openrouter');
+                      setOpenRouterModel('anthropic/claude-3.5-sonnet');
+                    }}
+                    className={`p-3.5 rounded-xl border text-xs cursor-pointer transition-all flex flex-col justify-between ${
+                      preferredProvider === 'openrouter' && openRouterModel === 'anthropic/claude-3.5-sonnet'
+                        ? 'border-cyan-500 bg-cyan-50/40 dark:bg-cyan-950/25 shadow-md shadow-cyan-500/10'
+                        : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900/40'
+                    }`}
+                  >
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-sm text-slate-900 dark:text-white">
+                            Claude 3.5 Sonnet
+                          </span>
+                          <span className="px-1.5 py-0.2 rounded text-[9.5px] font-semibold bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
+                            Anthropic
+                          </span>
+                        </div>
+                        <div
+                          className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                            preferredProvider === 'openrouter' && openRouterModel === 'anthropic/claude-3.5-sonnet'
+                              ? 'border-cyan-500 bg-cyan-500 text-white'
+                              : 'border-slate-300 dark:border-slate-700'
+                          }`}
+                        >
+                          {preferredProvider === 'openrouter' && openRouterModel === 'anthropic/claude-3.5-sonnet' && (
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug">
+                        {language === 'es'
+                          ? 'Razonamiento superior para negociaciones complejas, cálculo de riesgos y redacción de propuestas de alto impacto.'
+                          : 'Top-tier reasoning for deal qualification, email generation, and tactical sales negotiation.'}
+                      </p>
+                    </div>
+
+                    <div className="pt-2.5 mt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[10.5px]">
+                      <span className="font-mono text-slate-400">OpenRouter</span>
+                      {providerStatus?.openRouter.configured || openRouterKey.trim() ? (
+                        <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" />
+                          {language === 'es' ? 'Clave Lista' : 'Key Ready'}
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveTab('openrouter');
+                          }}
+                          className="text-amber-500 hover:text-amber-400 font-medium underline cursor-pointer"
+                        >
+                          {language === 'es' ? 'Configurar clave →' : 'Set key →'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Model 2: GPT-4o (OpenAI) */}
+                  <div
+                    id="model-card-gpt-4o"
+                    onClick={() => {
+                      setPreferredProvider('openai');
+                      setOpenAIModel('gpt-4o');
+                    }}
+                    className={`p-3.5 rounded-xl border text-xs cursor-pointer transition-all flex flex-col justify-between ${
+                      preferredProvider === 'openai' && openAIModel === 'gpt-4o'
+                        ? 'border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/25 shadow-md shadow-emerald-500/10'
+                        : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900/40'
+                    }`}
+                  >
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-sm text-slate-900 dark:text-white">
+                            GPT-4o
+                          </span>
+                          <span className="px-1.5 py-0.2 rounded text-[9.5px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                            OpenAI
+                          </span>
+                        </div>
+                        <div
+                          className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                            preferredProvider === 'openai' && openAIModel === 'gpt-4o'
+                              ? 'border-emerald-500 bg-emerald-500 text-white'
+                              : 'border-slate-300 dark:border-slate-700'
+                          }`}
+                        >
+                          {preferredProvider === 'openai' && openAIModel === 'gpt-4o' && (
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug">
+                        {language === 'es'
+                          ? 'Modelo omnimodal insignia de OpenAI. Gran velocidad, precisión en datos de CRM y redacción fluida.'
+                          : 'OpenAI flagship model with high speed, structured CRM extraction, and versatile deal intelligence.'}
+                      </p>
+                    </div>
+
+                    <div className="pt-2.5 mt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[10.5px]">
+                      <span className="font-mono text-slate-400">OpenAI Direct</span>
+                      {providerStatus?.openai.configured || openAIKey.trim() ? (
+                        <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" />
+                          {language === 'es' ? 'Clave Lista' : 'Key Ready'}
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveTab('openai');
+                          }}
+                          className="text-amber-500 hover:text-amber-400 font-medium underline cursor-pointer"
+                        >
+                          {language === 'es' ? 'Configurar clave →' : 'Set key →'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Model 3: DeepSeek R1 (OpenRouter) */}
+                  <div
+                    id="model-card-deepseek-r1"
+                    onClick={() => {
+                      setPreferredProvider('openrouter');
+                      setOpenRouterModel('deepseek/deepseek-r1');
+                    }}
+                    className={`p-3.5 rounded-xl border text-xs cursor-pointer transition-all flex flex-col justify-between ${
+                      preferredProvider === 'openrouter' && openRouterModel === 'deepseek/deepseek-r1'
+                        ? 'border-cyan-500 bg-cyan-50/40 dark:bg-cyan-950/25 shadow-md shadow-cyan-500/10'
+                        : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900/40'
+                    }`}
+                  >
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-sm text-slate-900 dark:text-white">
+                            DeepSeek R1
+                          </span>
+                          <span className="px-1.5 py-0.2 rounded text-[9.5px] font-semibold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                            Reasoning
+                          </span>
+                        </div>
+                        <div
+                          className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                            preferredProvider === 'openrouter' && openRouterModel === 'deepseek/deepseek-r1'
+                              ? 'border-cyan-500 bg-cyan-500 text-white'
+                              : 'border-slate-300 dark:border-slate-700'
+                          }`}
+                        >
+                          {preferredProvider === 'openrouter' && openRouterModel === 'deepseek/deepseek-r1' && (
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug">
+                        {language === 'es'
+                          ? 'Razonamiento profundo paso a paso para análisis matemático de probabilidades de cierre y diagnóstico comercial.'
+                          : 'Deep reasoning chain-of-thought for probability calculations and pipeline forecasting.'}
+                      </p>
+                    </div>
+
+                    <div className="pt-2.5 mt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[10.5px]">
+                      <span className="font-mono text-slate-400">OpenRouter</span>
+                      {providerStatus?.openRouter.configured || openRouterKey.trim() ? (
+                        <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" />
+                          {language === 'es' ? 'Clave Lista' : 'Key Ready'}
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveTab('openrouter');
+                          }}
+                          className="text-amber-500 hover:text-amber-400 font-medium underline cursor-pointer"
+                        >
+                          {language === 'es' ? 'Configurar clave →' : 'Set key →'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Model 4: GPT-4o Mini (OpenAI) */}
+                  <div
+                    id="model-card-gpt-4o-mini"
+                    onClick={() => {
+                      setPreferredProvider('openai');
+                      setOpenAIModel('gpt-4o-mini');
+                    }}
+                    className={`p-3.5 rounded-xl border text-xs cursor-pointer transition-all flex flex-col justify-between ${
+                      preferredProvider === 'openai' && openAIModel === 'gpt-4o-mini'
+                        ? 'border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/25 shadow-md shadow-emerald-500/10'
+                        : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900/40'
+                    }`}
+                  >
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-sm text-slate-900 dark:text-white">
+                            GPT-4o Mini
+                          </span>
+                          <span className="px-1.5 py-0.2 rounded text-[9.5px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                            Ultra Rápido
+                          </span>
+                        </div>
+                        <div
+                          className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                            preferredProvider === 'openai' && openAIModel === 'gpt-4o-mini'
+                              ? 'border-emerald-500 bg-emerald-500 text-white'
+                              : 'border-slate-300 dark:border-slate-700'
+                          }`}
+                        >
+                          {preferredProvider === 'openai' && openAIModel === 'gpt-4o-mini' && (
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug">
+                        {language === 'es'
+                          ? 'Respuestas en milisegundos con coste extremadamente reducido. Ideal para tareas rápidas y resúmenes.'
+                          : 'Fast responses with minimal latency and high token efficiency for daily CRM tasks.'}
+                      </p>
+                    </div>
+
+                    <div className="pt-2.5 mt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[10.5px]">
+                      <span className="font-mono text-slate-400">OpenAI Direct</span>
+                      {providerStatus?.openai.configured || openAIKey.trim() ? (
+                        <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" />
+                          {language === 'es' ? 'Clave Lista' : 'Key Ready'}
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveTab('openai');
+                          }}
+                          className="text-amber-500 hover:text-amber-400 font-medium underline cursor-pointer"
+                        >
+                          {language === 'es' ? 'Configurar clave →' : 'Set key →'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Model 5: Llama 3.3 70B (OpenRouter) */}
+                  <div
+                    id="model-card-llama-33-70b"
+                    onClick={() => {
+                      setPreferredProvider('openrouter');
+                      setOpenRouterModel('meta-llama/llama-3.3-70b-instruct');
+                    }}
+                    className={`p-3.5 rounded-xl border text-xs cursor-pointer transition-all flex flex-col justify-between ${
+                      preferredProvider === 'openrouter' && openRouterModel === 'meta-llama/llama-3.3-70b-instruct'
+                        ? 'border-cyan-500 bg-cyan-50/40 dark:bg-cyan-950/25 shadow-md shadow-cyan-500/10'
+                        : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900/40'
+                    }`}
+                  >
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-sm text-slate-900 dark:text-white">
+                            Llama 3.3 70B
+                          </span>
+                          <span className="px-1.5 py-0.2 rounded text-[9.5px] font-semibold bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                            Meta Open Source
+                          </span>
+                        </div>
+                        <div
+                          className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                            preferredProvider === 'openrouter' && openRouterModel === 'meta-llama/llama-3.3-70b-instruct'
+                              ? 'border-cyan-500 bg-cyan-500 text-white'
+                              : 'border-slate-300 dark:border-slate-700'
+                          }`}
+                        >
+                          {preferredProvider === 'openrouter' && openRouterModel === 'meta-llama/llama-3.3-70b-instruct' && (
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug">
+                        {language === 'es'
+                          ? 'Potencia de código abierto de última generación. Excelente redacción y autonomía en ventas.'
+                          : 'State-of-the-art open-weights sales intelligence with high quality and balanced economics.'}
+                      </p>
+                    </div>
+
+                    <div className="pt-2.5 mt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[10.5px]">
+                      <span className="font-mono text-slate-400">OpenRouter</span>
+                      {providerStatus?.openRouter.configured || openRouterKey.trim() ? (
+                        <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" />
+                          {language === 'es' ? 'Clave Lista' : 'Key Ready'}
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveTab('openrouter');
+                          }}
+                          className="text-amber-500 hover:text-amber-400 font-medium underline cursor-pointer"
+                        >
+                          {language === 'es' ? 'Configurar clave →' : 'Set key →'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Model 6: Gemini 2.5 Flash (Google Gemini) */}
+                  <div
+                    id="model-card-gemini-25-flash"
+                    onClick={() => {
+                      setPreferredProvider('gemini');
+                    }}
+                    className={`p-3.5 rounded-xl border text-xs cursor-pointer transition-all flex flex-col justify-between ${
+                      preferredProvider === 'gemini'
+                        ? 'border-blue-500 bg-blue-50/40 dark:bg-blue-950/25 shadow-md shadow-blue-500/10'
+                        : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900/40'
+                    }`}
+                  >
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-sm text-slate-900 dark:text-white">
+                            Gemini 2.5 Flash
+                          </span>
+                          <span className="px-1.5 py-0.2 rounded text-[9.5px] font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                            Google Cloud
+                          </span>
+                        </div>
+                        <div
+                          className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                            preferredProvider === 'gemini'
+                              ? 'border-blue-500 bg-blue-500 text-white'
+                              : 'border-slate-300 dark:border-slate-700'
+                          }`}
+                        >
+                          {preferredProvider === 'gemini' && (
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug">
+                        {language === 'es'
+                          ? 'Motor nativo incluido en la plataforma Clientum. Siempre disponible sin necesidad de claves de API externas.'
+                          : 'Built-in platform AI engine ready out of the box with zero external key configuration.'}
+                      </p>
+                    </div>
+
+                    <div className="pt-2.5 mt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[10.5px]">
+                      <span className="font-mono text-slate-400">Google Gemini</span>
+                      <span className="text-blue-600 dark:text-blue-400 font-semibold flex items-center gap-1">
+                        <Sparkles className="w-3 h-3" />
+                        {language === 'es' ? 'Nativo Disponible' : 'Built-in Available'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Tab 1: OpenRouter */}
           {activeTab === 'openrouter' && (

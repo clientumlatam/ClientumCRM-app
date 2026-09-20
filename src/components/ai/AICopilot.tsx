@@ -15,6 +15,9 @@ import {
   Plus,
   Trash2,
   Settings,
+  AlertCircle,
+  CheckCircle2,
+  KeyRound,
 } from 'lucide-react';
 import { useCRM } from '../../context/CRMContext';
 import { getClientumAuthJsonHeaders } from '../../lib/api';
@@ -72,13 +75,19 @@ export const AICopilot: React.FC<AICopilotProps> = ({
   const [providerInfo, setProviderInfo] = useState<{
     preferredProvider: string;
     activeModel: string;
+    activeModelDisplayName?: string;
+    hasActiveKey: boolean;
     openRouterConfigured: boolean;
     openAIConfigured: boolean;
+    geminiConfigured?: boolean;
   }>({
     preferredProvider: 'gemini',
     activeModel: 'gemini-2.5-flash',
+    activeModelDisplayName: 'Gemini 2.5 Flash',
+    hasActiveKey: true,
     openRouterConfigured: false,
     openAIConfigured: false,
+    geminiConfigured: true,
   });
 
   const fetchProviderStatus = async () => {
@@ -89,7 +98,15 @@ export const AICopilot: React.FC<AICopilotProps> = ({
       });
       if (res.ok) {
         const data = await res.json();
-        setProviderInfo(data);
+        setProviderInfo({
+          preferredProvider: data.preferredProvider || 'gemini',
+          activeModel: data.activeModel || (data.preferredProvider === 'openrouter' ? data.openRouter?.model : data.preferredProvider === 'openai' ? data.openai?.model : 'gemini-2.5-flash') || 'gemini-2.5-flash',
+          activeModelDisplayName: data.activeModelDisplayName || (data.preferredProvider === 'openrouter' ? 'Claude 3.5 Sonnet' : data.preferredProvider === 'openai' ? 'GPT-4o' : 'Gemini 2.5 Flash'),
+          hasActiveKey: data.hasActiveKey ?? (data.preferredProvider === 'openrouter' ? Boolean(data.openRouterConfigured || data.openRouter?.configured) : data.preferredProvider === 'openai' ? Boolean(data.openAIConfigured || data.openai?.configured) : true),
+          openRouterConfigured: Boolean(data.openRouterConfigured || data.openRouter?.configured),
+          openAIConfigured: Boolean(data.openAIConfigured || data.openai?.configured),
+          geminiConfigured: true,
+        });
       }
     } catch {
       // Offline fallback
@@ -98,6 +115,14 @@ export const AICopilot: React.FC<AICopilotProps> = ({
 
   useEffect(() => {
     fetchProviderStatus();
+
+    const handleSettingsUpdated = () => {
+      fetchProviderStatus();
+    };
+    window.addEventListener('ai-copilot-settings-updated', handleSettingsUpdated);
+    return () => {
+      window.removeEventListener('ai-copilot-settings-updated', handleSettingsUpdated);
+    };
   }, [isAICopilotSettingsOpen]);
 
   // Calculate real-time CRM deal metrics for deal intelligence
@@ -335,6 +360,10 @@ Which deal or pipeline strategy can I assist you with today?`;
     ]);
   };
 
+  const isKeyMissing =
+    (providerInfo.preferredProvider === 'openrouter' && !providerInfo.openRouterConfigured) ||
+    (providerInfo.preferredProvider === 'openai' && !providerInfo.openAIConfigured);
+
   return (
     <div className={`crm-assistant ${embedded ? 'w-full h-full border-0' : ''}`}>
       {/* Header */}
@@ -344,19 +373,46 @@ Which deal or pipeline strategy can I assist you with today?`;
             <Sparkles className="w-4 h-4 text-[#36ded0]" />
             <span />
           </div>
-          <div>
-            <strong>Clientum AI Copilot</strong>
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <strong>Clientum AI Copilot</strong>
+              {/* Visual cue of active model */}
+              <span
+                id="ai-copilot-active-model-pill"
+                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold border ${
+                  isKeyMissing
+                    ? 'bg-amber-500/15 border-amber-500/30 text-amber-300'
+                    : 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'
+                }`}
+                title={
+                  isKeyMissing
+                    ? (language === 'es' ? 'Modelo seleccionado sin clave activa detectada' : 'Selected model without active key')
+                    : (language === 'es' ? 'Modelo activo y listo' : 'Active model ready')
+                }
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    isKeyMissing ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'
+                  }`}
+                />
+                <span className="truncate max-w-[110px] sm:max-w-[150px]">
+                  {providerInfo.activeModelDisplayName || providerInfo.activeModel}
+                </span>
+              </span>
+            </div>
+
             <button
               type="button"
+              id="ai-copilot-model-settings-btn"
               onClick={openAICopilotSettings}
-              className="flex items-center gap-1 text-[10px] text-cyan-400 hover:text-cyan-300 transition-colors uppercase tracking-wider font-semibold cursor-pointer"
+              className="flex items-center gap-1 text-[10px] text-cyan-400 hover:text-cyan-300 transition-colors uppercase tracking-wider font-semibold cursor-pointer mt-0.5"
               title={language === 'es' ? 'Click para configurar clave API (OpenRouter / OpenAI)' : 'Click to configure API key (OpenRouter / OpenAI)'}
             >
               <span>
-                ⚡ {providerInfo.preferredProvider === 'openrouter' && providerInfo.openRouterConfigured
-                  ? `OPENROUTER • ${providerInfo.activeModel ? providerInfo.activeModel.split('/').pop() : 'PRO'}`
-                  : providerInfo.preferredProvider === 'openai' && providerInfo.openAIConfigured
-                  ? `OPENAI • ${providerInfo.activeModel || 'GPT-4o'}`
+                ⚡ {providerInfo.preferredProvider === 'openrouter'
+                  ? `OPENROUTER • ${providerInfo.activeModelDisplayName || 'CLAUDE'}`
+                  : providerInfo.preferredProvider === 'openai'
+                  ? `OPENAI • ${providerInfo.activeModelDisplayName || 'GPT-4o'}`
                   : 'GEMINI AI • NATIVO'}
               </span>
               <Settings className="w-2.5 h-2.5 opacity-70" />
@@ -392,6 +448,76 @@ Which deal or pipeline strategy can I assist you with today?`;
           )}
         </div>
       </header>
+
+      {/* Visual cue: Active Model Bar */}
+      <div
+        id="ai-copilot-active-model-bar"
+        className="px-3.5 py-1.5 bg-slate-900/90 border-b border-slate-800/80 flex items-center justify-between gap-2 text-xs"
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-[10.5px] uppercase font-semibold text-slate-400 shrink-0">
+            {language === 'es' ? 'Modelo Activo:' : 'Active Model:'}
+          </span>
+          <span className="font-semibold text-cyan-300 truncate text-[11.5px] flex items-center gap-1">
+            <span
+              className={`w-2 h-2 rounded-full inline-block shrink-0 ${
+                isKeyMissing
+                  ? 'bg-amber-400 animate-ping'
+                  : 'bg-emerald-400 shadow-sm shadow-emerald-400/50'
+              }`}
+            />
+            {providerInfo.activeModelDisplayName || providerInfo.activeModel}
+          </span>
+          <span className="hidden sm:inline text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 border border-slate-700/60 font-mono">
+            {providerInfo.preferredProvider.toUpperCase()}
+          </span>
+        </div>
+
+        {/* Small Settings shortcut icon */}
+        <button
+          type="button"
+          id="btn-copilot-bar-settings"
+          onClick={openAICopilotSettings}
+          className="shrink-0 inline-flex items-center gap-1 text-[11px] font-medium text-slate-400 hover:text-cyan-300 transition-colors cursor-pointer"
+          title={language === 'es' ? 'Cambiar modelo o configurar claves' : 'Change model or configure keys'}
+        >
+          <Settings className="w-3 h-3 text-cyan-400" />
+          <span className="hidden xs:inline">{language === 'es' ? 'Configurar' : 'Settings'}</span>
+        </button>
+      </div>
+
+      {/* Visual Cue: No Key Detected Banner with Settings Shortcut */}
+      {isKeyMissing && (
+        <div
+          id="ai-copilot-missing-key-banner"
+          className="mx-3 my-2 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-2.5 text-xs text-amber-200 animate-fade-in"
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+            <div className="min-w-0">
+              <span className="font-semibold text-amber-300 block sm:inline">
+                {language === 'es' ? 'Sin clave detectada' : 'No API key detected'}
+              </span>
+              <span className="text-[11px] text-amber-200/80 sm:ml-1.5 block sm:inline truncate">
+                {language === 'es'
+                  ? `No se detectó clave para ${providerInfo.preferredProvider === 'openrouter' ? 'OpenRouter' : 'OpenAI'}. Haz clic para configurarla.`
+                  : `No key found for ${providerInfo.preferredProvider === 'openrouter' ? 'OpenRouter' : 'OpenAI'}. Click settings to configure.`}
+              </span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            id="btn-copilot-settings-shortcut-no-key"
+            onClick={openAICopilotSettings}
+            className="shrink-0 px-2.5 py-1 rounded-lg bg-amber-500/25 hover:bg-amber-500/35 text-amber-100 border border-amber-500/40 text-[11px] font-semibold inline-flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+            title={language === 'es' ? 'Configurar clave en ajustes' : 'Configure key in settings'}
+          >
+            <Settings className="w-3 h-3 text-amber-300" />
+            <span>{language === 'es' ? 'Configurar Clave' : 'Settings'}</span>
+          </button>
+        </div>
+      )}
 
       {/* Intro context banner */}
       <div className="crm-assistant__intro">

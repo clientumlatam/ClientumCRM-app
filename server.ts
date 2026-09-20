@@ -3323,8 +3323,44 @@ app.get("/api/ai/copilot/provider-status", async (req, res) => {
     const hasOpenAI = Boolean(aiCreds.OPENAI_API_KEY || process.env.OPENAI_API_KEY);
     const preferred = aiCreds.PREFERRED_AI_PROVIDER || (hasOpenRouter ? "openrouter" : hasOpenAI ? "openai" : "gemini");
 
+    let activeModel = "gemini-2.5-flash";
+    let activeModelDisplayName = "Gemini 2.5 Flash";
+    let hasActiveKey = Boolean(process.env.GEMINI_API_KEY);
+
+    if (preferred === "openrouter") {
+      activeModel = aiCreds.OPENROUTER_MODEL || "anthropic/claude-3.5-sonnet";
+      if (activeModel.includes("claude-3.5-sonnet")) {
+        activeModelDisplayName = "Claude 3.5 Sonnet";
+      } else if (activeModel.includes("deepseek-r1")) {
+        activeModelDisplayName = "DeepSeek R1";
+      } else if (activeModel.includes("llama-3.3")) {
+        activeModelDisplayName = "Llama 3.3 70B";
+      } else {
+        activeModelDisplayName = activeModel.split("/").pop() || activeModel;
+      }
+      hasActiveKey = hasOpenRouter;
+    } else if (preferred === "openai") {
+      activeModel = aiCreds.OPENAI_MODEL || "gpt-4o";
+      if (activeModel === "gpt-4o") {
+        activeModelDisplayName = "GPT-4o";
+      } else if (activeModel === "gpt-4o-mini") {
+        activeModelDisplayName = "GPT-4o Mini";
+      } else if (activeModel === "o1" || activeModel === "o1-preview") {
+        activeModelDisplayName = "OpenAI o1";
+      } else {
+        activeModelDisplayName = activeModel;
+      }
+      hasActiveKey = hasOpenAI;
+    }
+
     res.json({
       preferredProvider: preferred,
+      activeModel,
+      activeModelDisplayName,
+      hasActiveKey,
+      openRouterConfigured: hasOpenRouter,
+      openAIConfigured: hasOpenAI,
+      geminiConfigured: Boolean(process.env.GEMINI_API_KEY),
       openRouter: {
         configured: hasOpenRouter,
         model: aiCreds.OPENROUTER_MODEL || "anthropic/claude-3.5-sonnet",
