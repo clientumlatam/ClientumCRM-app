@@ -139,6 +139,9 @@ interface CRMContextType {
   setIsAICopilotModalOpen: (open: boolean) => void;
   aiCopilotContext: { type?: string; id?: string; name?: string; initialPrompt?: string; [key: string]: any } | null;
   openAICopilot: (context?: { type?: string; id?: string; name?: string; initialPrompt?: string; [key: string]: any }) => void;
+  isAICopilotSettingsOpen: boolean;
+  setIsAICopilotSettingsOpen: (open: boolean) => void;
+  openAICopilotSettings: () => void;
   
   // Auth & Profile & Public Site
   isPublicSiteVisible: boolean;
@@ -448,6 +451,9 @@ export interface UIContextType {
   setIsAICopilotModalOpen: (open: boolean) => void;
   aiCopilotContext: { type?: string; id?: string; name?: string; initialPrompt?: string; [key: string]: any } | null;
   openAICopilot: (context?: { type?: string; id?: string; name?: string; initialPrompt?: string; [key: string]: any }) => void;
+  isAICopilotSettingsOpen: boolean;
+  setIsAICopilotSettingsOpen: (open: boolean) => void;
+  openAICopilotSettings: () => void;
   trialSubscription: TrialSubscriptionState;
   startFreeTrial: (plan?: ClientumPlanId) => void;
   upgradeSubscription: (plan: ClientumPlanId, billingCycle?: 'monthly' | 'annual', mpInfo?: any) => Promise<boolean>;
@@ -873,6 +879,7 @@ export const CRMProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isNewRecordModalOpen, setIsNewRecordModalOpen] = useState(false);
   const [newRecordType, setNewRecordType] = useState<'opportunity' | 'company' | 'person' | 'task'>('opportunity');
   const [isAICopilotModalOpen, setIsAICopilotModalOpen] = useState(false);
+  const [isAICopilotSettingsOpen, setIsAICopilotSettingsOpen] = useState(false);
   const [aiCopilotContext, setAICopilotContext] = useState<{ type?: string; id?: string; name?: string; initialPrompt?: string; [key: string]: any } | null>(null);
   const [isPublicSiteVisible, setIsPublicSiteVisible] = useState<boolean>(() => {
     try {
@@ -1709,6 +1716,10 @@ export const CRMProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const openAICopilot = useCallback((context?: { type?: string; id?: string; name?: string; initialPrompt?: string }) => {
     setAICopilotContext(context || null);
     setIsAICopilotModalOpen(true);
+  }, []);
+
+  const openAICopilotSettings = useCallback(() => {
+    setIsAICopilotSettingsOpen(true);
   }, []);
 
   // Tracking refs for stable callback closures
@@ -3582,6 +3593,9 @@ export const CRMProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setIsAICopilotModalOpen,
       aiCopilotContext,
       openAICopilot,
+      isAICopilotSettingsOpen,
+      setIsAICopilotSettingsOpen,
+      openAICopilotSettings,
       isPublicSiteVisible,
       setIsPublicSiteVisible,
       openPublicSite,
@@ -3892,6 +3906,9 @@ export const CRMProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       isOnline,
       isSyncPending,
       offlinePriorityQueue,
+      isAICopilotSettingsOpen,
+      setIsAICopilotSettingsOpen,
+      openAICopilotSettings,
     ]
   );
 
@@ -4157,6 +4174,9 @@ export const CRMProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setIsAICopilotModalOpen,
       aiCopilotContext,
       openAICopilot,
+      isAICopilotSettingsOpen,
+      setIsAICopilotSettingsOpen,
+      openAICopilotSettings,
       trialSubscription,
       startFreeTrial,
       upgradeSubscription,
@@ -4240,6 +4260,9 @@ export const CRMProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       composeEmailDefaults,
       openComposeEmailModal,
       closeComposeEmailModal,
+      isAICopilotSettingsOpen,
+      setIsAICopilotSettingsOpen,
+      openAICopilotSettings,
     ]
   );
 

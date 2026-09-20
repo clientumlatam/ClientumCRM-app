@@ -100,7 +100,14 @@ const MERCADO_PAGO_STATUS_META: Record<MercadoPagoCheckoutStatus, {
 
 export const PowerSuiteView: React.FC<{ defaultModule?: string }> = ({ defaultModule }) => {
   const { opportunities, addOpportunity, addPerson, addCompany, addTask, updateOpportunity, showToast, triggerConfetti, setActiveTab, t, gmailAccessToken } = useCRM();
-  const [selectedModule, setSelectedModule] = useState<string | null>(defaultModule || null);
+  const normalizedInitial = defaultModule === 'sdr' ? 'outreach' : defaultModule || null;
+  const [selectedModule, setSelectedModule] = useState<string | null>(normalizedInitial);
+
+  useEffect(() => {
+    if (defaultModule) {
+      setSelectedModule(defaultModule === 'sdr' ? 'outreach' : defaultModule);
+    }
+  }, [defaultModule]);
 
   // Gmail State
   const [gmailMessages, setGmailMessages] = useState<any[]>([]);

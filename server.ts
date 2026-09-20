@@ -696,6 +696,20 @@ const TENANT_CREDENTIAL_FIELDS: Record<string, Set<string>> = {
     "MERCADOPAGO_PUBLIC_KEY",
   ]),
   googleMaps: new Set(["GOOGLE_MAPS_SERVER_API_KEY"]),
+  aiCopilot: new Set([
+    "OPENROUTER_API_KEY",
+    "OPENROUTER_MODEL",
+    "OPENAI_API_KEY",
+    "OPENAI_MODEL",
+    "PREFERRED_AI_PROVIDER",
+  ]),
+  aiAssistant: new Set([
+    "OPENROUTER_API_KEY",
+    "OPENROUTER_MODEL",
+    "OPENAI_API_KEY",
+    "OPENAI_MODEL",
+    "PREFERRED_AI_PROVIDER",
+  ]),
 };
 
 function getTenantCredentialFields(moduleId: string): Set<string> | null {
@@ -2996,7 +3010,111 @@ app.post("/api/ai/copilot", async (req, res) => {
       parts: [{ text: m.content }]
     }));
 
-    const requestGeminiKey = await getUserGeminiKey(await getRequestUserId(req));
+    const userId = await getRequestUserId(req);
+    let aiCreds: Record<string, string> = {};
+    if (userId) {
+      try {
+        aiCreds = await getTenantCredentialValues(userId, "aiCopilot");
+      } catch (err) {
+        console.warn("Could not read aiCopilot credentials:", err);
+      }
+    }
+
+    const preferredProvider = String(req.body.provider || aiCreds.PREFERRED_AI_PROVIDER || "").toLowerCase().trim();
+    const openRouterKey = String(req.body.openRouterKey || aiCreds.OPENROUTER_API_KEY || process.env.OPENROUTER_API_KEY || "").trim();
+    const openAIKey = String(req.body.openAIKey || aiCreds.OPENAI_API_KEY || process.env.OPENAI_API_KEY || "").trim();
+
+    // 1. Try OpenRouter if configured and preferred, or when present
+    const shouldTryOpenRouter = isApiKeyPresent(openRouterKey) && (
+      preferredProvider === 'openrouter' ||
+      (!preferredProvider && !isApiKeyPresent(openAIKey)) ||
+      (preferredProvider !== 'openai' && preferredProvider !== 'gemini')
+    );
+
+    if (shouldTryOpenRouter) {
+      try {
+        const model = req.body.model || aiCreds.OPENROUTER_MODEL || "anthropic/claude-3.5-sonnet";
+        const promptMessages = [
+          { role: "system", content: systemInstruction },
+          ...messages.map((m: any) => ({ role: m.role, content: m.content }))
+        ];
+
+        const orRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${openRouterKey}`,
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://clientumcrm.com",
+            "X-Title": "Clientum CRM Deal Copilot",
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: promptMessages,
+            temperature: 0.7,
+          }),
+        });
+
+        if (orRes.ok) {
+          const orData = await orRes.json() as any;
+          const reply = orData.choices?.[0]?.message?.content;
+          if (reply) {
+            res.json({ text: reply, provider: "openrouter", model: model });
+            return;
+          }
+        } else {
+          const errBody = await orRes.text();
+          console.warn("OpenRouter API error status:", orRes.status, errBody);
+        }
+      } catch (orErr: any) {
+        console.warn("OpenRouter Copilot query error:", orErr?.message || orErr);
+      }
+    }
+
+    // 2. Try OpenAI if configured and preferred, or as secondary
+    const shouldTryOpenAI = isApiKeyPresent(openAIKey) && (
+      preferredProvider === 'openai' ||
+      (!preferredProvider && !isApiKeyPresent(openRouterKey))
+    );
+
+    if (shouldTryOpenAI) {
+      try {
+        const model = req.body.model || aiCreds.OPENAI_MODEL || "gpt-4o";
+        const promptMessages = [
+          { role: "system", content: systemInstruction },
+          ...messages.map((m: any) => ({ role: m.role, content: m.content }))
+        ];
+
+        const oaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${openAIKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: promptMessages,
+            temperature: 0.7,
+          }),
+        });
+
+        if (oaiRes.ok) {
+          const oaiData = await oaiRes.json() as any;
+          const reply = oaiData.choices?.[0]?.message?.content;
+          if (reply) {
+            res.json({ text: reply, provider: "openai", model: model });
+            return;
+          }
+        } else {
+          const errBody = await oaiRes.text();
+          console.warn("OpenAI API error status:", oaiRes.status, errBody);
+        }
+      } catch (oaiErr: any) {
+        console.warn("OpenAI Copilot query error:", oaiErr?.message || oaiErr);
+      }
+    }
+
+    // 3. Fallback to Gemini
+    const requestGeminiKey = await getUserGeminiKey(userId);
     if (isApiKeyPresent(requestGeminiKey)) {
       try {
         const response = await callGeminiWithRetry({
@@ -3007,7 +3125,7 @@ app.post("/api/ai/copilot", async (req, res) => {
             temperature: 0.7,
           }
         });
-        res.json({ text: response.text });
+        res.json({ text: response.text, provider: "gemini", model: "Gemini 2.5" });
         return;
       } catch (geminiErr: any) {
         console.warn("Gemini Copilot API busy, providing smart fallback analysis:", geminiErr?.message || geminiErr);
@@ -3048,6 +3166,182 @@ app.post("/api/ai/copilot", async (req, res) => {
   } catch (error: any) {
     console.error("Gemini Copilot Error:", error);
     res.status(500).json({ error: error.message || "An error occurred with Gemini AI." });
+  }
+});
+
+app.post("/api/ai/copilot/test-connection", async (req, res) => {
+  try {
+    let { provider, apiKey, model } = req.body || {};
+    provider = String(provider || "").toLowerCase().trim();
+
+    const userId = await getRequestUserId(req);
+    let aiCreds: Record<string, string> = {};
+    if (userId) {
+      try {
+        aiCreds = await getTenantCredentialValues(userId, "aiCopilot");
+      } catch (err) {
+        console.warn("Could not read aiCopilot credentials for test:", err);
+      }
+    }
+
+    if (!apiKey || apiKey === '__USE_STORED__' || typeof apiKey !== "string" || !apiKey.trim()) {
+      if (provider === "openrouter") {
+        apiKey = aiCreds.OPENROUTER_API_KEY || process.env.OPENROUTER_API_KEY || "";
+        if (!model) model = aiCreds.OPENROUTER_MODEL;
+      } else if (provider === "openai") {
+        apiKey = aiCreds.OPENAI_API_KEY || process.env.OPENAI_API_KEY || "";
+        if (!model) model = aiCreds.OPENAI_MODEL;
+      }
+    }
+
+    if (!apiKey || typeof apiKey !== "string" || !apiKey.trim()) {
+      res.status(400).json({
+        success: false,
+        active: false,
+        error: "No se encontró una clave API configurada ni en la bóveda ni en la petición.",
+      });
+      return;
+    }
+
+    const testPrompt = [{ role: "user", content: "Responde únicamente con la palabra: OK" }];
+    const startTime = Date.now();
+
+    if (provider === "openrouter") {
+      const selectedModel = model || "anthropic/claude-3.5-sonnet";
+      const orRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey.trim()}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://clientumcrm.com",
+          "X-Title": "Clientum CRM Key Validation",
+        },
+        body: JSON.stringify({
+          model: selectedModel,
+          messages: testPrompt,
+          max_tokens: 10,
+        }),
+      });
+
+      const latencyMs = Date.now() - startTime;
+
+      if (orRes.ok) {
+        res.json({
+          success: true,
+          active: true,
+          provider: "openrouter",
+          model: selectedModel,
+          latencyMs,
+          statusCode: orRes.status,
+          testedAt: new Date().toISOString(),
+          message: `Conexión verificada exitosamente con OpenRouter (${selectedModel} • ${latencyMs}ms).`,
+        });
+        return;
+      } else {
+        const errText = await orRes.text();
+        let errMsg = `Error HTTP ${orRes.status}`;
+        try {
+          const parsed = JSON.parse(errText);
+          errMsg = parsed.error?.message || errMsg;
+        } catch {}
+        res.status(400).json({
+          success: false,
+          active: false,
+          provider: "openrouter",
+          statusCode: orRes.status,
+          latencyMs,
+          error: errMsg,
+        });
+        return;
+      }
+    } else if (provider === "openai") {
+      const selectedModel = model || "gpt-4o-mini";
+      const oaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey.trim()}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: selectedModel,
+          messages: testPrompt,
+          max_tokens: 10,
+        }),
+      });
+
+      const latencyMs = Date.now() - startTime;
+
+      if (oaiRes.ok) {
+        res.json({
+          success: true,
+          active: true,
+          provider: "openai",
+          model: selectedModel,
+          latencyMs,
+          statusCode: oaiRes.status,
+          testedAt: new Date().toISOString(),
+          message: `Conexión verificada exitosamente con OpenAI (${selectedModel} • ${latencyMs}ms).`,
+        });
+        return;
+      } else {
+        const errText = await oaiRes.text();
+        let errMsg = `Error HTTP ${oaiRes.status}`;
+        try {
+          const parsed = JSON.parse(errText);
+          errMsg = parsed.error?.message || errMsg;
+        } catch {}
+        res.status(400).json({
+          success: false,
+          active: false,
+          provider: "openai",
+          statusCode: oaiRes.status,
+          latencyMs,
+          error: errMsg,
+        });
+        return;
+      }
+    } else {
+      res.status(400).json({ success: false, active: false, error: "Proveedor no soportado. Selecciona 'openrouter' o 'openai'." });
+    }
+  } catch (err: any) {
+    res.status(500).json({ success: false, active: false, error: err?.message || "Error al verificar la clave de IA." });
+  }
+});
+
+app.get("/api/ai/copilot/provider-status", async (req, res) => {
+  try {
+    const userId = await getRequestUserId(req);
+    let aiCreds: Record<string, string> = {};
+    if (userId) {
+      try {
+        aiCreds = await getTenantCredentialValues(userId, "aiCopilot");
+      } catch (e) {
+        console.warn("Could not read aiCopilot credentials for status:", e);
+      }
+    }
+    const hasOpenRouter = Boolean(aiCreds.OPENROUTER_API_KEY || process.env.OPENROUTER_API_KEY);
+    const hasOpenAI = Boolean(aiCreds.OPENAI_API_KEY || process.env.OPENAI_API_KEY);
+    const preferred = aiCreds.PREFERRED_AI_PROVIDER || (hasOpenRouter ? "openrouter" : hasOpenAI ? "openai" : "gemini");
+
+    res.json({
+      preferredProvider: preferred,
+      openRouter: {
+        configured: hasOpenRouter,
+        model: aiCreds.OPENROUTER_MODEL || "anthropic/claude-3.5-sonnet",
+        maskedKey: hasOpenRouter ? "sk-or-••••••••••••" : null,
+      },
+      openai: {
+        configured: hasOpenAI,
+        model: aiCreds.OPENAI_MODEL || "gpt-4o",
+        maskedKey: hasOpenAI ? "sk-••••••••••••" : null,
+      },
+      gemini: {
+        configured: Boolean(process.env.GEMINI_API_KEY),
+        model: "Gemini 2.5 (Plataforma)",
+      },
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err?.message || "Error al obtener estado de proveedores de IA." });
   }
 });
 

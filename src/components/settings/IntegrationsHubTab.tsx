@@ -13,6 +13,7 @@ import {
   Clock,
   Mail,
   ShoppingCart,
+  Sparkles,
 } from 'lucide-react';
 import { useCRM } from '../../context/CRMContext';
 import { WebhookConfig } from '../../types';
@@ -33,6 +34,7 @@ export const IntegrationsHubTab: React.FC = () => {
     triggerTestWebhook,
     currentUser,
     showToast,
+    openAICopilotSettings,
   } = useCRM();
 
   const [activeSection, setActiveSection] = useState<'calendar' | 'slack' | 'emailRouting' | 'userApiKeys' | 'webhooks' | 'commercial'>('emailRouting');
@@ -128,6 +130,18 @@ export const IntegrationsHubTab: React.FC = () => {
         >
           <Key className="w-3.5 h-3.5 text-purple-300" />
           <span>API Keys por usuario</span>
+        </button>
+
+        <button
+          id="integration-ai-copilot-keys-btn"
+          type="button"
+          onClick={openAICopilotSettings}
+          className="px-3.5 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2 transition-all shrink-0 bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 border border-indigo-500/30 cursor-pointer"
+          title="Configurar claves de OpenRouter o OpenAI para AI Copilot"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
+          <span>AI Deal Copilot Keys (OpenRouter / OpenAI)</span>
+          <span className="w-2 h-2 rounded-full bg-indigo-400" />
         </button>
 
         <button

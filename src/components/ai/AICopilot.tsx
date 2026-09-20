@@ -14,6 +14,7 @@ import {
   Zap,
   Plus,
   Trash2,
+  Settings,
 } from 'lucide-react';
 import { useCRM } from '../../context/CRMContext';
 import { getClientumAuthJsonHeaders } from '../../lib/api';
@@ -58,6 +59,8 @@ export const AICopilot: React.FC<AICopilotProps> = ({
     showToast,
     triggerConfetti,
     aiCopilotContext,
+    openAICopilotSettings,
+    isAICopilotSettingsOpen,
   } = useCRM();
 
   const activeContext = contextOverride || aiCopilotContext;
@@ -66,6 +69,36 @@ export const AICopilot: React.FC<AICopilotProps> = ({
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [providerInfo, setProviderInfo] = useState<{
+    preferredProvider: string;
+    activeModel: string;
+    openRouterConfigured: boolean;
+    openAIConfigured: boolean;
+  }>({
+    preferredProvider: 'gemini',
+    activeModel: 'gemini-2.5-flash',
+    openRouterConfigured: false,
+    openAIConfigured: false,
+  });
+
+  const fetchProviderStatus = async () => {
+    try {
+      const headers = await getClientumAuthJsonHeaders();
+      const res = await fetch('/api/ai/copilot/provider-status', {
+        headers,
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setProviderInfo(data);
+      }
+    } catch {
+      // Offline fallback
+    }
+  };
+
+  useEffect(() => {
+    fetchProviderStatus();
+  }, [isAICopilotSettingsOpen]);
 
   // Calculate real-time CRM deal metrics for deal intelligence
   const totalPipelineAmount = opportunities.reduce((acc, o) => acc + (o.amount || 0), 0);
@@ -313,11 +346,34 @@ Which deal or pipeline strategy can I assist you with today?`;
           </div>
           <div>
             <strong>Clientum AI Copilot</strong>
-            <small>⚡ ACTIVO • GEMINI AI</small>
+            <button
+              type="button"
+              onClick={openAICopilotSettings}
+              className="flex items-center gap-1 text-[10px] text-cyan-400 hover:text-cyan-300 transition-colors uppercase tracking-wider font-semibold cursor-pointer"
+              title={language === 'es' ? 'Click para configurar clave API (OpenRouter / OpenAI)' : 'Click to configure API key (OpenRouter / OpenAI)'}
+            >
+              <span>
+                ⚡ {providerInfo.preferredProvider === 'openrouter' && providerInfo.openRouterConfigured
+                  ? `OPENROUTER • ${providerInfo.activeModel ? providerInfo.activeModel.split('/').pop() : 'PRO'}`
+                  : providerInfo.preferredProvider === 'openai' && providerInfo.openAIConfigured
+                  ? `OPENAI • ${providerInfo.activeModel || 'GPT-4o'}`
+                  : 'GEMINI AI • NATIVO'}
+              </span>
+              <Settings className="w-2.5 h-2.5 opacity-70" />
+            </button>
           </div>
         </div>
 
         <div className="crm-assistant__tools">
+          <button
+            type="button"
+            id="ai-copilot-settings-trigger-btn"
+            onClick={openAICopilotSettings}
+            title={language === 'es' ? 'Configurar claves API (OpenRouter / OpenAI)' : 'Configure API Keys (OpenRouter / OpenAI)'}
+            className="hover:text-cyan-300 transition-colors"
+          >
+            <Settings className="w-3.5 h-3.5" />
+          </button>
           <button
             type="button"
             onClick={handleClearHistory}

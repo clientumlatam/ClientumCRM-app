@@ -6,6 +6,7 @@ import { RecordDrawer } from '../common/RecordDrawer';
 import { CommandPalette } from '../common/CommandPalette';
 import { NewRecordModal } from '../common/NewRecordModal';
 import { AICopilotModal } from '../ai/AICopilotModal';
+import { AICopilotSettingsModal } from '../ai/AICopilotSettingsModal';
 import { AuthModal } from '../auth/AuthModal';
 import { UserProfileModal } from '../auth/UserProfileModal';
 import { ComposeEmailModal } from '../webmail/ComposeEmailModal';
@@ -158,6 +159,9 @@ const DashboardDocsExplorerPage = lazy(
 const CompetitorHubView = lazy(
   () => import(/* webpackChunkName: "competitor-hub-view" */ '../competitor/CompetitorHubView').then((m) => ({ default: m.CompetitorHubView }))
 );
+const BrochureView = lazy(
+  () => import(/* webpackChunkName: "brochure-view" */ '../power/BrochureView').then((m) => ({ default: m.BrochureView }))
+);
 const TeamView = lazy(
   () => import(/* webpackChunkName: "team-view" */ './modules/Team').then((m) => ({ default: m.Team }))
 );
@@ -193,6 +197,8 @@ const MainContent: React.FC = () => {
     isMpCheckoutModalOpen,
     setIsMpCheckoutModalOpen,
     selectedCheckoutPlan,
+    isAICopilotSettingsOpen,
+    setIsAICopilotSettingsOpen,
   } = useCRM();
 
   const [isWizardOpen, setIsWizardOpen] = useState(false);
@@ -252,12 +258,13 @@ const MainContent: React.FC = () => {
           {activeTab === 'campaigns' && <PowerSuiteView defaultModule="campaigns" />}
           {activeTab === 'aiAssistant' && <PowerSuiteView defaultModule="gemini" />}
           {activeTab === 'gtmStrategy' && <PowerSuiteView defaultModule="gtm" />}
-          {activeTab === 'sdrOutreach' && <PowerSuiteView defaultModule="sdr" />}
+          {activeTab === 'sdrOutreach' && <PowerSuiteView defaultModule="outreach" />}
           {activeTab === 'adCopy' && <PowerSuiteView defaultModule="adcopy" />}
           {activeTab === 'payments' && <PlatformBillingView />}
           {activeTab === 'clientPortal' && <PowerSuiteView defaultModule="portal" />}
           {activeTab === 'seoSuite' && <PowerSuiteView defaultModule="seo" />}
           {activeTab === 'webDev' && <PowerSuiteView defaultModule="webdev" />}
+          {activeTab === 'brochure' && <BrochureView />}
           {activeTab === 'customObjects' && <CustomObjectsView />}
           {activeTab === 'workflows' && <WorkflowsView />}
           {activeTab === 'csvStudio' && <CSVStudioView />}
@@ -292,6 +299,10 @@ const MainContent: React.FC = () => {
       <CommandPalette />
       <NewRecordModal />
       <AICopilotModal />
+      <AICopilotSettingsModal
+        isOpen={isAICopilotSettingsOpen}
+        onClose={() => setIsAICopilotSettingsOpen(false)}
+      />
       <AuthModal />
       <ComposeEmailModal
         isOpen={isComposeEmailModalOpen}

@@ -46,6 +46,7 @@ import { MailSettings } from './MailSettings';
 
 export const SettingsView: React.FC = () => {
   const {
+    activeTab,
     users,
     roles,
     auditLogs,
@@ -64,11 +65,16 @@ export const SettingsView: React.FC = () => {
     setLanguage,
     t,
     showToast,
+    openAICopilotSettings,
   } = useCRM();
 
   const [activeSubTab, setActiveSubTab] = useState<
     'roles' | 'audit' | 'integrations' | 'mail' | 'appearance' | 'schema' | 'members' | 'ecosystem' | 'data' | 'workspace' | 'notifications'
-  >('roles');
+  >(() => {
+    if (activeTab === 'auditLogs') return 'audit';
+    if (activeTab === 'apiIntegrations') return 'integrations';
+    return 'roles';
+  });
 
   const getTabClass = (subTab: typeof activeSubTab) => {
     const isActive = activeSubTab === subTab;
@@ -78,6 +84,16 @@ export const SettingsView: React.FC = () => {
         : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-muted)]/50'
     }`;
   };
+
+  useEffect(() => {
+    if (activeTab === 'auditLogs') {
+      setActiveSubTab('audit');
+    } else if (activeTab === 'apiIntegrations') {
+      setActiveSubTab('integrations');
+    } else if (activeTab === 'rbacRoles') {
+      setActiveSubTab('roles');
+    }
+  }, [activeTab]);
 
   useEffect(() => {
     try {
@@ -253,6 +269,20 @@ export const SettingsView: React.FC = () => {
           <span>Integraciones & API Hub</span>
           <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-500 dark:text-emerald-400 font-mono">
             GCal & Slack
+          </span>
+        </button>
+
+        <button
+          id="tab-settings-ai-copilot-keys"
+          type="button"
+          onClick={openAICopilotSettings}
+          className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 shrink-0 bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 border border-indigo-500/30 cursor-pointer"
+          title="Configurar claves de OpenRouter y OpenAI para el AI Copilot"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
+          <span>AI Copilot & OpenRouter</span>
+          <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-indigo-500/20 text-indigo-300 font-mono">
+            BYOK
           </span>
         </button>
 
