@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClientumOS - Enterprise Open-Source CRM & Intelligence Suite</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#0b0f19',
+                        sidebarBg: '#0f172a',
+                        cardBg: '#1e293b',
+                        accentBlue: '#3b82f6',
+                        accentIndigo: '#6366f1'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        .dark ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .dark ::-webkit-scrollbar-thumb { background: #334155; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .dark ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] dark:bg-[#0b0f19] text-slate-800 dark:text-slate-100 h-screen flex overflow-hidden transition-colors duration-300">
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="w-72 bg-[#ffffff] dark:bg-[#0f172a] border-r border-slate-200 dark:border-slate-800 flex flex-col z-25 transition-all duration-300 select-none relative group">
+        <!-- Collapse Toggle Button on Sidebar Edge -->
+        <button onclick="toggleSidebarCollapse()" class="absolute -right-3.5 top-20 w-7 h-7 bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-600 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-white border border-slate-200 dark:border-slate-700 rounded-full flex items-center justify-center shadow-md transition-colors z-30" title="Colapsar menú">
+            <i id="collapse-icon" class="fa-solid fa-chevron-left text-[10px] transition-transform duration-300"></i>
+        </button>
+
+        <!-- Logo & Header -->
+        <div class="h-16 flex items-center justify-between px-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
+            <div class="flex items-center space-x-3 overflow-hidden">
+                <!-- Custom Brand Icon -->
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30 shrink-0 border border-blue-400/40 p-1.5">
+                    <svg viewBox="0 0 100 100" class="w-full h-full text-white fill-current filter drop-shadow">
+                        <path d="M50 15 C55 15, 60 20, 65 25 C75 35, 85 45, 85 50 C85 55, 75 65, 65 75 C60 80, 55 85, 50 85 C45 85, 40 80, 35 75 C25 65, 15 55, 15 50 C15 45, 25 35, 35 25 C40 20, 45 15, 50 15 Z" fill="none" stroke="currentColor" stroke-width="12" stroke-linejoin="round"/>
+                        <circle cx="50" cy="50" r="14" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div class="sidebar-text transition-opacity duration-200">
+                    <h1 class="font-bold text-sm tracking-wide text-slate-900 dark:text-slate-100 whitespace-nowrap">ClientumOS</h1>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">Enterprise Suite v4.2</p>
+                </div>
+            </div>
+            <button onclick="toggleNewItemModal()" class="sidebar-text w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-600/20 hover:bg-blue-100 dark:hover:bg-blue-600 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-white flex items-center justify-center transition-colors shrink-0" title="Creación Rápida">
+                <i class="fa-solid fa-plus text-xs"></i>
+            </button>
+        </div>
+
+        <!-- Quick Search Bar inside sidebar -->
+        <div class="p-3 border-b border-slate-200 dark:border-slate-800/60 sidebar-text">
+            <div class="relative">
+                <i class="fa-solid fa-search absolute left-3 top-2.5 text-xs text-slate-400"></i>
+                <input type="text" id="sidebar-search" oninput="filterSidebar(this.value)" placeholder="Buscar en ClientumOS..." class="w-full bg-slate-100 dark:bg-[#1e293b]/60 text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 rounded-lg pl-8 pr-3 py-2 border border-slate-200 dark:border-slate-700/60 focus:outline-none focus:border-blue-500 transition-colors">
+            </div>
+        </div>
+
+        <!-- Scrollable Navigation Sections -->
+        <div class="flex-1 overflow-y-auto px-3 py-4 space-y-6 text-xs font-medium custom-scrollbar">
+
+            <!-- SECTION 1: DIRECCIÓN COMERCIAL & CRM -->
+            <div class="sidebar-section space-y-1" data-category="comercial">
+                <div onclick="toggleSection('sec-comercial')" class="flex items-center justify-between text-slate-500 dark:text-slate-400 px-2 py-1.5 uppercase tracking-wider text-[10px] font-bold cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 group/sec">
+                    <span class="sidebar-text flex items-center space-x-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block"></span>
+                        <span>1. Dirección Comercial & CRM</span>
+                    </span>
+                    <span class="sidebar-icon-tooltip hidden text-[10px] font-mono text-blue-500 dark:text-blue-400">CRM</span>
+                    <i id="icon-sec-comercial" class="sidebar-text fa-solid fa-chevron-down text-[10px] transition-transform duration-200"></i>
+                </div>
+                <div id="sec-comercial" class="space-y-1 pl-1 pt-1">
+                    <button onclick="switchView('resumen')" class="sidebar-item w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-600/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors active" data-view="resumen" title="Dashboard Directivo">
+                        <div class="flex items-center space-x-2.5">
+                            <i class="fa-solid fa-chart-line w-4 text-center"></i>
+                            <span class="sidebar-text">Dashboard Directivo</span>
+                        </div>
+                        <span class="sidebar-text text-[9px] bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded font-mono">Live</span>
+                    </button>
+                    <div class="space-y-1">
+                        <div onclick="switchView('pipeline')" class="sidebar-item w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-600/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer" data-view="pipeline" title="Embudo de Ventas (Pipeline)">
+                            <div class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-filter-circle-dollar w-4 text-center"></i>
+                                <span class="sidebar-text">Embudo de Ventas [Pipeline]</span>
+                            </div>
+                            <span class="sidebar-text text-[9px] bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded">Kanban</span>
+                        </div>
+                        <div class="sidebar-text pl-6 space-y-1 text-[11px] border-l border-slate-200 dark:border-slate-800 ml-4 my-1">
+                            <a href="#" onclick="switchView('pipeline')" class="block py-1 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Matriz MEDDIC & Scoring</a>
+                            <a href="#" onclick="switchView('pipeline')" class="block py-1 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Análisis de Desvíos CRM</a>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <div onclick="switchView('directorio')" class="sidebar-item w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-600/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer" data-view="directorio" title="Directorio Corporativo B2B">
+                            <div class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-address-book w-4 text-center"></i>
+                                <span class="sidebar-text">Directorio B2B & Leads</span>
+                            </div>
+                            <i class="sidebar-text fa-solid fa-chevron-right text-[9px] text-slate-400"></i>
+                        </div>
+                        <div class="sidebar-text pl-6 space-y-1 text-[11px] border-l border-slate-200 dark:border-slate-800 ml-4 my-1">
+                            <a href="#" onclick="switchView('directorio')" class="block py-1 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Cuentas Clave Enterprise</a>
+                            <a href="#" onclick="switchView('directorio')" class="block py-1 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Historial de Interacciones</a>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <div onclick="switchView('agenda')" class="sidebar-item w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-600/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer" data-view="agenda" title="Agenda & Planificación">
+                            <div class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-calendar-check w-4 text-center"></i>
+                                <span class="sidebar-text">Agenda & Tareas Comerciales</span>
+                            </div>
+                            <i class="sidebar-text fa-solid fa-chevron-right text-[9px] text-slate-400"></i>
+                        </div>
+                        <div class="sidebar-text pl-6 space-y-1 text-[11px] border-l border-slate-200 dark:border-slate-800 ml-4 my-1">
+                            <a href="#" onclick="switchView('agenda')" class="block py-1 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Calendario de Reuniones</a>
+                            <a href="#" onclick="switchView('agenda')" class="block py-1 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Recordatorios Automatizados</a>
+                        </div>
+                    </div>
+                    <button onclick="switchView('brochure')" class="sidebar-item w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-600/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" data-view="brochure" title="Propuestas Comerciales & PDF">
+                        <div class="flex items-center space-x-2.5">
+                            <i class="fa-solid fa-file-invoice w-4 text-center"></i>
+                            <span class="sidebar-text">Generador de Propuestas [PDF]</span>
+                        </div>
+                        <span class="sidebar-text text-[9px] bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 px-1.5 py-0.5 rounded font-mono">Pro</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- SECTION 2: COMUNICACIÓN OMNICANAL -->
+            <div class="sidebar-section space-y-1" data-category="omnichannel">
+                <div onclick="toggleSection('sec-omnichannel')" class="flex items-center justify-between text-slate-500 dark:text-slate-400 px-2 py-1.5 uppercase tracking-wider text-[10px] font-bold cursor-pointer hover:text-slate-800 dark:hover:text-slate-200">
+                    <span class="sidebar-text flex items-center space-x-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
+                        <span>2. Comunicación Omnicanal</span>
+                    </span>
+                    <span class="sidebar-icon-tooltip hidden text-[10px] font-mono text-emerald-500 dark:text-emerald-400">Chat</span>
+                    <i id="icon-sec-omnichannel" class="sidebar-text fa-solid fa-chevron-down text-[10px] transition-transform duration-200"></i>
+                </div>
+                <div id="sec-omnichannel" class="space-y-1 pl-1 pt-1">
+                    <div class="space-y-1">
+                        <div onclick="switchView('whatsapp')" class="sidebar-item w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-600/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer" data-view="whatsapp" title="WhatsApp WACE Suite">
+                            <div class="flex items-center space-x-2.5">
+                                <i class="fa-brands fa-whatsapp w-4 text-center text-emerald-500 dark:text-emerald-400"></i>
+                                <span class="sidebar-text">WhatsApp WACE Hub [IA]</span>
+                            </div>
+                            <span class="sidebar-text text-[9px] bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded font-mono">En Línea</span>
+                        </div>
+                        <div class="sidebar-text pl-6 space-y-1 text-[11px] border-l border-slate-200 dark:border-slate-800 ml-4 my-1">
+                            <a href="#" onclick="switchView('whatsapp')" class="block py-1 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Bandeja de Entrada Unificada</a>
+                            <a href="#" onclick="switchView('whatsapp')" class="block py-1 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Campañas de Difusión</a>
+                            <a href="#" onclick="switchView('whatsapp')" class="block py-1 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Reglas de Auto-Respuesta IA</a>
+                        </div>
+                    </div>
+                    <button onclick="switchView('webmail')" class="sidebar-item w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-600/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" data-view="webmail" title="Correo Corporativo [Webmail]">
+                        <div class="flex items-center space-x-2.5">
+                            <i class="fa-solid fa-envelope-open-text w-4 text-center"></i>
+                            <span class="sidebar-text">Correo Corporativo [Webmail]</span>
+                        </div>
+                        <span class="sidebar-text text-[9px] bg-sky-100 dark:bg-sky-500/20 text-sky-600 dark:text-sky-400 px-1.5 py-0.5 rounded font-mono">Cloudflare</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- SECTION 3: INTELIGENCIA ARTIFICIAL & AGENTES -->
+            <div class="sidebar-section space-y-1" data-category="ai">
+                <div onclick="toggleSection('sec-ai')" class="flex items-center justify-between text-slate-500 dark:text-slate-400 px-2 py-1.5 uppercase tracking-wider text-[10px] font-bold cursor-pointer hover:text-slate-800 dark:hover:text-slate-200">
+                    <span class="sidebar-text flex items-center space-x-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 inline-block"></span>
+                        <span>3. Inteligencia Artificial & Agentes</span>
+                    </span>
+                    <span class="sidebar-icon-tooltip hidden text-[10px] font-mono text-indigo-500 dark:text-indigo-400">AI</span>
+                    <i id="icon-sec-ai" class="sidebar-text fa-solid fa-chevron-down text-[10px] transition-transform duration-200"></i>
+                </div>
+                <div id="sec-ai" class="space-y-1 pl-1 pt-1">
+                    <div class="space-y-1">
+                        <div onclick="switchView('agentes')" class="sidebar-item w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-600/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer" data-view="agentes" title="AgenteOS Orchestrator">
+                            <div class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-microchip w-4 text-center text-indigo-500 dark:text-indigo-400"></i>
+                                <span class="sidebar-text">AgenteOS [14 Roles IA]</span>
+                            </div>
+                            <span class="sidebar-text text-[9px] bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 px-1.5 py-0.5 rounded">Autónomo</span>
+                        </div>
+                        <div class="sidebar-text pl-6 space-y-1 text-[11px] border-l border-slate-200 dark:border-slate-800 ml-4 my-1">
+                            <a href="#" onclick="switchView('agentes')" class="block py-1 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Agente SDR Prospección 24/7</a>
+                            <a href="#" onclick="switchView('agentes')" class="block py-1 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Capital Gemini Forecasting</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 4: OPERACIONES, ERP & FACTURACIÓN -->
+            <div class="sidebar-section space-y-1" data-category="erp">
+                <div onclick="toggleSection('sec-erp')" class="flex items-center justify-between text-slate-500 dark:text-slate-400 px-2 py-1.5 uppercase tracking-wider text-[10px] font-bold cursor-pointer hover:text-slate-800 dark:hover:text-slate-200">
+                    <span class="sidebar-text flex items-center space-x-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block"></span>
+                        <span>4. Operaciones, ERP & Facturación</span>
+                    </span>
+                    <span class="sidebar-icon-tooltip hidden text-[10px] font-mono text-amber-500 dark:text-amber-400">ERP</span>
+                    <i id="icon-sec-erp" class="sidebar-text fa-solid fa-chevron-down text-[10px] transition-transform duration-200"></i>
+                </div>
+                <div id="sec-erp" class="space-y-1 pl-1 pt-1">
+                    <div class="space-y-1">
+                        <button onclick="switchView('erp')" class="sidebar-item w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-600/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer" data-view="erp" title="Gestión ERP & Logística">
+                            <div class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-warehouse w-4 text-center"></i>
+                                <span class="sidebar-text">ERP & Logística Avanzada</span>
+                            </div>
+                            <span class="sidebar-text text-[9px] bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded">Módulo 414</span>
+                        </button>
+                        <div class="sidebar-text pl-6 space-y-1 text-[11px] border-l border-slate-200 dark:border-slate-800 ml-4 my-1">
+                            <a href="#" onclick="switchView('erp')" class="block py-1 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Control de Stock & Delivery</a>
+                            <a href="#" onclick="switchView('erp')" class="block py-1 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Campus LMS & Academia</a>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <button onclick="switchView('facturacion')" class="sidebar-item w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-600/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer" data-view="facturacion" title="Facturación AFIP CAE">
+                            <div class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-receipt w-4 text-center"></i>
+                                <span class="sidebar-text">Facturación Electrónica [AFIP]</span>
+                            </div>
+                            <span class="sidebar-text text-[9px] bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded">CAE Naitivo</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 5: INFRAESTRUCTURA & SISTEMA -->
+            <div class="sidebar-section space-y-1" data-category="infra">
+                <div onclick="toggleSection('sec-infra')" class="flex items-center justify-between text-slate-500 dark:text-slate-400 px-2 py-1.5 uppercase tracking-wider text-[10px] font-bold cursor-pointer hover:text-slate-800 dark:hover:text-slate-200">
+                    <span class="sidebar-text flex items-center space-x-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-purple-500 inline-block"></span>
+                        <span>5. Infraestructura & Sistema</span>
+                    </span>
+                    <span class="sidebar-icon-tooltip hidden text-[10px] font-mono text-purple-500 dark:text-purple-400">SYS</span>
+                    <i id="icon-sec-infra" class="sidebar-text fa-solid fa-chevron-down text-[10px] transition-transform duration-200"></i>
+                </div>
+                <div id="sec-infra" class="space-y-1 pl-1 pt-1">
+                    <div class="space-y-1">
+                        <button onclick="switchView('infra')" class="sidebar-item w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-600/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer" data-view="infra" title="Motor de Datos Enterprise">
+                            <div class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-server w-4 text-center"></i>
+                                <span class="sidebar-text">Motor de Datos [Schema SQL]</span>
+                            </div>
+                            <span class="sidebar-text text-[9px] bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded">Módulo 49</span>
+                        </button>
+                    </div>
+                    <button onclick="switchView('infra')" class="sidebar-item w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-600/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer" data-view="infra" title="Backups & Cloud Sync">
+                        <div class="flex items-center space-x-2.5">
+                            <i class="fa-solid fa-cloud-arrow-down w-4 text-center"></i>
+                            <span class="sidebar-text">Sincronización Cloud & Backups</span>
+                        </div>
+                        <span class="sidebar-text text-[9px] bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded">Módulo 48</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Sidebar Footer User Profile -->
+        <div class="p-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 flex items-center justify-between shrink-0">
+            <div class="flex items-center space-x-2.5 overflow-hidden">
+                <div class="relative shrink-0">
+                    <img src="https://placehold.co/36x36/3b82f6/ffffff?text=JL" alt="User Avatar" class="w-9 h-9 rounded-full object-cover border border-slate-300 dark:border-slate-700">
+                    <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full"></span>
+                </div>
+                <div class="sidebar-text overflow-hidden">
+                    <p class="text-xs font-semibold text-slate-900 dark:text-slate-200 truncate">Jonathan Ledesma</p>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 truncate">Director Comercial</p>
+                </div>
+            </div>
+            <div class="sidebar-text flex items-center space-x-1 text-slate-500 dark:text-slate-400 shrink-0">
+                <button onclick="toggleDarkMode()" class="p-1.5 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors" title="Cambiar Tema"><i id="theme-icon" class="fa-solid fa-moon text-xs"></i></button>
+                <button onclick="openSettingsModal()" class="p-1.5 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors" title="Configuración"><i class="fa-solid fa-gear text-xs"></i></button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col h-full overflow-hidden bg-[#f8fafc] dark:bg-[#0b0f19]">
+
+        <!-- Top Global Bar -->
+        <header class="h-14 bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 z-10 shrink-0">
+            <!-- Left quick access pills -->
+            <div class="flex items-center space-x-4 overflow-x-auto py-1">
+                <div class="flex items-center space-x-2 text-slate-500 dark:text-slate-400 font-semibold text-xs tracking-wide shrink-0">
+                    <i class="fa-solid fa-bolt text-amber-500 dark:text-amber-400"></i>
+                    <span>ACCESOS RÁPIDOS:</span>
+                    <span class="text-slate-300 dark:text-slate-600">|</span>
+                </div>
+                <div class="flex items-center space-x-2 shrink-0">
+                    <button onclick="switchView('resumen')" class="quick-pill px-3 py-1.5 rounded-full bg-blue-600 text-white text-xs font-medium flex items-center space-x-1.5 shadow-sm shadow-blue-500/20 transition-all" data-view="resumen">
+                        <i class="fa-solid fa-chart-line text-[10px]"></i>
+                        <span>Dashboard Directivo</span>
+                    </button>
+                    <button onclick="switchView('pipeline')" class="quick-pill px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium flex items-center space-x-1.5 border border-slate-200 dark:border-slate-700/60 transition-all" data-view="pipeline">
+                        <i class="fa-solid fa-filter-circle-dollar text-[10px]"></i>
+                        <span>Embudo Kanban</span>
+                        <span class="text-[9px] bg-blue-100 dark:bg-blue-500/30 text-blue-600 dark:text-blue-300 px-1 rounded">CRM</span>
+                    </button>
+                    <button onclick="switchView('whatsapp')" class="quick-pill px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium flex items-center space-x-1.5 border border-slate-200 dark:border-slate-700/60 transition-all" data-view="whatsapp">
+                        <i class="fa-brands fa-whatsapp text-[10px] text-emerald-500 dark:text-emerald-400"></i>
+                        <span>WhatsApp WACE Hub</span>
+                        <span class="text-[9px] bg-emerald-100 dark:bg-emerald-500/30 text-emerald-600 dark:text-emerald-300 px-1 rounded font-mono">IA Live</span>
+                    </button>
+                    <button onclick="switchView('agentes')" class="quick-pill px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium flex items-center space-x-1.5 border border-slate-200 dark:border-slate-700/60 transition-all" data-view="agentes">
+                        <i class="fa-solid fa-microchip text-[10px] text-indigo-500 dark:text-indigo-400"></i>
+                        <span>AgenteOS [14 Roles]</span>
+                        <span class="text-[9px] bg-indigo-100 dark:bg-indigo-500/30 text-indigo-600 dark:text-indigo-300 px-1 rounded">IA</span>
+                    </button>
+                    <button onclick="switchView('brochure')" class="quick-pill px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium flex items-center space-x-1.5 border border-slate-200 dark:border-slate-700/60 transition-all" data-view="brochure">
+                        <i class="fa-solid fa-file-invoice text-[10px]"></i>
+                        <span>Propuesta PDF Pro</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Top Tools -->
+            <div class="flex items-center space-x-3 shrink-0">
+                <button onclick="toggleNotificationsModal()" class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center relative transition-colors" title="Centro de Notificaciones">
+                    <i class="fa-regular fa-bell text-xs"></i>
+                    <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-500 rounded-full"></span>
+                </button>
+                <button onclick="openCopilotModal()" class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-semibold flex items-center space-x-2 shadow-md shadow-indigo-500/20 transition-all">
+                    <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i>
+                    <span>Copilot AI</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dynamic Content Views Container -->
+        <main class="flex-1 overflow-y-auto p-6 space-y-6">
+
+            <!-- VIEW 1: DASHBOARD DIRECTIVO (RESUMEN) -->
+            <div id="view-resumen" class="space-y-6 view-section">
+                <!-- Top banner alert -->
+                <div class="bg-gradient-to-r from-blue-50 dark:from-blue-900/40 via-indigo-50 dark:via-indigo-900/30 to-white dark:to-slate-900 border border-blue-200 dark:border-blue-500/30 rounded-2xl p-4 flex items-center justify-between shadow-lg">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-600/20 border border-blue-200 dark:border-blue-500/40 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
+                            <i class="fa-solid fa-cloud-arrow-up text-sm"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100">Migración Instantánea 1-Click desde HubSpot & Salesforce</h3>
+                                <span class="bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-semibold">Ahorro hasta 82% TCO</span>
+                            </div>
+                            <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Importa tus negocios, automatiza comisiones y emite factura electrónica AFIP CAE sin costo adicional por volumen.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3 shrink-0">
+                        <button onclick="openMigrationModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors">Iniciar Centro de Migración</button>
+                        <button onclick="this.closest('.bg-gradient-to-r').remove()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1"><i class="fa-solid fa-xmark text-sm"></i></button>
+                    </div>
+                </div>
+
+                <!-- Metrics Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Card 1 -->
+                    <div class="bg-white dark:bg-[#1e293b]/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 relative overflow-hidden shadow-sm">
+                        <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+                            <span class="text-xs font-semibold uppercase tracking-wider">PIPELINE ACTIVO</span>
+                            <span class="text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-500/10 px-2 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-arrow-up text-[9px] mr-1"></i>+4%</span>
+                        </div>
+                        <div class="text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">$ 582.000</div>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                            <span class="text-emerald-600 dark:text-emerald-400 font-medium">↑ $ 311.000</span> ponderada
+                        </p>
+                        <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                            <span>5 negocios en gestión</span>
+                            <span class="text-blue-600 dark:text-blue-400 hover:underline cursor-pointer" onclick="switchView('pipeline')">Ver embudo</span>
+                        </div>
+                    </div>
+                    <!-- Card 2 -->
+                    <div class="bg-white dark:bg-[#1e293b]/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 relative overflow-hidden shadow-sm">
+                        <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+                            <span class="text-xs font-semibold uppercase tracking-wider">FACTURADO AFIP</span>
+                            <div class="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs"><i class="fa-solid fa-receipt"></i></div>
+                        </div>
+                        <div class="text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">$ 54.000</div>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 flex items-center space-x-1">
+                            <i class="fa-solid fa-circle-check text-blue-600 dark:text-blue-400 text-[10px]"></i>
+                            <span class="text-slate-700 dark:text-slate-300">Vinoteca Valle Andino</span>
+                        </p>
+                        <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-[11px] text-slate-500 dark:text-slate-400">
+                            Autorizado CAE Naitivo
+                        </div>
+                    </div>
+                    <!-- Card 3 -->
+                    <div class="bg-white dark:bg-[#1e293b]/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 relative overflow-hidden shadow-sm">
+                        <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+                            <span class="text-xs font-semibold uppercase tracking-wider">CONVERSIÓN</span>
+                            <span class="text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-500/10 px-2 py-0.5 rounded text-[10px] font-bold">32,4%</span>
+                        </div>
+                        <div class="text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">32,4%</div>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                            <span class="text-emerald-600 dark:text-emerald-400 font-medium">↑ 5,8%</span> vs. anterior
+                        </p>
+                        <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-[11px] text-slate-500 dark:text-slate-400">
+                            8 negocios evaluados
+                        </div>
+                    </div>
+                    <!-- Card 4 -->
+                    <div class="bg-white dark:bg-[#1e293b]/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 relative overflow-hidden shadow-sm">
+                        <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+                            <span class="text-xs font-semibold uppercase tracking-wider">CICLO DE VENTA</span>
+                            <span class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded font-mono">Promedio</span>
+                        </div>
+                        <div class="text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">27 días</div>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                            <span class="text-emerald-600 dark:text-emerald-400 font-medium">↓ 8%</span> vs. anterior
+                        </p>
+                        <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-[11px] text-slate-500 dark:text-slate-400">
+                            Velocidad de cierre B2B
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Required Alert Box -->
+                <div class="bg-white dark:bg-[#1e293b]/70 border border-amber-300 dark:border-amber-500/30 rounded-2xl p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-6 h-6 rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">ATENCIÓN DIRECTIVA REQUERIDA</h4>
+                        </div>
+                        <span class="text-xs text-amber-600 dark:text-amber-400 font-semibold">Acciones prioritarias hoy</span>
+                    </div>
+                    <div class="text-xl font-bold text-slate-900 dark:text-slate-100">5 tareas operativas pendientes</div>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">2 negocios estancados · 2 tareas comerciales vencidas · 1 sin seguimiento en últimas 48h.</p>
+                </div>
+            </div>
+
+            <!-- VIEW 2: PIPELINE KANBAN -->
+            <div id="view-pipeline" class="space-y-6 view-section hidden">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Embudo de Ventas [Pipeline Kanban]</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Monitoreo y gestión de etapas comerciales B2B con calificación avanzada MEDDIC.</p>
+                    </div>
+                    <button onclick="openNewDealModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors">
+                        <i class="fa-solid fa-plus mr-1.5"></i> Registrar Negocio
+                    </button>
+                </div>
+
+                <!-- Kanban Board Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 overflow-x-auto pb-4">
+                    <!-- Column 1 -->
+                    <div class="bg-slate-50 dark:bg-[#1e293b]/50 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 flex flex-col space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+                            <span class="text-xs font-bold text-slate-700 dark:text-slate-300">1. Contacto Inicial (15%)</span>
+                            <span class="text-[10px] bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded-full font-mono">2</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700/60 rounded-xl p-3.5 hover:border-blue-400 dark:hover:border-blue-500/50 transition-all cursor-pointer shadow-sm" onclick="openDealDetail('Logística Sur S.A.', '$45.000', 'Contacto Inicial')">
+                                <div class="flex justify-between text-[11px] mb-1">
+                                    <span class="font-semibold text-slate-900 dark:text-slate-200">Logística Sur S.A.</span>
+                                    <span class="text-emerald-600 dark:text-emerald-400 font-mono font-bold">$45.000</span>
+                                </div>
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400">Interés en módulo ERP & WACE</p>
+                                <div class="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[10px] text-slate-400">
+                                    <span>MEDDIC: 6/10</span>
+                                    <span class="text-blue-600 dark:text-blue-400">Hace 2h</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Column 2 -->
+                    <div class="bg-slate-50 dark:bg-[#1e293b]/50 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 flex flex-col space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+                            <span class="text-xs font-bold text-slate-700 dark:text-slate-300">2. Demostración (50%)</span>
+                            <span class="text-[10px] bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded-full font-mono">1</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700/60 rounded-xl p-3.5 hover:border-blue-400 dark:hover:border-blue-500/50 transition-all cursor-pointer shadow-sm" onclick="openDealDetail('AgroTech Patagonia', '$120.000', 'Demostración')">
+                                <div class="flex justify-between text-[11px] mb-1">
+                                    <span class="font-semibold text-slate-900 dark:text-slate-200">AgroTech Patagonia</span>
+                                    <span class="text-emerald-600 dark:text-emerald-400 font-mono font-bold">$120.000</span>
+                                </div>
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400">Demo completada con Agente SDR</p>
+                                <div class="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[10px] text-slate-400">
+                                    <span>MEDDIC: 8/10</span>
+                                    <span class="text-blue-600 dark:text-blue-400">Mañana</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Column 3 -->
+                    <div class="bg-slate-50 dark:bg-[#1e293b]/50 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 flex flex-col space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+                            <span class="text-xs font-bold text-slate-700 dark:text-slate-300">3. Negociación (85%)</span>
+                            <span class="text-[10px] bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded-full font-mono">1</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700/60 rounded-xl p-3.5 hover:border-blue-400 dark:hover:border-blue-500/50 transition-all cursor-pointer shadow-sm" onclick="openDealDetail('Vinoteca Valle Andino', '$54.000', 'Negociación')">
+                                <div class="flex justify-between text-[11px] mb-1">
+                                    <span class="font-semibold text-slate-900 dark:text-slate-200">Vinoteca Valle Andino</span>
+                                    <span class="text-emerald-600 dark:text-emerald-400 font-mono font-bold">$54.000</span>
+                                </div>
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400">Revisión contrato y AFIP CAE</p>
+                                <div class="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[10px] text-slate-400">
+                                    <span>MEDDIC: 9/10</span>
+                                    <span class="text-emerald-600 dark:text-emerald-400">Cierre inminente</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Column 4 -->
+                    <div class="bg-slate-50 dark:bg-[#1e293b]/50 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 flex flex-col space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+                            <span class="text-xs font-bold text-slate-700 dark:text-slate-300">4. Ganada (100%)</span>
+                            <span class="text-[10px] bg-emerald-100 dark:bg-emerald-500/25 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full font-mono">1</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="bg-white dark:bg-[#1e293b] border border-emerald-300 dark:border-emerald-500/40 rounded-2xl p-3.5 shadow-sm">
+                                <div class="flex justify-between text-[11px] mb-1">
+                                    <span class="font-semibold text-slate-900 dark:text-slate-200">Industrial Neuquén</span>
+                                    <span class="text-emerald-600 dark:text-emerald-400 font-mono font-bold">$363.000</span>
+                                </div>
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400">Factura emitida AFIP CAE</p>
+                                <div class="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[10px] text-emerald-600 dark:text-emerald-400">
+                                    <span>Completado</span>
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 3: WHATSAPP WACE -->
+            <div id="view-whatsapp" class="space-y-6 view-section hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-140px)]">
+                    <!-- Conversations list -->
+                    <div class="bg-white dark:bg-[#1e293b]/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100">Bandeja WhatsApp WACE</h3>
+                            <span class="bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-mono">IA Live active</span>
+                        </div>
+                        <div class="relative mb-3">
+                            <i class="fa-solid fa-search absolute left-3 top-2.5 text-xs text-slate-400"></i>
+                            <input type="text" placeholder="Buscar conversaciones..." class="w-full bg-slate-50 dark:bg-slate-900 text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 rounded-xl pl-8 pr-3 py-2 border border-slate-200 dark:border-slate-700/60 focus:outline-none">
+                        </div>
+                        <div class="flex-1 overflow-y-auto space-y-2">
+                            <div class="p-3 rounded-xl bg-blue-50 dark:bg-blue-600/20 border border-blue-200 dark:border-blue-500/30 cursor-pointer">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs font-bold text-slate-900 dark:text-slate-100">Carlos Méndez (Valle Andino)</span>
+                                    <span class="text-[10px] text-blue-600 dark:text-blue-400">10:42</span>
+                                </div>
+                                <p class="text-[11px] text-slate-600 dark:text-slate-300 truncate mt-1">Perfecto, emitime la factura por favor...</p>
+                            </div>
+                            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 hover:bg-slate-100 dark:hover:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs font-bold text-slate-900 dark:text-slate-100">Mariana Ruarte</span>
+                                    <span class="text-[10px] text-slate-400">Ayer</span>
+                                </div>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-1">¿Me pasás el presupuesto del Agente SDR?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Chat window -->
+                    <div class="lg:col-span-2 bg-white dark:bg-[#1e293b]/70 border border-slate-200 dark:border-slate-800 rounded-2xl flex flex-col justify-between overflow-hidden">
+                        <!-- Chat header -->
+                        <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900/40">
+                            <div class="flex items-center space-x-3">
+                                <img src="https://placehold.co/36x36/3b82f6/ffffff?text=CM" class="w-9 h-9 rounded-full object-cover">
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-900 dark:text-slate-100">Carlos Méndez</h4>
+                                    <p class="text-[10px] text-emerald-600 dark:text-emerald-400 flex items-center"><span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1.5"></span> En línea · Bot IA Activo</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2 text-slate-500 dark:text-slate-400">
+                                <button class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"><i class="fa-solid fa-phone"></i></button>
+                                <button class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                            </div>
+                        </div>
+                        <!-- Messages -->
+                        <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4 text-xs">
+                            <div class="flex justify-start">
+                                <div class="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 p-3 rounded-2xl max-w-md rounded-bl-none">
+                                    Hola Jonathan, estuvimos revisando el presupuesto para la vinoteca.
+                                </div>
+                            </div>
+                            <div class="flex justify-end">
+                                <div class="bg-blue-600 text-white p-3 rounded-2xl max-w-md rounded-br-none shadow-sm">
+                                    ¡Excelente Carlos! ¿Te parece si avanzamos con la integración de AFIP CAE y el módulo ERP?
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Input -->
+                        <div class="p-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 flex items-center space-x-3">
+                            <button class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white p-2"><i class="fa-solid fa-paperclip"></i></button>
+                            <input type="text" id="whatsapp-input" onkeydown="if(event.key==='Enter') sendWhatsAppMessage()" placeholder="Escribe un mensaje de WhatsApp..." class="flex-1 bg-white dark:bg-slate-900 text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 rounded-xl px-4 py-2.5 border border-slate-200 dark:border-slate-700/60 focus:outline-none">
+                            <button onclick="sendWhatsAppMessage()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow-sm transition-colors">
+                                <i class="fa-solid fa-paper-plane mr-1"></i> Enviar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 4: AGENTEOS (INTELIGENCIA ARTIFICIAL) -->
+            <div id="view-agentes" class="space-y-6 view-section hidden">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">AgenteOS [Orquestador de 14 Roles IA]</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Control y supervisión de agentes autónomos de prospección, atención y predicción comercial.</p>
+                    </div>
+                    <button onclick="openNewAgentModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors">
+                        <i class="fa-solid fa-plus mr-1.5"></i> Desplegar Nuevo Agente
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white dark:bg-[#1e293b]/70 border border-indigo-200 dark:border-indigo-500/30 rounded-2xl p-5 relative">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-600/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">SDR</div>
+                            <span class="bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-mono">Activo 24/7</span>
+                        </div>
+                        <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100">Agente SDR Prospección</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Califica leads entrantes de Google Maps y LinkedIn, agendando demos automáticamente.</p>
+                        <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between text-xs text-slate-500 dark:text-slate-400">
+                            <span>Leads procesados: <strong class="text-slate-800 dark:text-slate-200">1.420</strong></span>
+                            <span class="text-indigo-600 dark:text-indigo-400 font-semibold cursor-pointer" onclick="openAgentConfig('Agente SDR')">Configurar</span>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-[#1e293b]/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">GEM</div>
+                            <span class="bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-mono">Activo</span>
+                        </div>
+                        <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100">Capital Gemini Forecasting</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Analiza forecast de ingresos y predice desvíos en el pipeline de ventas.</p>
+                        <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between text-xs text-slate-500 dark:text-slate-400">
+                            <span>Precisión forecast: <strong class="text-slate-800 dark:text-slate-200">96.4%</strong></span>
+                            <span class="text-blue-600 dark:text-blue-400 font-semibold cursor-pointer" onclick="openAgentConfig('Capital Gemini')">Configurar</span>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-[#1e293b]/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-600/20 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">WFS</div>
+                            <span class="bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 text-[10px] px-2 py-0.5 rounded-full font-mono">En pausa</span>
+                        </div>
+                        <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100">Diseñador de Workflows</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Automatiza tareas repetitivas conectando WhatsApp, ERP y facturación AFIP.</p>
+                        <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between text-xs text-slate-500 dark:text-slate-400">
+                            <span>Workflows activos: <strong class="text-slate-800 dark:text-slate-200">12</strong></span>
+                            <span class="text-purple-600 dark:text-purple-400 font-semibold cursor-pointer" onclick="openAgentConfig('Workflows')">Configurar</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 5: BROCHURE & PDF EDITOR -->
+            <div id="view-brochure" class="space-y-6 view-section hidden">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Generador de Propuestas & PDF Pro</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Elabora cotizaciones comerciales personalizadas con desglose ERP y exporta en PDF corporativo.</p>
+                    </div>
+                    <button onclick="exportPdfProposal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors">
+                        <i class="fa-solid fa-download mr-1.5"></i> Exportar PDF Comercial
+                    </button>
+                </div>
+                <div class="bg-white dark:bg-[#1e293b]/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-900 dark:text-slate-200">Propuesta Comercial Enterprise - Vinoteca Valle Andino</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Plantilla corporativa con integración ERP & WhatsApp WACE</p>
+                        </div>
+                        <span class="bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 text-xs px-3 py-1 rounded-lg font-mono">Borrador v2.4</span>
+                    </div>
+                    <div class="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl space-y-3 text-xs text-slate-700 dark:text-slate-300">
+                        <p><strong>Estimado Carlos Méndez:</strong></p>
+                        <p>Por medio de la presente, presentamos la cotización por la implementación de ClientumOS Enterprise Suite, incluyendo:</p>
+                        <ul class="list-disc pl-5 space-y-1 text-slate-500 dark:text-slate-400">
+                            <li>Dirección Comercial & CRM con Pipeline Kanban ilimitado.</li>
+                            <li>Canal de WhatsApp WACE con inteligencia artificial activa.</li>
+                            <li>Módulo ERP, Logística y Facturación Electrónica AFIP CAE nativa.</li>
+                        </ul>
+                        <div class="pt-4 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center font-bold text-slate-900 dark:text-slate-100 text-sm">
+                            <span>TOTAL INVERSIÓN:</span>
+                            <span class="text-emerald-600 dark:text-emerald-400 font-mono">$ 54.000 (USD equiv.)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 6: DIRECTORIO B2B -->
+            <div id="view-directorio" class="space-y-6 view-section hidden">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Directorio B2B & Leads Corporativos</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Gestión de cuentas clave, contactos directos y puntajes de interacción comercial.</p>
+                    </div>
+                    <button onclick="toggleNewItemModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors">
+                        <i class="fa-solid fa-plus mr-1.5"></i> Nuevo Cliente B2B
+                    </button>
+                </div>
+                <div class="bg-white dark:bg-[#1e293b]/70 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
+                    <table class="w-full text-left text-xs text-slate-700 dark:text-slate-300">
+                        <thead class="bg-slate-50 dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-200 dark:border-slate-800">
+                            <tr>
+                                <th class="p-4">Empresa / Cuenta</th>
+                                <th class="p-4">Contacto Principal</th>
+                                <th class="p-4">Sector</th>
+                                <th class="p-4">Estado</th>
+                                <th class="p-4 text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80">
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <td class="p-4 font-semibold text-slate-900 dark:text-slate-100">Vinoteca Valle Andino</td>
+                                <td class="p-4">Carlos Méndez (+54 9 298...)</td>
+                                <td class="p-4">Retail & Bebidas</td>
+                                <td class="p-4"><span class="bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded text-[10px]">Negociación</span></td>
+                                <td class="p-4 text-right"><button onclick="switchView('whatsapp')" class="text-blue-600 dark:text-blue-400 hover:underline">Abrir Chat</button></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <td class="p-4 font-semibold text-slate-900 dark:text-slate-100">AgroTech Patagonia</td>
+                                <td class="p-4">Mariana Ruarte</td>
+                                <td class="p-4">Agroindustria</td>
+                                <td class="p-4"><span class="bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded text-[10px]">Demostración</span></td>
+                                <td class="p-4 text-right"><button onclick="switchView('pipeline')" class="text-blue-600 dark:text-blue-400 hover:underline">Ver Pipeline</button></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <td class="p-4 font-semibold text-slate-900 dark:text-slate-100">Industrial Neuquén</td>
+                                <td class="p-4">Roberto Gomez</td>
+                                <td class="p-4">Manufactura</td>
+                                <td class="p-4"><span class="bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-400 px-2 py-0.5 rounded text-[10px]">Cliente Ganado</span></td>
+                                <td class="p-4 text-right"><button onclick="switchView('facturacion')" class="text-blue-600 dark:text-blue-400 hover:underline">Facturas AFIP</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- VIEW 7: AGENDA & TAREAS -->
+            <div id="view-agenda" class="space-y-6 view-section hidden">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Agenda & Tareas Comerciales</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Calendario de reuniones, seguimientos automatizados y alertas directivas.</p>
+                    </div>
+                    <button onclick="showNotificationBox('Nueva reunión agendada en el calendario.')" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors">
+                        <i class="fa-solid fa-plus mr-1.5"></i> Agendar Reunión
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white dark:bg-[#1e293b]/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+                            <span class="font-bold text-xs text-slate-900 dark:text-slate-200">Próximos Eventos de Hoy</span>
+                            <span class="text-[10px] bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded font-mono">3 en agenda</span>
+                        </div>
+                        <div class="space-y-2 text-xs">
+                            <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl flex items-center justify-between">
+                                <div>
+                                    <p class="font-semibold text-slate-900 dark:text-slate-100">Demo con AgroTech Patagonia</p>
+                                    <p class="text-[10px] text-slate-500 dark:text-slate-400">11:30 AM · Videoconferencia IA</p>
+                                </div>
+                                <span class="text-emerald-600 dark:text-emerald-400 text-[10px] font-mono">En 45 min</span>
+                            </div>
+                            <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl flex items-center justify-between">
+                                <div>
+                                    <p class="font-semibold text-slate-900 dark:text-slate-100">Cierre Contrato Vinoteca Valle Andino</p>
+                                    <p class="text-[10px] text-slate-500 dark:text-slate-400">03:00 PM · Firma digital AFIP CAE</p>
+                                </div>
+                                <span class="text-blue-600 dark:text-blue-400 text-[10px] font-mono">Tarde</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-[#1e293b]/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+                            <span class="font-bold text-xs text-slate-900 dark:text-slate-200">Tareas Pendientes</span>
+                            <span class="text-[10px] bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded font-mono">2 vencidas</span>
+                        </div>
+                        <div class="space-y-2 text-xs">
+                            <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl flex items-center justify-between">
+                                <div>
+                                    <p class="font-semibold text-slate-900 dark:text-slate-100">Enviar cotización actualizada Logística Sur</p>
+                                    <p class="text-[10px] text-amber-600 dark:text-amber-400">Vencía ayer</p>
+                                </div>
+                                <button onclick="showNotificationBox('Tarea marcada como completada.')" class="px-2.5 py-1 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 rounded text-[10px]">Completar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 8: WEBMAIL -->
+            <div id="view-webmail" class="space-y-6 view-section hidden">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Correo Corporativo [Webmail Cloudflare]</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Bandeja de entrada empresarial segura con encriptación nativa y enrutamiento inteligente.</p>
+                    </div>
+                    <button onclick="showNotificationBox('Bandeja sincronizada correctamente con Cloudflare MX.')" class="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors">
+                        <i class="fa-solid fa-rotate mr-1.5"></i> Sincronizar Correo
+                    </button>
+                </div>
+                <div class="bg-white dark:bg-[#1e293b]/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-3">
+                    <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl flex items-center justify-between cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-sky-100 dark:bg-sky-600/20 text-sky-600 dark:text-sky-400 flex items-center justify-center font-bold text-xs">CA</div>
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-900 dark:text-slate-100">Carlos Méndez - Confirmación de Factura</h4>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate">Hola Jonathan, acabo de recibir la factura electrónica CAE, todo perfecto...</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] text-slate-400">Hace 15 min</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 9: ERP & LOGÍSTICA -->
+            <div id="view-erp" class="space-y-6 view-section hidden">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">ERP & Logística Avanzada [Módulo 414]</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Control de stock en tiempo real, gestión de almacenes y entregas de última milla.</p>
+                    </div>
+                    <button onclick="showNotificationBox('Inventario sincronizado con sucursales.')" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors">
+                        <i class="fa-solid fa-warehouse mr-1.5"></i> Auditoría de Stock
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white dark:bg-[#1e293b]/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-5">
+                        <span class="text-[10px] bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded font-mono">Almacén Central</span>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 mt-2">Stock Licencias ClientumOS</h3>
+                        <p class="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">1.450 ud</p>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-2">Disponibles para entrega digital inmediata.</p>
+                    </div>
+                    <div class="bg-white dark:bg-[#1e293b]/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-5">
+                        <span class="text-[10px] bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded font-mono">Logística Envíos</span>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 mt-2">Envíos Activos En Ruta</h3>
+                        <p class="text-2xl font-extrabold text-blue-600 dark:text-blue-400 mt-1">28</p>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-2">Monitoreo GPS satelital activo.</p>
+                    </div>
+                    <div class="bg-white dark:bg-[#1e293b]/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-5">
+                        <span class="text-[10px] bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-400 px-2 py-0.5 rounded font-mono">Campus LMS</span>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 mt-2">Alumnos Certificados</h3>
+                        <p class="text-2xl font-extrabold text-purple-600 dark:text-purple-400 mt-1">312</p>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-2">Academia corporativa B2B completada.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 10: FACTURACIÓN AFIP -->
+            <div id="view-facturacion" class="space-y-6 view-section hidden">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Facturación Electrónica AFIP [CAE Nativo]</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Emisión directa de comprobantes fiscales A, B y C con validación AFIP instantánea.</p>
+                    </div>
+                    <button onclick="showNotificationBox('Comprobante autorizado por AFIP con Código de Autorización Electrónica (CAE).')" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors">
+                        <i class="fa-solid fa-receipt mr-1.5"></i> Emitir Nueva Factura
+                    </button>
+                </div>
+                <div class="bg-white dark:bg-[#1e293b]/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                        <span class="text-xs font-bold text-slate-900 dark:text-slate-200">Últimas Facturas Emitidas</span>
+                        <span class="text-[10px] bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded font-mono">Conexión AFIP OK</span>
+                    </div>
+                    <div class="space-y-2 text-xs">
+                        <div class="p-3.5 bg-slate-50 dark:bg-slate-900 rounded-xl flex items-center justify-between">
+                            <div>
+                                <p class="font-bold text-slate-900 dark:text-slate-100">Factura A #0001-00000412</p>
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400">Cliente: Vinoteca Valle Andino · CAE: 73294820194820</p>
+                            </div>
+                            <span class="text-emerald-600 dark:text-emerald-400 font-mono font-bold">$ 54.000</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 11: INFRAESTRUCTURA & SISTEMA -->
+            <div id="view-infra" class="space-y-6 view-section hidden">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Infraestructura & Motor de Datos</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Estado de servidores, esquemas SQL y respaldos automatizados en la nube.</p>
+                    </div>
+                    <button onclick="showNotificationBox('Copia de seguridad en la nube iniciada correctamente.')" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors">
+                        <i class="fa-solid fa-cloud-arrow-down mr-1.5"></i> Forzar Backup Cloud
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white dark:bg-[#1e293b]/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+                            <span class="font-bold text-xs text-slate-900 dark:text-slate-200">Salud del Servidor (Schema SQL)</span>
+                            <span class="text-[10px] bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded font-mono">99.99% Uptime</span>
+                        </div>
+                        <p class="text-xs text-slate-700 dark:text-slate-300">Uso de CPU: <strong>14.2%</strong> · Memoria RAM: <strong>4.8 GB / 16 GB</strong></p>
+                    </div>
+                    <div class="bg-white dark:bg-[#1e293b]/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+                            <span class="font-bold text-xs text-slate-900 dark:text-slate-200">Último Respaldo Cloud</span>
+                            <span class="text-[10px] bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded font-mono">Sincronizado</span>
+                        </div>
+                        <p class="text-xs text-slate-700 dark:text-slate-300">Backup cifrado AES-256 completado hoy a las 04:00 AM.</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- GLOBAL NOTIFICATION TOAST CONTAINER -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+    <!-- MODAL 1: COPILOT AI ASSISTANT -->
+    <div id="modal-copilot" class="fixed inset-0 z-50 bg-black/50 dark:bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-[#1e293b] border border-indigo-300 dark:border-indigo-500/40 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[85vh]">
+            <div class="p-4 bg-gradient-to-r from-indigo-50 dark:from-indigo-900/60 to-white dark:to-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-600/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center"><i class="fa-solid fa-wand-magic-sparkles text-xs"></i></div>
+                    <h3 class="font-bold text-sm text-slate-900 dark:text-slate-100">ClientumOS Copilot AI</h3>
+                </div>
+                <button onclick="closeModal('modal-copilot')" class="text-slate-400 hover:text-slate-900 dark:hover:text-white p-1.5"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <div class="p-4 flex-1 overflow-y-auto space-y-3 text-xs">
+                <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl text-slate-700 dark:text-slate-300">
+                    Hola Jonathan, soy tu asistente ejecutivo IA. ¿Qué operación deseas realizar hoy en ClientumOS?
+                </div>
+            </div>
+            <div class="p-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex items-center space-x-2">
+                <input type="text" id="copilot-query" placeholder="Ej: Analizar desvíos en el pipeline comercial..." class="flex-1 bg-white dark:bg-slate-900 text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 rounded-xl px-3.5 py-2.5 border border-slate-200 dark:border-slate-700/60 focus:outline-none">
+                <button onclick="submitCopilotQuery()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl font-semibold transition-colors">Preguntar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: NEW DEAL / CREACIÓN RÁPIDA -->
+    <div id="modal-deal" class="fixed inset-0 z-50 bg-black/50 dark:bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col">
+            <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <h3 class="font-bold text-sm text-slate-900 dark:text-slate-100">Registrar Nuevo Negocio / Lead B2B</h3>
+                <button onclick="closeModal('modal-deal')" class="text-slate-400 hover:text-slate-900 dark:hover:text-white p-1.5"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <div class="p-5 space-y-4 text-xs">
+                <div>
+                    <label class="block text-slate-500 dark:text-slate-400 mb-1">Nombre de la Empresa o Cliente</label>
+                    <input type="text" id="deal-name" placeholder="Ej: Distribuidora Patagonia" class="w-full bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 rounded-xl px-3.5 py-2.5 border border-slate-200 dark:border-slate-700/60 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-slate-500 dark:text-slate-400 mb-1">Valor Estimado (USD / ARS)</label>
+                    <input type="text" id="deal-value" placeholder="Ej: $ 75.000" class="w-full bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 rounded-xl px-3.5 py-2.5 border border-slate-200 dark:border-slate-700/60 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-slate-500 dark:text-slate-400 mb-1">Etapa del Embudo</label>
+                    <select id="deal-stage" class="w-full bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 rounded-xl px-3.5 py-2.5 border border-slate-200 dark:border-slate-700/60 focus:outline-none">
+                        <option>1. Contacto Inicial (15%)</option>
+                        <option>2. Demostración (50%)</option>
+                        <option>3. Negociación (85%)</option>
+                        <option>4. Ganada (100%)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex justify-end space-x-2">
+                <button onclick="closeModal('modal-deal')" class="px-4 py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-semibold">Cancelar</button>
+                <button onclick="saveNewDeal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold">Guardar Negocio</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: CONFIGURACIÓN GENERAL -->
+    <div id="modal-settings" class="fixed inset-0 z-50 bg-black/50 dark:bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col">
+            <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <h3 class="font-bold text-sm text-slate-900 dark:text-slate-100">Configuración de Cuenta & Sistema</h3>
+                <button onclick="closeModal('modal-settings')" class="text-slate-400 hover:text-slate-900 dark:hover:text-white p-1.5"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <div class="p-5 space-y-4 text-xs">
+                <div>
+                    <label class="block text-slate-500 dark:text-slate-400 mb-1">Usuario Activo</label>
+                    <input type="text" value="Jonathan Ledesma" disabled class="w-full bg-slate-100 dark:bg-slate-900/50 text-slate-500 rounded-xl px-3.5 py-2.5 border border-slate-200 dark:border-slate-800">
+                </div>
+                <div>
+                    <label class="block text-slate-500 dark:text-slate-400 mb-1">Rol Directivo</label>
+                    <input type="text" value="Director Comercial (Enterprise Admin)" disabled class="w-full bg-slate-100 dark:bg-slate-900/50 text-slate-500 rounded-xl px-3.5 py-2.5 border border-slate-200 dark:border-slate-800">
+                </div>
+                <div>
+                    <label class="block text-slate-500 dark:text-slate-400 mb-1">Modo Sistema</label>
+                    <button onclick="toggleDarkMode()" class="w-full py-2.5 bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-xl text-slate-800 dark:text-slate-200 font-semibold flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-moon"></i><span>Alternar Tema Claro / Oscuro</span>
+                    </button>
+                </div>
+            </div>
+            <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex justify-end">
+                <button onclick="closeModal('modal-settings')" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State for sidebar collapse
+        let isSidebarCollapsed = false;
+
+        function toggleSidebarCollapse() {
+            const sidebar = document.getElementById('sidebar');
+            const collapseIcon = document.getElementById('collapse-icon');
+            const sidebarTexts = document.querySelectorAll('.sidebar-text');
+            const tooltips = document.querySelectorAll('.sidebar-icon-tooltip');
+
+            isSidebarCollapsed = !isSidebarCollapsed;
+
+            if (isSidebarCollapsed) {
+                sidebar.classList.remove('w-72');
+                sidebar.classList.add('w-20');
+                collapseIcon.style.transform = 'rotate(180deg)';
+                sidebarTexts.forEach(el => el.classList.add('hidden'));
+                tooltips.forEach(el => el.classList.remove('hidden'));
+            } else {
+                sidebar.classList.remove('w-20');
+                sidebar.classList.add('w-72');
+                collapseIcon.style.transform = 'rotate(0deg)';
+                sidebarTexts.forEach(el => el.classList.remove('hidden'));
+                tooltips.forEach(el => el.classList.add('hidden'));
+            }
+        }
+
+        // Live Filter Sidebar Items
+        function filterSidebar(query) {
+            const q = query.toLowerCase().trim();
+            const sections = document.querySelectorAll('.sidebar-section');
+            
+            sections.forEach(sec => {
+                const text = sec.innerText.toLowerCase();
+                if (q === '' || text.includes(q)) {
+                    sec.classList.remove('hidden');
+                } else {
+                    sec.classList.add('hidden');
+                }
+            });
+        }
+
+        // Toggle Sidebar Sections Collapse
+        function toggleSection(sectionId) {
+            if (isSidebarCollapsed) return;
+            const el = document.getElementById(sectionId);
+            const icon = document.getElementById('icon-' + sectionId);
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                el.classList.add('hidden');
+                icon.style.transform = 'rotate(-90deg)';
+            }
+        }
+
+        // View Switcher Logic
+        function switchView(viewName) {
+            document.querySelectorAll('.view-section').forEach(sec => {
+                sec.classList.add('hidden');
+            });
+            const target = document.getElementById('view-' + viewName);
+            if (target) {
+                target.classList.remove('hidden');
+            }
+
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('bg-blue-50', 'dark:bg-blue-600/20', 'text-blue-600', 'dark:text-blue-400');
+                if(item.dataset.view === viewName) {
+                    item.classList.add('bg-blue-50', 'dark:bg-blue-600/20', 'text-blue-600', 'dark:text-blue-400');
+                }
+            });
+
+            document.querySelectorAll('.quick-pill').forEach(pill => {
+                pill.classList.remove('bg-blue-600', 'text-white', 'shadow-sm', 'shadow-blue-500/20');
+                pill.classList.add('bg-slate-100', 'dark:bg-slate-800/80', 'text-slate-700', 'dark:text-slate-300', 'border', 'border-slate-200', 'dark:border-slate-700/60');
+                if(pill.dataset.view === viewName) {
+                    pill.classList.remove('bg-slate-100', 'dark:bg-slate-800/80', 'text-slate-700', 'dark:text-slate-300', 'border', 'border-slate-200', 'dark:border-slate-700/60');
+                    pill.classList.add('bg-blue-600', 'text-white', 'shadow-sm', 'shadow-blue-500/20');
+                }
+            });
+        }
+
+        // Native Toggle Dark/Light Mode
+        function toggleDarkMode() {
+            const htmlEl = document.documentElement;
+            const themeIcon = document.getElementById('theme-icon');
+            
+            htmlEl.classList.toggle('dark');
+            
+            if (htmlEl.classList.contains('dark')) {
+                themeIcon.className = 'fa-solid fa-moon text-xs';
+                showNotificationBox('Tema oscuro activado.');
+            } else {
+                themeIcon.className = 'fa-solid fa-sun text-xs text-amber-500';
+                showNotificationBox('Tema claro activado.');
+            }
+        }
+
+        // Toast Notification System
+        function showNotificationBox(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'bg-white dark:bg-[#1e293b] border border-blue-200 dark:border-blue-500/40 text-slate-900 dark:text-slate-100 text-xs px-4 py-3 rounded-xl shadow-xl flex items-center space-x-3 pointer-events-auto transition-all transform translate-y-2 opacity-0';
+            toast.innerHTML = `<i class="fa-solid fa-circle-info text-blue-600 dark:text-blue-400"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // Modal triggers
+        function toggleNewItemModal() {
+            openNewDealModal();
+        }
+
+        function openNewDealModal() {
+            document.getElementById('modal-deal').classList.remove('hidden');
+        }
+
+        function openCopilotModal() {
+            document.getElementById('modal-copilot').classList.remove('hidden');
+        }
+
+        function openSettingsModal() {
+            document.getElementById('modal-settings').classList.remove('hidden');
+        }
+
+        function openMigrationModal() {
+            showNotificationBox('Centro de migración 1-Click iniciado. Importando bases de datos...');
+        }
+
+        function openNewAgentModal() {
+            showNotificationBox('Asistente de despliegue de agente autónomo abierto.');
+        }
+
+        function openAgentConfig(agentName) {
+            showNotificationBox(`Configurando parámetros del rol IA: ${agentName}`);
+        }
+
+        function openDealDetail(client, value, stage) {
+            showNotificationBox(`Negocio seleccionado: ${client} (${value}) en etapa ${stage}`);
+        }
+
+        function exportPdfProposal() {
+            showNotificationBox('Propuesta comercial exportada exitosamente en PDF Pro.');
+        }
+
+        function toggleNotificationsModal() {
+            showNotificationBox('No hay notificaciones nuevas pendientes.');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function saveNewDeal() {
+            const name = document.getElementById('deal-name').value || 'Nuevo Lead B2B';
+            closeModal('modal-deal');
+            showNotificationBox(`Negocio "${name}" registrado correctamente en el pipeline.`);
+        }
+
+        function submitCopilotQuery() {
+            const q = document.getElementById('copilot-query');
+            if(!q.value.trim()) return;
+            showNotificationBox('Copilot AI procesando análisis financiero y comercial...');
+            q.value = '';
+        }
+
+        function sendWhatsAppMessage() {
+            const input = document.getElementById('whatsapp-input');
+            const text = input.value.trim();
+            if(!text) return;
+
+            const chatMessages = document.getElementById('chat-messages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'flex justify-end';
+            msgDiv.innerHTML = `<div class="bg-blue-600 text-white p-3 rounded-2xl max-w-md rounded-br-none shadow-sm">${text}</div>`;
+            chatMessages.appendChild(msgDiv);
+            input.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            setTimeout(() => {
+                const replyDiv = document.createElement('div');
+                replyDiv.className = 'flex justify-start';
+                replyDiv.innerHTML = `<div class="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 p-3 rounded-2xl max-w-md rounded-bl-none">Mensaje recibido correctamente. El Agente WACE IA responderá en breve.</div>`;
+                chatMessages.appendChild(replyDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

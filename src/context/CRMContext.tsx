@@ -33,6 +33,8 @@ import {
   WebmailEmail,
   ClientumPlanId,
   TrialSubscriptionState,
+  AppNotification,
+  AsyncJob,
 } from '../types';
 import { getTranslation, TranslationKey } from '../i18n/translations';
 import { useTheme } from './ThemeContext';
@@ -305,6 +307,28 @@ interface CRMContextType {
   isOnline: boolean;
   isSyncPending: boolean;
   offlinePriorityQueue: string[][];
+
+  // Persistent Notifications & Async Process Engine
+  notifications: AppNotification[];
+  addNotification: (notif: Omit<AppNotification, 'id' | 'createdAt' | 'timestamp'> & { id?: string; timestamp?: string }) => AppNotification;
+  markNotificationAsRead: (id: string) => void;
+  markAllNotificationsAsRead: () => void;
+  deleteNotification: (id: string) => void;
+  clearAllNotifications: () => void;
+  asyncJobs: AsyncJob[];
+  startAsyncJob: (
+    type: AsyncJob['type'],
+    title: string,
+    description: string,
+    options?: {
+      linkTab?: ActiveTab | string;
+      entityType?: string;
+      entityId?: string;
+      durationMs?: number;
+      failRate?: number;
+    }
+  ) => string;
+  cancelAsyncJob: (id: string) => void;
 }
 
 const CRMContext = createContext<CRMContextType | undefined>(undefined);
@@ -1703,6 +1727,222 @@ export const CRMProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       // fallback if canvas not available
     }
   }, []);
+
+  // Persistent Notifications & Async Jobs State
+  const [notifications, setNotifications] = useState<AppNotification[]>(() => {
+    try {
+      const saved = localStorage.getItem('clientum_persistent_notifications');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return [
+      {
+        id: 'notif-1',
+        type: 'async_process',
+        title: 'Campaña masiva de Email finalizada',
+        message: '120 correos entregados exitosamente a prospectos calificados con tasa de apertura del 38%.',
+        timestamp: 'Hace 10 min',
+        createdAt: Date.now() - 10 * 60 * 1000,
+        read: false,
+        status: 'success',
+        linkTab: 'people',
+        actionLabel: 'Ver Contactos',
+      },
+      {
+        id: 'notif-2',
+        type: 'async_process',
+        title: 'Lote AFIP WSFE sincronizado',
+        message: '14 facturas electrónicas emitidas con CAE aprobado y registradas en el libro IVA ventas.',
+        timestamp: 'Hace 25 min',
+        createdAt: Date.now() - 25 * 60 * 1000,
+        read: false,
+        status: 'success',
+        linkTab: 'erp',
+        actionLabel: 'Ver Facturación',
+      },
+      {
+        id: 'notif-3',
+        type: 'task_assignment',
+        title: 'Nueva tarea asignada',
+        message: 'Martín Gómez te asignó la revisión del contrato SaaS Enterprise v2.',
+        timestamp: 'Hace 1 hora',
+        createdAt: Date.now() - 60 * 60 * 1000,
+        read: false,
+        status: 'info',
+        linkTab: 'tasks',
+        actionLabel: 'Ver Tarea',
+      },
+      {
+        id: 'notif-4',
+        type: 'async_process',
+        title: 'Enriquecimiento de contactos con IA',
+        message: 'Datos de LinkedIn, seniority y stack tecnológico actualizados para 18 contactos.',
+        timestamp: 'Hace 3 horas',
+        createdAt: Date.now() - 180 * 60 * 1000,
+        read: true,
+        status: 'success',
+        linkTab: 'people',
+        actionLabel: 'Ver Prospectos',
+      },
+    ];
+  });
+
+  const [asyncJobs, setAsyncJobs] = useState<AsyncJob[]>(() => {
+    try {
+      const saved = localStorage.getItem('clientum_async_jobs');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return [];
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('clientum_persistent_notifications', JSON.stringify(notifications));
+    } catch {}
+  }, [notifications]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('clientum_async_jobs', JSON.stringify(asyncJobs));
+    } catch {}
+  }, [asyncJobs]);
+
+  const addNotification = useCallback(
+    (notif: Omit<AppNotification, 'id' | 'createdAt' | 'timestamp'> & { id?: string; timestamp?: string }) => {
+      const id = notif.id || 'notif-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
+      const newNotif: AppNotification = {
+        ...notif,
+        id,
+        createdAt: Date.now(),
+        timestamp: notif.timestamp || 'Hace un momento',
+        read: notif.read ?? false,
+      };
+      setNotifications((prev) => [newNotif, ...prev]);
+      return newNotif;
+    },
+    []
+  );
+
+  const markNotificationAsRead = useCallback((id: string) => {
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+  }, []);
+
+  const markAllNotificationsAsRead = useCallback(() => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    showToast('Todas las notificaciones marcadas como leídas', 'success');
+  }, [showToast]);
+
+  const deleteNotification = useCallback((id: string) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  }, []);
+
+  const clearAllNotifications = useCallback(() => {
+    setNotifications([]);
+    showToast('Centro de notificaciones vaciado', 'info');
+  }, [showToast]);
+
+  const cancelAsyncJob = useCallback(
+    (jobId: string) => {
+      setAsyncJobs((prev) =>
+        prev.map((j) => (j.id === jobId ? { ...j, status: 'failed', error: 'Cancelado por el usuario' } : j))
+      );
+      showToast('Proceso asíncrono cancelado', 'warning');
+    },
+    [showToast]
+  );
+
+  const startAsyncJob = useCallback(
+    (
+      type: AsyncJob['type'],
+      title: string,
+      description: string,
+      options?: {
+        linkTab?: ActiveTab | string;
+        entityType?: string;
+        entityId?: string;
+        durationMs?: number;
+        failRate?: number;
+      }
+    ): string => {
+      const id = 'job-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
+      const newJob: AsyncJob = {
+        id,
+        type,
+        title,
+        description,
+        status: 'in_progress',
+        progress: 5,
+        createdAt: new Date().toISOString(),
+        linkTab: options?.linkTab,
+        entityType: options?.entityType,
+        entityId: options?.entityId,
+      };
+
+      setAsyncJobs((prev) => [newJob, ...prev]);
+      showToast(`Iniciado proceso: ${title}`, 'info');
+
+      const totalDuration = options?.durationMs || 3500;
+      const intervalMs = 300;
+      const steps = Math.max(5, Math.floor(totalDuration / intervalMs));
+      let currentStep = 0;
+
+      const timer = setInterval(() => {
+        currentStep++;
+        const pct = Math.min(95, Math.round((currentStep / steps) * 100));
+
+        setAsyncJobs((prev) => prev.map((j) => (j.id === id ? { ...j, progress: pct } : j)));
+
+        if (currentStep >= steps) {
+          clearInterval(timer);
+          const completedAt = new Date().toISOString();
+          const isFailed = options?.failRate && Math.random() < options.failRate;
+
+          setAsyncJobs((prev) =>
+            prev.map((j) =>
+              j.id === id
+                ? {
+                    ...j,
+                    progress: 100,
+                    status: isFailed ? 'failed' : 'completed',
+                    completedAt,
+                    error: isFailed ? 'Error en la conexión o validación remota' : undefined,
+                  }
+                : j
+            )
+          );
+
+          if (!isFailed) {
+            addNotification({
+              type: 'async_process',
+              title: `✅ ${title} finalizado`,
+              message: description || `El proceso finalizó exitosamente.`,
+              read: false,
+              status: 'success',
+              jobId: id,
+              linkTab: options?.linkTab,
+              actionLabel: options?.linkTab ? 'Ver Resultados' : undefined,
+            });
+            showToast(`✅ ${title} completado con éxito`, 'success');
+          } else {
+            addNotification({
+              type: 'async_process',
+              title: `⚠️ Falló: ${title}`,
+              message: 'El proceso encontró un error durante la ejecución. Requiere atención.',
+              read: false,
+              status: 'error',
+              jobId: id,
+              linkTab: options?.linkTab,
+              actionLabel: 'Reintentar',
+            });
+            showToast(`⚠️ Error en ${title}`, 'error');
+          }
+        }
+      }, intervalMs);
+
+      return id;
+    },
+    [addNotification, showToast]
+  );
+
 
   const resetFilters = useCallback(() => {
     setFilterState(initialFilter);
@@ -3737,6 +3977,17 @@ export const CRMProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       isOnline,
       isSyncPending,
       offlinePriorityQueue,
+
+      // Persistent Notifications & Async Jobs
+      notifications,
+      addNotification,
+      markNotificationAsRead,
+      markAllNotificationsAsRead,
+      deleteNotification,
+      clearAllNotifications,
+      asyncJobs,
+      startAsyncJob,
+      cancelAsyncJob,
     }),
     [
       opportunities,
@@ -4203,6 +4454,15 @@ export const CRMProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       dismissAnomaly,
       resolveAnomaly,
       triggerSecurityScan,
+      notifications,
+      addNotification,
+      markNotificationAsRead,
+      markAllNotificationsAsRead,
+      deleteNotification,
+      clearAllNotifications,
+      asyncJobs,
+      startAsyncJob,
+      cancelAsyncJob,
     }),
     [
       activeTab,
@@ -4263,6 +4523,15 @@ export const CRMProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       isAICopilotSettingsOpen,
       setIsAICopilotSettingsOpen,
       openAICopilotSettings,
+      notifications,
+      addNotification,
+      markNotificationAsRead,
+      markAllNotificationsAsRead,
+      deleteNotification,
+      clearAllNotifications,
+      asyncJobs,
+      startAsyncJob,
+      cancelAsyncJob,
     ]
   );
 

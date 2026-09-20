@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Database,
   Layers,
@@ -34,12 +34,16 @@ import {
   DollarSign,
   Clock,
   Send,
+  ChevronLeft,
+  ChevronRight,
+  Activity,
 } from 'lucide-react';
 import { useCRM } from '../../context/CRMContext';
 import { CustomField, Language } from '../../types';
 import { RolesPermissionsTab } from './RolesPermissionsTab';
 import { AuditLogsTab } from './AuditLogsTab';
 import { IntegrationsHubTab } from './IntegrationsHubTab';
+import { IntegrationHealthPanel } from './IntegrationHealthPanel';
 import { ThemeModeSettings } from './ThemeModeSettings';
 import { EcosystemReposHubTab } from './EcosystemReposHubTab';
 import { MailSettings } from './MailSettings';
@@ -68,30 +72,46 @@ export const SettingsView: React.FC = () => {
     openAICopilotSettings,
   } = useCRM();
 
+  const tabsContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollTabs = (direction: 'left' | 'right') => {
+    if (tabsContainerRef.current) {
+      const scrollAmount = 260;
+      tabsContainerRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth',
+      });
+    }
+  };
+
   const [activeSubTab, setActiveSubTab] = useState<
-    'roles' | 'audit' | 'integrations' | 'mail' | 'appearance' | 'schema' | 'members' | 'ecosystem' | 'data' | 'workspace' | 'notifications'
+    'workspace' | 'health' | 'integrations' | 'roles' | 'audit' | 'notifications' | 'mail' | 'appearance' | 'schema' | 'members' | 'ecosystem' | 'data'
   >(() => {
     if (activeTab === 'auditLogs') return 'audit';
-    if (activeTab === 'apiIntegrations') return 'integrations';
-    return 'roles';
+    if (activeTab === 'apiIntegrations' || activeTab === 'integrationSettings') return 'integrations';
+    if (activeTab === 'rbacRoles') return 'roles';
+    if (activeTab === 'teamManagement') return 'members';
+    return 'workspace';
   });
 
   const getTabClass = (subTab: typeof activeSubTab) => {
     const isActive = activeSubTab === subTab;
-    return `px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 shrink-0 ${
+    return `px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer select-none ${
       isActive
-        ? 'bg-[var(--bg-muted)] text-[var(--text-primary)] font-semibold shadow-2xs border border-[var(--border-strong)]'
-        : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-muted)]/50'
+        ? 'bg-blue-600 text-white font-semibold shadow-2xs'
+        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-muted)]'
     }`;
   };
 
   useEffect(() => {
     if (activeTab === 'auditLogs') {
       setActiveSubTab('audit');
-    } else if (activeTab === 'apiIntegrations') {
+    } else if (activeTab === 'apiIntegrations' || activeTab === 'integrationSettings') {
       setActiveSubTab('integrations');
     } else if (activeTab === 'rbacRoles') {
       setActiveSubTab('roles');
+    } else if (activeTab === 'teamManagement') {
+      setActiveSubTab('members');
     }
   }, [activeTab]);
 
@@ -209,143 +229,242 @@ export const SettingsView: React.FC = () => {
         </div>
       </div>
 
-      {/* Sub Tabs */}
-      <div className="flex items-center gap-2 border-b border-[var(--border-subtle)] pb-2.5 mb-4 overflow-x-auto">
-        <button
-          id="tab-settings-workspace"
-          onClick={() => setActiveSubTab('workspace')}
-          className={getTabClass('workspace')}
-        >
-          <Building2 className="w-3.5 h-3.5 text-blue-500" />
-          <span>Configuración Workspace</span>
-        </button>
+      {/* Workspace Settings Tab Navigation Menu */}
+      <div className="relative w-full mb-5 shrink-0">
+        <div className="flex items-center gap-1.5 p-1 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl shadow-2xs">
+          {/* Scroll Left Button */}
+          <button
+            id="btn-scroll-settings-tabs-left"
+            type="button"
+            onClick={() => scrollTabs('left')}
+            className="hidden sm:flex items-center justify-center w-7 h-7 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-muted)] shrink-0 transition-colors cursor-pointer"
+            title="Desplazar pestañas hacia la izquierda"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
 
-        <button
-          id="tab-settings-notifications"
-          onClick={() => setActiveSubTab('notifications')}
-          className={getTabClass('notifications')}
-        >
-          <Bell className="w-3.5 h-3.5 text-purple-500" />
-          <span>Notificaciones & Webhooks</span>
-        </button>
+          {/* Scrollable Tabs Track */}
+          <div
+            ref={tabsContainerRef}
+            className="flex-1 flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 px-0.5 scroll-smooth"
+          >
+            <button
+              id="tab-settings-workspace"
+              onClick={() => setActiveSubTab('workspace')}
+              className={getTabClass('workspace')}
+            >
+              <Building2 className={`w-3.5 h-3.5 shrink-0 ${activeSubTab === 'workspace' ? 'text-white' : 'text-blue-500'}`} />
+              <span>Configuración Workspace</span>
+            </button>
 
-        <button
-          id="tab-settings-roles"
-          onClick={() => setActiveSubTab('roles')}
-          className={getTabClass('roles')}
-        >
-          <Shield className="w-3.5 h-3.5 text-blue-450" />
-          <span>Roles & Permisos (RBAC)</span>
-          <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-blue-500/20 text-blue-500 dark:text-blue-400 font-mono">
-            {roles.length}
-          </span>
-        </button>
+            <button
+              id="tab-settings-health"
+              onClick={() => setActiveSubTab('health')}
+              className={getTabClass('health')}
+            >
+              <Activity className={`w-3.5 h-3.5 shrink-0 ${activeSubTab === 'health' ? 'text-white' : 'text-emerald-500'}`} />
+              <span>Salud de Integraciones</span>
+              <span
+                className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
+                  activeSubTab === 'health'
+                    ? 'bg-white/20 text-white'
+                    : 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+                }`}
+              >
+                Ping Tests
+              </span>
+            </button>
 
-        <button
-          id="tab-settings-audit"
-          onClick={() => setActiveSubTab('audit')}
-          className={getTabClass('audit')}
-        >
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-          <span>Auditoría & Logs</span>
-          {securityAnomalies.filter((a) => a.status === 'active').length > 0 ? (
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-500 dark:text-amber-400 font-mono flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 dark:bg-amber-450 animate-pulse" />
-              {securityAnomalies.filter((a) => a.status === 'active').length} Alerta
-            </span>
-          ) : (
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-500 dark:text-emerald-400 font-mono">
-              SOC2 OK
-            </span>
-          )}
-        </button>
+            <button
+              id="tab-settings-notifications"
+              onClick={() => setActiveSubTab('notifications')}
+              className={getTabClass('notifications')}
+            >
+              <Bell className={`w-3.5 h-3.5 shrink-0 ${activeSubTab === 'notifications' ? 'text-white' : 'text-purple-500'}`} />
+              <span>Notificaciones & Webhooks</span>
+            </button>
 
-        <button
-          id="tab-settings-integrations"
-          onClick={() => setActiveSubTab('integrations')}
-          className={getTabClass('integrations')}
-        >
-          <Zap className="w-3.5 h-3.5 text-amber-500" />
-          <span>Integraciones & API Hub</span>
-          <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-500 dark:text-emerald-400 font-mono">
-            GCal & Slack
-          </span>
-        </button>
+            <button
+              id="tab-settings-roles"
+              onClick={() => setActiveSubTab('roles')}
+              className={getTabClass('roles')}
+            >
+              <Shield className={`w-3.5 h-3.5 shrink-0 ${activeSubTab === 'roles' ? 'text-white' : 'text-blue-500'}`} />
+              <span>Roles & Permisos (RBAC)</span>
+              <span
+                className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
+                  activeSubTab === 'roles'
+                    ? 'bg-white/20 text-white'
+                    : 'bg-blue-500/20 text-blue-600 dark:text-blue-400'
+                }`}
+              >
+                {roles.length}
+              </span>
+            </button>
 
-        <button
-          id="tab-settings-ai-copilot-keys"
-          type="button"
-          onClick={openAICopilotSettings}
-          className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 shrink-0 bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 border border-indigo-500/30 cursor-pointer"
-          title="Configurar claves de OpenRouter y OpenAI para el AI Copilot"
-        >
-          <Sparkles className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
-          <span>AI Copilot & OpenRouter</span>
-          <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-indigo-500/20 text-indigo-300 font-mono">
-            BYOK
-          </span>
-        </button>
+            <button
+              id="tab-settings-audit"
+              onClick={() => setActiveSubTab('audit')}
+              className={getTabClass('audit')}
+            >
+              <ShieldCheck className={`w-3.5 h-3.5 shrink-0 ${activeSubTab === 'audit' ? 'text-white' : 'text-emerald-500'}`} />
+              <span>Auditoría & Logs</span>
+              {securityAnomalies.filter((a) => a.status === 'active').length > 0 ? (
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono flex items-center gap-1 font-bold ${
+                    activeSubTab === 'audit'
+                      ? 'bg-amber-400 text-amber-950'
+                      : 'bg-amber-500/20 text-amber-600 dark:text-amber-400'
+                  }`}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  {securityAnomalies.filter((a) => a.status === 'active').length} Alerta
+                </span>
+              ) : (
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
+                    activeSubTab === 'audit'
+                      ? 'bg-white/20 text-white'
+                      : 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+                  }`}
+                >
+                  SOC2 OK
+                </span>
+              )}
+            </button>
 
-        <button
-          id="tab-settings-mail"
-          onClick={() => setActiveSubTab('mail')}
-          className={getTabClass('mail')}
-        >
-          <Mail className="w-3.5 h-3.5 text-sky-500" />
-          <span>Correo & Resend API</span>
-          <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-sky-500/20 text-sky-500 dark:text-sky-400 font-mono">
-            SMTP/Resend
-          </span>
-        </button>
+            <button
+              id="tab-settings-integrations"
+              onClick={() => setActiveSubTab('integrations')}
+              className={getTabClass('integrations')}
+            >
+              <Zap className={`w-3.5 h-3.5 shrink-0 ${activeSubTab === 'integrations' ? 'text-white' : 'text-amber-500'}`} />
+              <span>Integraciones & API Hub</span>
+              <span
+                className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
+                  activeSubTab === 'integrations'
+                    ? 'bg-white/20 text-white'
+                    : 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+                }`}
+              >
+                GCal & Slack
+              </span>
+            </button>
 
-        <button
-          id="tab-settings-appearance"
-          onClick={() => setActiveSubTab('appearance')}
-          className={getTabClass('appearance')}
-        >
-          <Palette className="w-3.5 h-3.5" />
-          {t('appearanceTheme')}
-          <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-blue-500/20 text-blue-550 dark:text-blue-400 font-mono">
-            {language.toUpperCase()} • {theme === 'dark' ? 'Dark' : 'Light'}
-          </span>
-        </button>
+            <button
+              id="tab-settings-ai-copilot-keys"
+              type="button"
+              onClick={openAICopilotSettings}
+              className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 shrink-0 bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-500/20 border border-indigo-500/30 cursor-pointer whitespace-nowrap select-none"
+              title="Configurar claves de OpenRouter y OpenAI para el AI Copilot"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400 shrink-0" />
+              <span>AI Copilot & OpenRouter</span>
+              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-indigo-500/20 text-indigo-700 dark:text-indigo-200 font-mono font-bold">
+                BYOK
+              </span>
+            </button>
 
-        <button
-          id="tab-settings-schema"
-          onClick={() => setActiveSubTab('schema')}
-          className={getTabClass('schema')}
-        >
-          <Database className="w-3.5 h-3.5" />
-          {t('customFieldsSchema')}
-        </button>
+            <button
+              id="tab-settings-mail"
+              onClick={() => setActiveSubTab('mail')}
+              className={getTabClass('mail')}
+            >
+              <Mail className={`w-3.5 h-3.5 shrink-0 ${activeSubTab === 'mail' ? 'text-white' : 'text-sky-500'}`} />
+              <span>Correo & Resend API</span>
+              <span
+                className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
+                  activeSubTab === 'mail'
+                    ? 'bg-white/20 text-white'
+                    : 'bg-sky-500/20 text-sky-600 dark:text-sky-400'
+                }`}
+              >
+                SMTP/Resend
+              </span>
+            </button>
 
-        <button
-          id="tab-settings-members"
-          onClick={() => setActiveSubTab('members')}
-          className={getTabClass('members')}
-        >
-          <Users className="w-3.5 h-3.5" />
-          {t('teamMembers')} ({users.length})
-        </button>
+            <button
+              id="tab-settings-appearance"
+              onClick={() => setActiveSubTab('appearance')}
+              className={getTabClass('appearance')}
+            >
+              <Palette className={`w-3.5 h-3.5 shrink-0 ${activeSubTab === 'appearance' ? 'text-white' : 'text-pink-500'}`} />
+              <span>{t('appearanceTheme')}</span>
+              <span
+                className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
+                  activeSubTab === 'appearance'
+                    ? 'bg-white/20 text-white'
+                    : 'bg-blue-500/20 text-blue-600 dark:text-blue-400'
+                }`}
+              >
+                {language.toUpperCase()} • {theme === 'dark' ? 'Dark' : 'Light'}
+              </span>
+            </button>
 
-        <button
-          id="tab-settings-ecosystem"
-          onClick={() => setActiveSubTab('ecosystem')}
-          className={getTabClass('ecosystem')}
-        >
-          <Code2 className="w-3.5 h-3.5" />
-          {t('clientumRepos')}
-        </button>
+            <button
+              id="tab-settings-schema"
+              onClick={() => setActiveSubTab('schema')}
+              className={getTabClass('schema')}
+            >
+              <Database className={`w-3.5 h-3.5 shrink-0 ${activeSubTab === 'schema' ? 'text-white' : 'text-emerald-500'}`} />
+              <span>{t('customFieldsSchema')}</span>
+            </button>
 
-        <button
-          id="tab-settings-data"
-          onClick={() => setActiveSubTab('data')}
-          className={getTabClass('data')}
-        >
-          <Download className="w-3.5 h-3.5" />
-          {t('dataManagement')}
-        </button>
+            <button
+              id="tab-settings-members"
+              onClick={() => setActiveSubTab('members')}
+              className={getTabClass('members')}
+            >
+              <Users className={`w-3.5 h-3.5 shrink-0 ${activeSubTab === 'members' ? 'text-white' : 'text-cyan-500'}`} />
+              <span>{t('teamMembers')}</span>
+              <span
+                className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
+                  activeSubTab === 'members'
+                    ? 'bg-white/20 text-white'
+                    : 'bg-[var(--bg-muted)] text-[var(--text-secondary)]'
+                }`}
+              >
+                {users.length}
+              </span>
+            </button>
+
+            <button
+              id="tab-settings-ecosystem"
+              onClick={() => setActiveSubTab('ecosystem')}
+              className={getTabClass('ecosystem')}
+            >
+              <Code2 className={`w-3.5 h-3.5 shrink-0 ${activeSubTab === 'ecosystem' ? 'text-white' : 'text-purple-500'}`} />
+              <span>{t('clientumRepos')}</span>
+            </button>
+
+            <button
+              id="tab-settings-data"
+              onClick={() => setActiveSubTab('data')}
+              className={getTabClass('data')}
+            >
+              <Download className={`w-3.5 h-3.5 shrink-0 ${activeSubTab === 'data' ? 'text-white' : 'text-blue-500'}`} />
+              <span>{t('dataManagement')}</span>
+            </button>
+          </div>
+
+          {/* Scroll Right Button */}
+          <button
+            id="btn-scroll-settings-tabs-right"
+            type="button"
+            onClick={() => scrollTabs('right')}
+            className="hidden sm:flex items-center justify-center w-7 h-7 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-muted)] shrink-0 transition-colors cursor-pointer"
+            title="Desplazar pestañas hacia la derecha"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
       </div>
+
+
+      {/* SUBTAB: INTEGRATION HEALTH & PING TESTS */}
+      {activeSubTab === 'health' && (
+        <IntegrationHealthPanel />
+      )}
 
       {/* SUBTAB: WORKSPACE GENERAL SETTINGS */}
       {activeSubTab === 'workspace' && (

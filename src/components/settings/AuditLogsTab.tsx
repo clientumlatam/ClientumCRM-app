@@ -23,9 +23,11 @@ import {
   ChevronRight,
   X,
   Lock,
+  ListFilter,
 } from 'lucide-react';
 import { useCRM } from '../../context/CRMContext';
 import { AuditLogEntry, SecurityAnomaly } from '../../types';
+import { SystemLogsViewer } from './SystemLogsViewer';
 
 export const AuditLogsTab: React.FC = () => {
   const {
@@ -42,6 +44,7 @@ export const AuditLogsTab: React.FC = () => {
     showToast,
   } = useCRM();
 
+  const [activeView, setActiveView] = useState<'soc2' | 'events'>('events');
   const [searchTerm, setSearchTerm] = useState('');
   const [severityFilter, setSeverityFilter] = useState<'all' | 'info' | 'warning' | 'security' | 'critical'>('all');
   const [entityFilter, setEntityFilter] = useState<string>('all');
@@ -125,8 +128,55 @@ export const AuditLogsTab: React.FC = () => {
 
   return (
     <div id="audit-logs-container" className="space-y-6">
-      {/* Top Header Metrics & Compliance Readiness */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+      {/* Sub-view switcher */}
+      <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
+        <div className="flex items-center gap-2">
+          <button
+            id="btn-view-events-log"
+            onClick={() => setActiveView('events')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2 transition-all cursor-pointer ${
+              activeView === 'events'
+                ? 'bg-blue-600 text-white font-semibold shadow-2xs'
+                : 'bg-[var(--bg-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-muted)] border border-[var(--border-subtle)]'
+            }`}
+          >
+            <Terminal className="w-3.5 h-3.5" />
+            <span>Log de Eventos del CRM (Tiempo Real)</span>
+            <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-200">
+              {auditLogs.length}
+            </span>
+          </button>
+
+          <button
+            id="btn-view-soc2-audit"
+            onClick={() => setActiveView('soc2')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2 transition-all cursor-pointer ${
+              activeView === 'soc2'
+                ? 'bg-blue-600 text-white font-semibold shadow-2xs'
+                : 'bg-[var(--bg-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-muted)] border border-[var(--border-subtle)]'
+            }`}
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Auditoría de Seguridad SOC2 & Cumplimiento</span>
+            {activeAnomalies.length > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 animate-pulse">
+                {activeAnomalies.length} Alerta
+              </span>
+            )}
+          </button>
+        </div>
+
+        <div className="text-xs text-[var(--text-muted)] hidden sm:block">
+          Registro inmutable con trazabilidad IP y control de cambios
+        </div>
+      </div>
+
+      {activeView === 'events' ? (
+        <SystemLogsViewer />
+      ) : (
+        <>
+          {/* Top Header Metrics & Compliance Readiness */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         <div className="bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl p-4">
           <div className="flex items-center justify-between">
             <span className="text-xs text-[var(--text-muted)] font-medium">Eventos Registrados</span>
@@ -449,6 +499,8 @@ export const AuditLogsTab: React.FC = () => {
           </table>
         </div>
       </div>
+        </>
+      )}
 
       {/* Log Detail Modal */}
       {selectedLog && (

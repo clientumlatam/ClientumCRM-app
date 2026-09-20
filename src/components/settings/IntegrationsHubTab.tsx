@@ -14,11 +14,15 @@ import {
   Mail,
   ShoppingCart,
   Sparkles,
+  Activity,
+  HeartPulse,
 } from 'lucide-react';
 import { useCRM } from '../../context/CRMContext';
 import { WebhookConfig } from '../../types';
 import { CloudflareWebmailTab } from './CloudflareWebmailTab';
 import { UserApiKeysTab } from './UserApiKeysTab';
+import { IntegrationHealthPanel } from './IntegrationHealthPanel';
+import { AfipConfigurationForm } from './AfipConfigurationForm';
 
 export const IntegrationsHubTab: React.FC = () => {
   const {
@@ -37,7 +41,7 @@ export const IntegrationsHubTab: React.FC = () => {
     openAICopilotSettings,
   } = useCRM();
 
-  const [activeSection, setActiveSection] = useState<'calendar' | 'slack' | 'emailRouting' | 'userApiKeys' | 'webhooks' | 'commercial'>('emailRouting');
+  const [activeSection, setActiveSection] = useState<'health' | 'afip' | 'calendar' | 'slack' | 'emailRouting' | 'userApiKeys' | 'webhooks' | 'commercial'>('health');
   const [isSyncingCalendar, setIsSyncingCalendar] = useState(false);
   const [isSendingSlack, setIsSendingSlack] = useState(false);
 
@@ -97,12 +101,31 @@ export const IntegrationsHubTab: React.FC = () => {
       {/* Navigation Sub-Pills */}
       <div className="flex items-center gap-2 border-b border-[var(--border-subtle,#e2e8f0)] dark:border-[#1e2434] pb-3 overflow-x-auto">
         <button
+          id="btn-subtab-health"
+          onClick={() => setActiveSection('health')}
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2 transition-all shrink-0 ${ activeSection === 'health' ? 'bg-blue-600 text-[var(--text-primary,#0f172a)] dark:text-white shadow-2xs font-semibold' : 'bg-[var(--bg-card,#ffffff)] dark:bg-[#121620] text-[var(--text-secondary,#475569)] dark:text-slate-300 hover:text-[var(--text-primary,#0f172a)] dark:hover:text-white hover:bg-[var(--bg-card-hover,#f1f5f9)] dark:hover:bg-[#1a202c]' }`}
+        >
+          <Activity className="w-3.5 h-3.5 text-emerald-400" />
+          <span>Estado de Salud & Ping en Vivo</span>
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+        </button>
+
+        <button
+          id="btn-subtab-afip"
+          onClick={() => setActiveSection('afip')}
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2 transition-all shrink-0 ${ activeSection === 'afip' ? 'bg-blue-600 text-[var(--text-primary,#0f172a)] dark:text-white shadow-2xs font-semibold' : 'bg-[var(--bg-card,#ffffff)] dark:bg-[#121620] text-[var(--text-secondary,#475569)] dark:text-slate-300 hover:text-[var(--text-primary,#0f172a)] dark:hover:text-white hover:bg-[var(--bg-card-hover,#f1f5f9)] dark:hover:bg-[#1a202c]' }`}
+        >
+          <span className="w-2 h-2 rounded-full bg-cyan-400" />
+          <span>AFIP Facturación (.crt / .key)</span>
+        </button>
+
+        <button
           onClick={() => setActiveSection('emailRouting')}
           className={`px-3.5 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2 transition-all shrink-0 ${ activeSection === 'emailRouting' ? 'bg-blue-600 text-[var(--text-primary,#0f172a)] dark:text-white shadow-2xs font-semibold' : 'bg-[var(--bg-card,#ffffff)] dark:bg-[#121620] text-[var(--text-secondary,#475569)] dark:text-slate-300 hover:text-[var(--text-primary,#0f172a)] dark:hover:text-white hover:bg-[var(--bg-card-hover,#f1f5f9)] dark:hover:bg-[#1a202c]' }`}
         >
           <Mail className="w-3.5 h-3.5 text-blue-300" />
           <span>Cloudflare Email & Webmail Worker</span>
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="w-2 h-2 rounded-full bg-emerald-400" />
         </button>
 
         <button
@@ -160,6 +183,12 @@ export const IntegrationsHubTab: React.FC = () => {
           <span>Conectores comerciales</span>
         </button>
       </div>
+
+      {/* SECTION -1: INTEGRATIONS HEALTH MONITOR & REALTIME PING */}
+      {activeSection === 'health' && <IntegrationHealthPanel />}
+
+      {/* SECTION AFIP: AFIP FACTURACIÓN ELECTRÓNICA & CERTIFICATES */}
+      {activeSection === 'afip' && <AfipConfigurationForm />}
 
       {/* SECTION 0: COMMERCIAL CONNECTORS DESCRIBED IN THE INTEGRATIONS BRIEF */}
       {activeSection === 'commercial' && (

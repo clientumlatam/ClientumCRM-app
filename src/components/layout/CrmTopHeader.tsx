@@ -62,6 +62,8 @@ export const CrmTopHeader: React.FC<CrmTopHeaderProps> = ({
     setIsCommandPaletteOpen,
     opportunities,
     tasks,
+    notifications,
+    asyncJobs,
   } = useCRM();
 
   // Helper to determine theme for the toggle icon
@@ -79,21 +81,10 @@ export const CrmTopHeader: React.FC<CrmTopHeaderProps> = ({
 
   // Total alert notifications for reminders
   const totalAlertsCount = React.useMemo(() => {
-    const now = Date.now();
-    const fiveDaysMs = 5 * 24 * 60 * 60 * 1000;
-    const rotting = opportunities.filter((o) => {
-      if (o.stage === 'won' || o.stage === 'lost') return false;
-      const last = new Date(o.updatedAt || o.createdAt).getTime();
-      return now - last >= fiveDaysMs;
-    }).length;
-
-    const todayStr = new Date().toISOString().split('T')[0];
-    const pendingTasks = tasks.filter(
-      (t) => t.status !== 'Completed' && t.dueDate <= todayStr
-    ).length;
-
-    return rotting + pendingTasks;
-  }, [opportunities, tasks]);
+    const unread = (notifications || []).filter((n) => !n.read).length;
+    const activeBackgroundJobs = (asyncJobs || []).filter((j) => j.status === 'in_progress').length;
+    return unread + activeBackgroundJobs;
+  }, [notifications, asyncJobs]);
 
   return (
     <header

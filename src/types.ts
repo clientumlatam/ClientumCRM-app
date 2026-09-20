@@ -16,6 +16,13 @@ export interface User {
   email: string;
   avatar: string;
   role: string;
+  preferences?: {
+    tableColumns?: Record<string, TableColumnConfig[]>;
+    theme?: string;
+    language?: string;
+    notificationsEnabled?: boolean;
+    [key: string]: any;
+  };
 }
 
 export interface CustomField {
@@ -657,7 +664,59 @@ export interface TrialSubscriptionState {
   amountARS?: number;
   cuitOrCuil?: string;
   businessName?: string;
+}export interface AsyncJob {
+  id: string;
+  type: 'bulk_email' | 'afip_sync' | 'ai_enrichment' | 'backup_export' | 'whatsapp_campaign' | 'health_check' | 'report_gen';
+  title: string;
+  description: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'failed';
+  progress: number; // 0 - 100
+  createdAt: string;
+  completedAt?: string;
+  error?: string;
+  resultSummary?: string;
+  linkTab?: ActiveTab | string;
+  entityType?: string;
+  entityId?: string;
 }
 
+export interface AppNotification {
+  id: string;
+  type: 'async_process' | 'task_assignment' | 'approaching_deadline' | 'mention' | 'system' | 'security' | 'integration';
+  title: string;
+  message: string;
+  timestamp: string;
+  createdAt: number;
+  read: boolean;
+  jobId?: string;
+  status?: 'success' | 'warning' | 'error' | 'info';
+  linkTab?: ActiveTab | string;
+  actionLabel?: string;
+  actionData?: any;
+}
 
+export interface TableColumnConfig {
+  id: string;
+  label: string;
+  visible: boolean;
+  order: number;
+  width?: string;
+  minWidth?: number;
+  fixed?: 'left' | 'right';
+  isDefault?: boolean;
+}
+
+export interface IntegrationHealthItem {
+  id: string;
+  name: string;
+  category: 'messaging' | 'billing' | 'payments' | 'ai' | 'calendar' | 'notifications' | 'database' | 'email';
+  status: 'operational' | 'degraded' | 'error' | 'not_configured' | 'checking';
+  latencyMs?: number;
+  lastChecked?: string;
+  endpointUrl?: string;
+  details?: string;
+  errorMessage?: string;
+  docLink?: string;
+  configured: boolean;
+}
 
