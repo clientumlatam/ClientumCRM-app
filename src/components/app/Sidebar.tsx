@@ -189,24 +189,28 @@ export const Sidebar: React.FC = React.memo(() => {
         </button>
 
         {/* Encabezado del Sistema */}
-        <div className="flex h-16 shrink-0 items-center justify-between border-b px-4 border-[var(--border-subtle)]">
+        <div className="flex h-16 shrink-0 items-center justify-between border-b px-4 border-[var(--sidebar-border)] bg-[var(--sidebar-bg)]">
           <button
             onClick={() => handleNavClick('dashboard')}
-            className="flex items-center gap-3 text-left focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md p-1 overflow-hidden group cursor-pointer"
+            className="flex items-center gap-3 text-left focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-md p-1 overflow-hidden group cursor-pointer"
             aria-label="Ir al Resumen Ejecutivo"
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[var(--color-primary)] to-indigo-600 flex items-center justify-center shadow-lg shadow-[var(--color-primary)]/30 shrink-0">
-              <Boxes className="w-5 h-5 text-white" />
-            </div>
-            {!isCollapsed && (
-              <div className="animate-in fade-in slide-in-from-left-2 duration-300">
-                <span className="block font-bold leading-tight tracking-tight text-[var(--text-primary)] whitespace-nowrap text-sm">
-                  ClientumOS
-                </span>
-                <span className="block text-[10px] font-medium text-[var(--text-muted)] whitespace-nowrap">
-                  Enterprise Suite v4.2
-                </span>
-              </div>
+            {isCollapsed ? (
+              <ClientumLogo
+                variant="isotipo"
+                size="md"
+                showClearance={true}
+                alt="Clientum OS"
+              />
+            ) : (
+              <ClientumLogo
+                variant="horizontal"
+                size="md"
+                badge="CRM"
+                subtitle="Enterprise Suite v4.2"
+                alt="Clientum CRM"
+                onDark={true}
+              />
             )}
           </button>
 
@@ -214,7 +218,7 @@ export const Sidebar: React.FC = React.memo(() => {
             <button
               onClick={() => openNewRecordModal('opportunity')}
               aria-label="Creación Rápida"
-              className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--color-primary-light)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] shrink-0 shadow-sm"
+              className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-dark)] transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] shrink-0 shadow-sm"
               title="Creación Rápida"
             >
               <Plus className="h-4 w-4" />
@@ -268,7 +272,7 @@ export const Sidebar: React.FC = React.memo(() => {
                     aria-expanded={!isSectionCollapsed}
                   >
                     <span className="flex items-center gap-1.5">
-                      <span className={`w-1.5 h-1.5 rounded-full inline-block ${ section.id === 'main' ? 'bg-blue-500' : section.id === 'communication' ? 'bg-emerald-500' : section.id === 'ai' ? 'bg-indigo-500' : section.id === 'operations' ? 'bg-amber-500' : 'bg-purple-500' }`} />
+                      <span className={`w-1.5 h-1.5 rounded-full inline-block bg-[var(--color-primary)] opacity-60`} />
                       <span>{section.label}</span>
                     </span>
                     <ChevronDown

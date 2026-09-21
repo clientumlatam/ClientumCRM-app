@@ -77,7 +77,7 @@ export const SolutionSelectorWidget: React.FC<SolutionSelectorWidgetProps> = ({ 
   };
 
   return (
-    <section className="p-8 sm:p-10 rounded-3xl bg-[#f8fafc] dark:bg-slate-900 text-[#0f172a] dark:text-white dark:text-white border border-[#e2e8f0] dark:border-slate-800 space-y-6 shadow-xl relative overflow-hidden font-['Plus_Jakarta_Sans',sans-serif]">
+    <section className="p-8 sm:p-10 rounded-3xl bg-[#f8fafc] dark:bg-slate-900 text-[#0f172a] dark:text-white dark:text-white border border-[#e2e8f0] dark:border-slate-800 space-y-6 shadow-xl relative overflow-hidden font-['Inter',sans-serif]">
       <div className="text-center max-w-2xl mx-auto space-y-2">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-300 text-xs font-bold border border-cyan-500/30">
           <Sparkles className="w-3.5 h-3.5" />

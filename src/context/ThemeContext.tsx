@@ -1,18 +1,22 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { ThemeMode } from '../types';
+import { ThemeMode, ContrastMode } from '../types';
 import { syncWorkspaceToFirestore } from '../firebase';
 
 interface ThemeContextType {
   theme: ThemeMode;
   resolvedTheme: 'light' | 'dark';
   systemTheme: 'light' | 'dark';
+  contrast: ContrastMode;
   setTheme: (theme: ThemeMode) => void;
+  setContrast: (contrast: ContrastMode) => void;
   toggleTheme: () => void;
+  toggleContrast: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const THEME_STORAGE_KEY = 'clientum_theme';
+const CONTRAST_STORAGE_KEY = 'clientum_contrast';
 
 export const getSystemThemePreference = (): 'light' | 'dark' => {
   if (typeof window !== 'undefined' && window.matchMedia) {
@@ -58,6 +62,15 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode; defaultTheme?:
 
   // Initial state with automatic OS preference detection and localStorage persistence layer
   const [theme, setThemeState] = useState<ThemeMode>(() => getInitialTheme(defaultTheme));
+  const [contrast, setContrastState] = useState<ContrastMode>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem(CONTRAST_STORAGE_KEY);
+        if (saved === 'aaa' || saved === 'normal') return saved as ContrastMode;
+      } catch {}
+    }
+    return 'normal';
+  });
 
   // Calculate resolved theme based on current mode and system OS preference
   const resolvedTheme: 'light' | 'dark' = theme === 'system' ? systemTheme : theme;
@@ -91,6 +104,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode; defaultTheme?:
     root.setAttribute('data-theme', resolvedTheme);
     root.setAttribute('data-mode', resolvedTheme);
     root.setAttribute('data-theme-setting', theme);
+    root.setAttribute('data-contrast', contrast);
 
     if (resolvedTheme === 'dark') {
       root.classList.add('dark');
@@ -101,14 +115,40 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode; defaultTheme?:
     }
     root.style.colorScheme = resolvedTheme;
 
+    // Advanced Contrast Selector (WCAG AAA) & High Contrast Filter in Dark Mode
+    if (contrast === 'aaa') {
+      root.classList.add('contrast-aaa');
+      if (resolvedTheme === 'light') {
+        root.style.setProperty('--bg-canvas', '#ffffff');
+        root.style.setProperty('--text-primary', '#000000');
+        root.style.setProperty('--border-subtle', '#64748b');
+      } else {
+        root.style.setProperty('--bg-canvas', '#000000');
+        root.style.setProperty('--bg-surface', '#030303');
+        root.style.setProperty('--bg-card', '#080808');
+        root.style.setProperty('--text-primary', '#ffffff');
+        root.style.setProperty('--border-subtle', '#334155');
+        root.style.setProperty('filter', 'contrast(1.35) saturate(1.1)');
+      }
+    } else {
+      root.classList.remove('contrast-aaa');
+      root.style.removeProperty('--bg-canvas');
+      root.style.removeProperty('--bg-surface');
+      root.style.removeProperty('--bg-card');
+      root.style.removeProperty('--text-primary');
+      root.style.removeProperty('--border-subtle');
+      root.style.removeProperty('filter');
+    }
+
     // Persist current theme mode selection across refreshes
     try {
       localStorage.setItem(THEME_STORAGE_KEY, theme);
       localStorage.setItem('theme', theme);
+      localStorage.setItem(CONTRAST_STORAGE_KEY, contrast);
     } catch {
       // storage unavailable
     }
-  }, [theme, resolvedTheme]);
+  }, [theme, resolvedTheme, contrast]);
 
   // 3. Listen to cross-tab storage updates
   useEffect(() => {
@@ -116,6 +156,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode; defaultTheme?:
       if ((e.key === THEME_STORAGE_KEY || e.key === 'theme') && e.newValue) {
         if (e.newValue === 'dark' || e.newValue === 'light' || e.newValue === 'system') {
           setThemeState(e.newValue as ThemeMode);
+        }
+      }
+      if (e.key === CONTRAST_STORAGE_KEY && e.newValue) {
+        if (e.newValue === 'aaa' || e.newValue === 'normal') {
+          setContrastState(e.newValue as ContrastMode);
         }
       }
     };
@@ -147,6 +192,15 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode; defaultTheme?:
     }
   }, []);
 
+  const setContrast = useCallback((newContrast: ContrastMode) => {
+    setContrastState(newContrast);
+    try {
+      localStorage.setItem(CONTRAST_STORAGE_KEY, newContrast);
+    } catch {
+      // storage unavailable
+    }
+  }, []);
+
   const toggleTheme = useCallback(() => {
     setThemeState((current) => {
       const currentResolved = current === 'system' ? getSystemThemePreference() : current;
@@ -175,14 +229,29 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode; defaultTheme?:
     });
   }, []);
 
+  const toggleContrast = useCallback(() => {
+    setContrastState((current) => {
+      const next: ContrastMode = current === 'aaa' ? 'normal' : 'aaa';
+      try {
+        localStorage.setItem(CONTRAST_STORAGE_KEY, next);
+      } catch {
+        // storage unavailable
+      }
+      return next;
+    });
+  }, []);
+
   return (
     <ThemeContext.Provider
       value={{
         theme,
         resolvedTheme,
         systemTheme,
+        contrast,
         setTheme,
+        setContrast,
         toggleTheme,
+        toggleContrast,
       }}
     >
       {children}

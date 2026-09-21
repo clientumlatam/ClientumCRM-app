@@ -31,7 +31,7 @@ export const TrialBanner: React.FC = () => {
 
   return (
     <div
-      className={`w-full py-2.5 px-4 text-xs transition-all relative z-40 border-b font-['Plus_Jakarta_Sans',sans-serif] ${ isExpired ? 'bg-rose-900 text-rose-100 border-rose-800' : 'bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white border-blue-900/50 shadow-xs' }`}
+      className={`w-full py-2.5 px-4 text-xs transition-all relative z-40 border-b font-['Inter',sans-serif] ${ isExpired ? 'bg-rose-900 text-rose-100 border-rose-800' : 'bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white border-blue-900/50 shadow-xs' }`}
     >
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">

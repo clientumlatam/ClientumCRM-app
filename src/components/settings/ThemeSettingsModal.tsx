@@ -16,9 +16,10 @@ import {
   Briefcase,
   Layers,
   ShieldCheck,
+  Zap,
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
-import { ThemeMode } from '../../types';
+import { ThemeMode, ContrastMode } from '../../types';
 
 interface ThemeSettingsModalProps {
   isOpen: boolean;
@@ -29,10 +30,11 @@ export const ThemeSettingsModal: React.FC<ThemeSettingsModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  const { theme, resolvedTheme, systemTheme, setTheme } = useTheme();
+  const { theme, resolvedTheme, systemTheme, contrast, setTheme, setContrast } = useTheme();
 
   // Selected candidate theme in the modal before applying or committing
   const [selectedMode, setSelectedMode] = useState<ThemeMode>(theme);
+  const [selectedContrast, setSelectedContrast] = useState<ContrastMode>(contrast);
   // Preview view switcher: 'kanban' | 'charts' | 'split'
   const [previewTab, setPreviewTab] = useState<'kanban' | 'charts' | 'split'>('kanban');
   // Temporary preview theme toggle for testing inside the modal preview container
@@ -42,9 +44,10 @@ export const ThemeSettingsModal: React.FC<ThemeSettingsModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       setSelectedMode(theme);
+      setSelectedContrast(contrast);
       setPreviewTheme(theme === 'system' ? systemTheme : theme);
     }
-  }, [isOpen, theme, systemTheme]);
+  }, [isOpen, theme, systemTheme, contrast]);
 
   // Update preview theme when selectedMode changes
   useEffect(() => {
@@ -59,6 +62,7 @@ export const ThemeSettingsModal: React.FC<ThemeSettingsModalProps> = ({
 
   const handleApplyTheme = () => {
     setTheme(selectedMode);
+    setContrast(selectedContrast);
     onClose();
   };
 
@@ -182,6 +186,56 @@ export const ThemeSettingsModal: React.FC<ThemeSettingsModalProps> = ({
                     Detectado: <strong className="capitalize text-blue-600 dark:text-blue-400">{systemTheme === 'dark' ? 'Oscuro' : 'Claro'}</strong>
                   </div>
                 </div>
+              </button>
+            </div>
+          </div>
+
+          {/* Advanced Contrast Selector (WCAG AAA) */}
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-3">
+              Selector de Contraste Avanzado (WCAG AAA)
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setSelectedContrast('normal')}
+                className={`p-3.5 rounded-xl border-2 text-left transition-all cursor-pointer flex items-center justify-between gap-3 ${ selectedContrast === 'normal' ? 'border-blue-600 bg-blue-50/50 dark:bg-blue-950/30 text-blue-950 dark:text-white ring-1 ring-blue-600' : 'border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:border-[var(--border-strong)]' }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-300">
+                    <Sun className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-xs text-[var(--text-primary)]">Contraste Estándar (AA)</div>
+                    <div className="text-[11px] text-[var(--text-muted)]">Paleta corporativa equilibrada</div>
+                  </div>
+                </div>
+                {selectedContrast === 'normal' && (
+                  <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs shrink-0">
+                    <Check className="w-3 h-3" />
+                  </span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedContrast('aaa')}
+                className={`p-3.5 rounded-xl border-2 text-left transition-all cursor-pointer flex items-center justify-between gap-3 ${ selectedContrast === 'aaa' ? 'border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/30 text-emerald-950 dark:text-white ring-1 ring-emerald-600' : 'border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:border-[var(--border-strong)]' }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                    <Zap className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-xs text-[var(--text-primary)]">Alto Contraste WCAG AAA</div>
+                    <div className="text-[11px] text-[var(--text-muted)]">Máxima legibilidad y filtro dark</div>
+                  </div>
+                </div>
+                {selectedContrast === 'aaa' && (
+                  <span className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs shrink-0">
+                    <Check className="w-3 h-3" />
+                  </span>
+                )}
               </button>
             </div>
           </div>

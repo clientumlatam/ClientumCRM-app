@@ -251,7 +251,7 @@ export const MailTemplateEditor: React.FC<MailTemplateEditorProps> = ({
   return (
     <div
       id="mail-template-editor"
-      className={`grid grid-cols-1 lg:grid-cols-12 gap-6 font-['Plus_Jakarta_Sans',sans-serif] ${className}`}
+      className={`grid grid-cols-1 lg:grid-cols-12 gap-6 font-['Inter',sans-serif] ${className}`}
     >
       {/* LEFT COLUMN: Template Navigator & Library (4 cols) */}
       <div className="lg:col-span-4 space-y-4">

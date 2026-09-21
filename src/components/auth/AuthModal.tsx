@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { X, Zap, Mail, Lock, User, Building, Eye, EyeOff, ArrowRight, Sparkles, Clock } from "lucide-react";
 import { useCRM } from "../../context/CRMContext";
 import { SocialAuthButtons } from "./SocialAuthButtons";
+import { ClientumLogo } from "../common/ClientumLogo";
 import { signInWithEmail, registerWithEmail, sendFirebasePasswordReset } from "../../firebase";
 import { bootstrapClientumAccount } from "../../lib/api";
 
@@ -119,16 +120,21 @@ export const AuthModal: React.FC = () => {
         </button>
 
         <div className="p-6 pt-7">
-          <div className="text-center mb-5">
-            <h2 className="text-lg font-bold text-[var(--text-primary)] tracking-tight">
-              {mode === "login" && "Iniciar sesión en ClientumCRM"}
-              {mode === "register" && "Crear cuenta comercial"}
-              {mode === "forgot" && "Recuperar contraseña"}
+          <div className="text-center mb-5 flex flex-col items-center">
+            <ClientumLogo
+              variant="isotipo"
+              size="xl"
+              showClearance={true}
+              className="mx-auto mb-3.5"
+              alt="Clientum Logo"
+            />
+            <h2 className="text-xl font-bold text-[#022046] dark:text-white tracking-tight font-['Inter',Arial,sans-serif]">
+              Clientum<span className="text-[#0056B3]">CRM</span>
             </h2>
             <p className="mt-1 text-xs text-[var(--text-muted)]">
-              {mode === "login" && "Ingresa con tus credenciales seguras"}
-              {mode === "register" && "Comienza a gestionar tu pipeline comercial"}
-              {mode === "forgot" && "Te enviaremos un enlace de restablecimiento seguro"}
+              {mode === "login" && "Ingresa a tu espacio de trabajo comercial"}
+              {mode === "register" && "Crea tu cuenta empresarial en segundos"}
+              {mode === "forgot" && "Recupera el acceso seguro a tu cuenta"}
             </p>
           </div>
 

@@ -128,7 +128,7 @@ export const CampusLMSView: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-[var(--bg-card)] text-[var(--text-primary)] text-xs font-['Plus_Jakarta_Sans',sans-serif]">
+    <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-[var(--bg-card)] text-[var(--text-primary)] text-xs font-['Inter',sans-serif]">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border-subtle)]">
         <div>

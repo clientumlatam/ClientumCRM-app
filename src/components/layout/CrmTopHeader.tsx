@@ -95,31 +95,33 @@ export const CrmTopHeader: React.FC<CrmTopHeaderProps> = ({
       <div className="flex items-center gap-3 min-w-0 shrink-0">
         <button
           onClick={toggleMobileSidebar}
-          className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-[var(--border-subtle,#e2e8f0)] dark:border-slate-700 text-[var(--text-muted,#64748b)] dark:text-slate-500 lg:hidden transition-colors cursor-pointer"
+          className="p-1.5 rounded-lg bg-[var(--bg-surface)] hover:bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] lg:hidden transition-colors cursor-pointer"
           title="Abrir Menú Lateral"
         >
-          <Menu className="w-4 h-4 text-slate-600 dark:text-[var(--text-primary,#0f172a)] dark:text-slate-200" />
+          <Menu className="w-4 h-4 text-[var(--text-secondary)]" />
         </button>
 
-        {/* App Branding: Only shown on mobile/tablets when sidebar is hidden */}
+        {/* App Branding: Header with official Brand Manual protection area and typography */}
         <div
           id="crm-header-branding"
           onClick={exitToPublicSite}
-          className="flex lg:hidden items-center gap-2 cursor-pointer select-none group shrink-0 pr-2 border-r border-slate-200 dark:border-[var(--border-subtle,#e2e8f0)] dark:border-slate-800"
-          title="Clientum CRM - Ir al sitio público"
+          className="flex lg:hidden items-center cursor-pointer select-none group shrink-0 pr-3 border-r border-[var(--border-subtle)]"
+          title="Clientum CRM - Ir al sitio público (Manual de Marca v1.0)"
         >
-          <div className="w-7 h-7 rounded-lg bg-blue-600 p-1 flex items-center justify-center shadow-sm">
-            <ClientumLogo className="w-4 h-4 text-[var(--text-primary,#0f172a)] dark:text-white" />
-          </div>
-          <span className="text-sm font-extrabold text-blue-900 dark:text-white tracking-tight">Clientum</span>
+          <ClientumLogo
+            variant="horizontal"
+            size="sm"
+            badge="CRM"
+            alt="Clientum CRM"
+          />
         </div>
 
         {/* Connectivity Indicator Component */}
         <ConnectivityIndicator />
 
         {/* Active Tab Breadcrumb Badge */}
-        <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-[var(--border-subtle,#e2e8f0)] dark:border-slate-700/60 text-xs font-semibold text-slate-600 dark:text-[var(--text-primary,#0f172a)] dark:text-slate-200">
-          <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+        <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-xs font-semibold text-[var(--text-secondary)]">
+          <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)] animate-pulse" />
           <span className="capitalize">
             {activeTab === 'dashboard' ? 'Resumen Ejecutivo' :
              activeTab === 'userDashboard' ? 'Mi Panel Personal' :
@@ -146,7 +148,7 @@ export const CrmTopHeader: React.FC<CrmTopHeaderProps> = ({
           title="Abrir Command Palette (Ctrl+K) para buscar contactos o crear negocios"
         >
           <div className="flex items-center gap-2">
-            <Search className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform" />
+            <Search className="w-3.5 h-3.5 text-[var(--color-primary)] group-hover:scale-110 transition-transform" />
             <span className="text-[var(--text-muted)] group-hover:text-[var(--text-primary)]">Buscar contactos, empresas o comandos...</span>
           </div>
           <kbd className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--bg-surface)] text-[var(--text-muted)] border border-[var(--border-subtle)] font-semibold shadow-2xs">
@@ -163,10 +165,10 @@ export const CrmTopHeader: React.FC<CrmTopHeaderProps> = ({
           <button
             type="button"
             onClick={onOpenConfig}
-            className="hidden lg:flex items-center gap-1.5 rounded-lg border border-cyan-500/30 bg-cyan-950/40 px-2.5 py-1.5 text-xs font-semibold text-cyan-300 transition-colors hover:bg-cyan-900/60 cursor-pointer"
+            className="hidden lg:flex items-center gap-1.5 rounded-lg border border-[var(--color-action)]/30 bg-[var(--color-action)]/10 px-2.5 py-1.5 text-xs font-semibold text-[var(--color-action)] transition-colors hover:bg-[var(--color-action)]/20 cursor-pointer"
             title="Configurar credenciales de este módulo"
           >
-            <Settings2 className="h-3.5 w-3.5 text-cyan-400" />
+            <Settings2 className="h-3.5 w-3.5" />
             <span>Configurar API</span>
           </button>
         )}
@@ -175,7 +177,7 @@ export const CrmTopHeader: React.FC<CrmTopHeaderProps> = ({
         <button
           id="crm-header-copilot-btn"
           onClick={openAICopilot}
-          className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30 transition-all cursor-pointer ring-1 ring-white/10"
+          className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--color-primary)] text-[var(--bg-navbar)] text-xs font-bold shadow-md shadow-[var(--color-primary)]/20 hover:shadow-lg hover:shadow-[var(--color-primary)]/30 transition-all cursor-pointer ring-1 ring-white/10"
           title="Copilot AI (Alt+K)"
         >
           <Sparkles className="h-3.5 w-3.5 fill-white/20" />
@@ -185,7 +187,7 @@ export const CrmTopHeader: React.FC<CrmTopHeaderProps> = ({
         {/* AI Voice Note Recorder */}
         <button
           onClick={onOpenVoiceNote}
-          className="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/40 hover:bg-slate-200 dark:hover:bg-slate-800 text-[var(--text-muted,#64748b)] dark:text-slate-500 dark:text-[var(--text-muted,#64748b)] dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-[var(--border-subtle,#e2e8f0)] dark:border-slate-700/50 text-xs transition-all cursor-pointer"
+          className="p-1.5 rounded-xl bg-[var(--bg-surface)] hover:bg-[var(--bg-card)] text-[var(--text-secondary)] border border-[var(--border-subtle)] text-xs transition-all cursor-pointer"
           title="Grabar nota de voz o llamada con IA"
         >
           <Mic className="w-3.5 h-3.5" />
@@ -194,7 +196,7 @@ export const CrmTopHeader: React.FC<CrmTopHeaderProps> = ({
         {/* Active Automations Engine */}
         <button
           onClick={onOpenAutomations}
-          className="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/40 hover:bg-slate-200 dark:hover:bg-slate-800 text-[var(--text-muted,#64748b)] dark:text-slate-500 dark:text-[var(--text-muted,#64748b)] dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-[var(--border-subtle,#e2e8f0)] dark:border-slate-700/50 text-xs transition-all cursor-pointer"
+          className="p-1.5 rounded-xl bg-[var(--bg-surface)] hover:bg-[var(--bg-card)] text-[var(--text-secondary)] border border-[var(--border-subtle)] text-xs transition-all cursor-pointer"
           title="Workflows y Automatizaciones en vivo"
         >
           <Zap className="w-3.5 h-3.5" />
@@ -204,14 +206,14 @@ export const CrmTopHeader: React.FC<CrmTopHeaderProps> = ({
         <div className="relative">
           <button
             onClick={() => setIsRemindersOpen((prev) => !prev)}
-            className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800/40 text-[var(--text-muted,#64748b)] dark:text-slate-500 dark:text-[var(--text-muted,#64748b)] dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all border border-slate-200 dark:border-[var(--border-subtle,#e2e8f0)] dark:border-slate-700/50 cursor-pointer"
+            className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:bg-[var(--bg-card)] hover:text-[var(--text-primary)] transition-all border border-[var(--border-subtle)] cursor-pointer"
             title="Notificaciones y seguimiento"
           >
             <Bell className="w-4 h-4" />
             {totalAlertsCount > 0 && (
               <span className="absolute top-2.5 right-2.5 flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-500 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-primary)] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--color-primary)]"></span>
               </span>
             )}
           </button>
@@ -225,11 +227,12 @@ export const CrmTopHeader: React.FC<CrmTopHeaderProps> = ({
         {/* Theme Toggle Button */}
         <button
           onClick={toggleTheme}
-          className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-[var(--border-subtle,#e2e8f0)] dark:border-slate-700 border text-[var(--text-muted,#64748b)] dark:text-slate-500 dark:text-[var(--text-secondary,#475569)] dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer"
+          className="p-1.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-card)] transition-all cursor-pointer"
           title="Alternar tema claro/oscuro"
         >
-          {isDark ? <Sun className="w-3.5 h-3.5 text-amber-500" /> : <Moon className="w-3.5 h-3.5 text-[var(--text-muted,#64748b)] dark:text-slate-500" />}
+          {isDark ? <Sun className="w-3.5 h-3.5 text-amber-500" /> : <Moon className="w-3.5 h-3.5 text-[var(--text-secondary)]" />}
         </button>
+
 
         {/* User Profile Pill & Dropdown */}
         <div className="relative ml-1">

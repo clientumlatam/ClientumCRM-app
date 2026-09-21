@@ -47,6 +47,8 @@ import { IntegrationHealthPanel } from './IntegrationHealthPanel';
 import { ThemeModeSettings } from './ThemeModeSettings';
 import { EcosystemReposHubTab } from './EcosystemReposHubTab';
 import { MailSettings } from './MailSettings';
+import { BrandManualTab } from './BrandManualTab';
+import { BrandManualShowcase } from './BrandManualShowcase';
 
 export const SettingsView: React.FC = () => {
   const {
@@ -85,7 +87,7 @@ export const SettingsView: React.FC = () => {
   };
 
   const [activeSubTab, setActiveSubTab] = useState<
-    'workspace' | 'health' | 'integrations' | 'roles' | 'audit' | 'notifications' | 'mail' | 'appearance' | 'schema' | 'members' | 'ecosystem' | 'data'
+    'workspace' | 'brand' | 'health' | 'integrations' | 'roles' | 'audit' | 'notifications' | 'mail' | 'appearance' | 'schema' | 'members' | 'ecosystem' | 'data'
   >(() => {
     if (activeTab === 'auditLogs') return 'audit';
     if (activeTab === 'apiIntegrations' || activeTab === 'integrationSettings') return 'integrations';
@@ -255,6 +257,24 @@ export const SettingsView: React.FC = () => {
             >
               <Building2 className={`w-3.5 h-3.5 shrink-0 ${activeSubTab === 'workspace' ? 'text-white' : 'text-blue-500'}`} />
               <span>Configuración Workspace</span>
+            </button>
+
+            <button
+              id="tab-settings-brand"
+              onClick={() => setActiveSubTab('brand')}
+              className={getTabClass('brand')}
+            >
+              <BookOpen className={`w-3.5 h-3.5 shrink-0 ${activeSubTab === 'brand' ? 'text-white' : 'text-[#0056B3]'}`} />
+              <span>Manual de Marca v1.0</span>
+              <span
+                className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
+                  activeSubTab === 'brand'
+                    ? 'bg-white/20 text-white'
+                    : 'bg-[#0056B3]/20 text-[#0056B3] dark:text-blue-300'
+                }`}
+              >
+                Identidad
+              </span>
             </button>
 
             <button
@@ -460,6 +480,11 @@ export const SettingsView: React.FC = () => {
         </div>
       </div>
 
+
+      {/* SUBTAB: BRAND MANUAL */}
+      {activeSubTab === 'brand' && (
+        <BrandManualTab />
+      )}
 
       {/* SUBTAB: INTEGRATION HEALTH & PING TESTS */}
       {activeSubTab === 'health' && (
@@ -727,7 +752,7 @@ export const SettingsView: React.FC = () => {
                 className={`p-3.5 rounded-xl border-2 cursor-pointer transition-all ${ language === 'en' ? 'border-blue-500 bg-[var(--bg-muted)] shadow-md shadow-blue-500/10' : 'border-[var(--border-subtle)] bg-[var(--bg-card)] hover:border-blue-500/30' }`}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xl">🇺🇸</span>
+                  <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-[var(--bg-canvas)] border border-[var(--border-subtle)] text-[var(--text-secondary)]">EN</span>
                   {language === 'en' && (
                     <span className="flex items-center gap-1 text-[10px] font-semibold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20">
                       <Check className="w-3 h-3" />
@@ -746,7 +771,7 @@ export const SettingsView: React.FC = () => {
                 className={`p-3.5 rounded-xl border-2 cursor-pointer transition-all ${ language === 'es' ? 'border-blue-500 bg-[var(--bg-muted)] shadow-md shadow-blue-500/10' : 'border-[var(--border-subtle)] bg-[var(--bg-card)] hover:border-blue-500/30' }`}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xl">🇪🇸</span>
+                  <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-[var(--bg-canvas)] border border-[var(--border-subtle)] text-[var(--text-secondary)]">ES</span>
                   {language === 'es' && (
                     <span className="flex items-center gap-1 text-[10px] font-semibold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20">
                       <Check className="w-3 h-3" />
@@ -765,7 +790,7 @@ export const SettingsView: React.FC = () => {
                 className={`p-3.5 rounded-xl border-2 cursor-pointer transition-all ${ language === 'pt' ? 'border-blue-500 bg-[var(--bg-muted)] shadow-md shadow-blue-500/10' : 'border-[var(--border-subtle)] bg-[var(--bg-card)] hover:border-blue-500/30' }`}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xl">🇧🇷</span>
+                  <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-[var(--bg-canvas)] border border-[var(--border-subtle)] text-[var(--text-secondary)]">PT</span>
                   {language === 'pt' && (
                     <span className="flex items-center gap-1 text-[10px] font-semibold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20">
                       <Check className="w-3 h-3" />
@@ -781,6 +806,9 @@ export const SettingsView: React.FC = () => {
 
           {/* Main Theme Selection & Mode Toggle Component */}
           <ThemeModeSettings />
+
+          {/* Brand Manual Integrated System Showcase */}
+          <BrandManualShowcase />
 
           {/* Accessibility & Readability Details */}
           <div className="bg-[var(--bg-card)] border border-[var(--border-subtle)] p-4 rounded-xl">

@@ -12,47 +12,51 @@
    (incluye la landing page), en lugar del azul genérico de Tailwind.
    ========================================================================== */
 @theme {
-  --color-blue-50: #eef1f6;
-  --color-blue-100: #dbe2ec;
-  --color-blue-200: #c3cee0;
-  --color-blue-300: #a9bfe0;
-  --color-blue-400: #5b7ebd;
-  --color-blue-500: #3d5f99;
-  --color-blue-600: #06213F; /* Official Clientum Brand Navy */
-  --color-blue-700: #071b3d;
-  --color-blue-800: #051530;
-  --color-blue-900: #030f24;
-  --color-blue-950: #010a18;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  --color-navy: #022046;
+  --color-action: #0056B3;
+  --color-blue-50: #f0f4f9;
+  --color-blue-100: #dbe4f0;
+  --color-blue-200: #b8c9e2;
+  --color-blue-300: #8aa9d3;
+  --color-blue-400: #5583c0;
+  --color-blue-500: #0056B3; /* Official Clientum Action Blue */
+  --color-blue-600: #002B5C; /* Official Clientum Corporate Blue */
+  --color-blue-700: #022046; /* Official Clientum Brand Navy */
+  --color-blue-800: #011836;
+  --color-blue-900: #010f24;
+  --color-blue-950: #000814;
 }
 
 /* ==========================================================================
-   Paleta Cromática Oficial (Clientum Brand Guidelines)
+   Paleta Cromática Oficial (Clientum Brand Guidelines v1.0 — Sept 2026)
    ========================================================================== */
 :root,
 [data-theme="light"],
 .light {
-  --clientum-navy: #0a2558;
-  --clientum-blue: #0a2558;
-  --clientum-action: #0a2558;
+  --clientum-navy: #022046;
+  --clientum-blue: #002B5C;
+  --clientum-action: #0056B3;
   --clientum-success: #4CAF50;
   --clientum-surface: #F5F7FA;
   --clientum-surface-card: #ffffff;
   --clientum-surface-border: #e2e8f0;
   --clientum-ink: #212121;
-  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
 }
 
 [data-theme="dark"],
 .dark {
-  --clientum-navy: #ffffff;
-  --clientum-blue: #60a5fa;
-  --clientum-action: #3b82f6;
-  --clientum-success: #4caf50;
+  --clientum-navy: #022046;
+  --clientum-blue: #002B5C;
+  --clientum-action: #0056B3;
+  --clientum-success: #4CAF50;
   --clientum-surface: #040711;
   --clientum-surface-card: #0d1527;
   --clientum-surface-border: #1e2e4a;
   --clientum-ink: #f1f5f9;
-  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
 }
 
 body {
@@ -70,18 +74,23 @@ body {
 :root,
 [data-theme="light"],
 .light {
-  /* Canvas & Base Surfaces — Refined Enterprise Palette */
-  --bg-canvas: #f8fafc;          /* Brighter, cleaner corporate base */
+  /* Canvas & Base Surfaces — Clientum Brand Manual v1.0 Palette */
+  --bg-canvas: #F5F7FA;          /* Official Brand Surface #F5F7FA */
   --bg-surface: #ffffff;
   --bg-card: #ffffff;
-  --text-primary: #0f172a;       /* Slate 900 for high readability */
+  --text-primary: #212121;       /* Official Brand Ink #212121 */
   --text-secondary: #475569;     /* Slate 600 */
   --border-subtle: #e2e8f0;      /* Slate 200 */
-  --color-primary: #06213F;      /* Brand Navy */
-  --color-primary-hover: #071b3d;
+  --color-primary: #022046;      /* Official Clientum Brand Navy (#022046) */
+  --color-primary-hover: #002B5C; /* Corporate Blue (#002B5C) */
   --color-primary-light: #eef1f6;
-  --color-primary-text: #0a2558;
-  --color-success: #059669;
+  --color-primary-text: #022046;
+  --color-action: #0056B3;       /* Official Clientum Action Blue (#0056B3) */
+  --color-action-hover: #002B5C;
+  --color-brand-navy: #022046;
+  --color-brand-action: #0056B3;
+  --color-brand-blue: #002B5C;
+  --color-success: #4CAF50;      /* Official Brand Success Green */
   --color-success-light: #ecfdf5;
   --color-success-border: #a7f3d0;
   --color-warning: #d97706;
@@ -92,29 +101,29 @@ body {
   --color-danger-border: #fecaca;
 
    /* --------------------------------------------------------------------------
-      Clientum Clarity navigation surfaces (Light Mode)
+      Clientum Clarity navigation surfaces (Light Mode Dark Navy Sidebar)
       -------------------------------------------------------------------------- */
-   --sidebar-bg: #ffffff;
-   --sidebar-header-bg: #ffffff;
-   --sidebar-footer-bg: #f8fafc;
-   --sidebar-border: #e2e8f0;
-   --sidebar-text-primary: #0f172a;
-   --sidebar-text-secondary: #475569;
-   --sidebar-text-muted: #94a3b8;
-   --sidebar-hover-bg: #f1f5f9;
-   --sidebar-hover-text: #0f172a;
-  --sidebar-active-bg: #0a2558;
-  --sidebar-active-text: #ffffff;
-   --sidebar-search-bg: #f1f5f9;
-   --sidebar-search-border: #e2e8f0;
-   --sidebar-search-text: #0f172a;
-   --sidebar-portal-btn-bg: #f8fafc;
-   --sidebar-portal-btn-text: #0a2558;
-   --sidebar-portal-btn-border: #e2e8f0;
-   --sidebar-copilot-bg: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-   --sidebar-copilot-border: #bae6fd;
-   --sidebar-card-text: #0f172a;
-   --sidebar-card-muted: #64748b;
+   --sidebar-bg: #021028;
+   --sidebar-header-bg: #021028;
+   --sidebar-footer-bg: #020817;
+   --sidebar-border: #142034;
+   --sidebar-text-primary: #ffffff;
+   --sidebar-text-secondary: #94a3b8;
+   --sidebar-text-muted: #64748b;
+   --sidebar-hover-bg: #0b1a36;
+   --sidebar-hover-text: #ffffff;
+   --sidebar-active-bg: #0056B3;
+   --sidebar-active-text: #ffffff;
+   --sidebar-search-bg: #0b162c;
+   --sidebar-search-border: #182844;
+   --sidebar-search-text: #ffffff;
+   --sidebar-portal-btn-bg: #091224;
+   --sidebar-portal-btn-text: #60A5FA;
+   --sidebar-portal-btn-border: #1b2d4b;
+   --sidebar-copilot-bg: linear-gradient(135deg, #071228 0%, #0a1b3d 100%);
+   --sidebar-copilot-border: #152747;
+   --sidebar-card-text: #ffffff;
+   --sidebar-card-muted: #94a3b8;
 
   /* Consistent Spacing Tokens */
   --space-0: 0px;
@@ -188,13 +197,18 @@ body {
   --text-primary: #ffffff;       /* WCAG AAA High Contrast */
   --text-secondary: #cbd5e1;
   --border-subtle: #141f33;
-  --color-primary: #1e40af;
-  --color-primary-hover: #2563eb;
-  --color-primary-light: rgba(30, 64, 175, 0.25);
+  --color-primary: #0056B3;      /* Official Clientum Action Blue (#0056B3) */
+  --color-primary-hover: #002B5C;
+  --color-primary-light: rgba(0, 86, 179, 0.25);
   --color-primary-text: #bfdbfe;
-  --color-success: #10b981;
-  --color-success-light: rgba(16, 185, 129, 0.15);
-  --color-success-border: rgba(16, 185, 129, 0.3);
+  --color-action: #0056B3;       /* Official Clientum Action Blue (#0056B3) */
+  --color-action-hover: #002B5C;
+  --color-brand-navy: #022046;
+  --color-brand-action: #0056B3;
+  --color-brand-blue: #002B5C;
+  --color-success: #4CAF50;      /* Official Brand Success Green */
+  --color-success-light: rgba(76, 175, 80, 0.15);
+  --color-success-border: rgba(76, 175, 80, 0.3);
   --color-warning: #f59e0b;
   --color-warning-light: rgba(245, 158, 11, 0.15);
   --color-warning-border: rgba(245, 158, 11, 0.3);
@@ -215,13 +229,13 @@ body {
   --sidebar-text-muted: #64748b;
   --sidebar-hover-bg: #0b1322;
   --sidebar-hover-text: #ffffff;
-  --sidebar-active-bg: #0a2558;
+  --sidebar-active-bg: #0056B3;
   --sidebar-active-text: #ffffff;
   --sidebar-search-bg: #060b16;
   --sidebar-search-border: #18263e;
   --sidebar-search-text: #ffffff;
   --sidebar-portal-btn-bg: #091224;
-  --sidebar-portal-btn-text: #7dd3fc;
+  --sidebar-portal-btn-text: #0056B3;
   --sidebar-portal-btn-border: #1b2d4b;
   --sidebar-copilot-bg: linear-gradient(135deg, #071228 0%, #0a1b3d 100%);
   --sidebar-copilot-border: #152747;
@@ -241,14 +255,14 @@ body {
   --crm-text-primary: var(--text-primary);
   --crm-text-secondary: var(--text-secondary);
   --crm-text-muted: var(--text-muted);
-  --crm-cyan: #14b8a6;
-  --crm-cyan-glow: rgba(20, 184, 166, 0.35);
-  --crm-cyan-border: rgba(20, 184, 166, 0.45);
+  --crm-cyan: #0056B3;
+  --crm-cyan-glow: rgba(0, 86, 179, 0.35);
+  --crm-cyan-border: rgba(0, 86, 179, 0.45);
   --crm-grid-gap: 12px;
   --crm-kpi-bg: linear-gradient(145deg, #0e1627, #070e1a);
   --crm-kpi-border: var(--border-subtle);
   --crm-kpi-accent-bg: linear-gradient(145deg, rgba(16, 44, 58, 0.8), #08111f);
-  --crm-kpi-accent-border: rgba(20, 184, 166, 0.45);
+  --crm-kpi-accent-border: rgba(0, 86, 179, 0.45);
   --crm-panel-bg: linear-gradient(145deg, rgba(13, 21, 36, 0.98), rgba(8, 14, 26, 0.98));
   --crm-panel-border: var(--border-subtle);
   --crm-action-bg: rgba(12, 19, 34, 0.92);
@@ -268,15 +282,39 @@ body {
   color-scheme: dark;
 }
 
-/* Global Application Baseline */
+/* Global Application Baseline — Inter Typography Stack per Brand Manual */
 html,
 body,
 #root {
   background-color: var(--bg-canvas);
   color: var(--text-primary);
   min-height: 100vh;
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-weight: 400;
+  line-height: 1.5;
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Headings Typography Hierarchy per Clientum Brand Manual v1.0 (Inter H1-H3 Stack) */
+h1, h2, h3, h4, h5, h6,
+.crm-heading {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+h1 {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-weight: 700;
+}
+
+h2 {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-weight: 600;
+}
+
+h3 {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-weight: 500;
 }
 
 /* Custom Adaptive Scrollbars */
@@ -387,7 +425,7 @@ button:focus-visible {
 
 .crm-top-navbar .text-blue-700,
 .crm-top-navbar .text-blue-600 {
-  color: #071b3d !important;
+  color: #022046 !important;
 }
 
 .crm-top-navbar .bg-blue-50 {
@@ -407,9 +445,9 @@ button:focus-visible {
   --crm-text-primary: #0f172a;
   --crm-text-secondary: #334155;
   --crm-text-muted: #64748b;
-  --crm-cyan: var(--color-primary);
-  --crm-cyan-glow: rgba(10, 37, 88, 0.1);
-  --crm-cyan-border: rgba(10, 37, 88, 0.25);
+  --crm-cyan: var(--color-action, #0056B3);
+  --crm-cyan-glow: rgba(0, 86, 179, 0.1);
+  --crm-cyan-border: rgba(0, 86, 179, 0.25);
   --crm-grid-gap: 12px;
   --crm-kpi-bg: #ffffff;
   --crm-kpi-border: #dbe4ef;
@@ -421,7 +459,7 @@ button:focus-visible {
   --crm-action-border: #cbd5e1;
   --crm-action-text: #334155;
   --crm-action-hover-bg: #eef1f6;
-  --crm-action-hover-text: #071b3d;
+  --crm-action-hover-text: #0056B3;
   --crm-board-bg: #f8fafc;
   --crm-board-border: #dbe4ef;
   --crm-stage-bg: #ffffff;
@@ -1842,7 +1880,7 @@ html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar #sidebar-qu
 }
 
 html[data-theme="light"] .clientum-light-dashboard #sidebar-brand-logo-placeholder > div {
-  background: linear-gradient(135deg, #0d2c63 0%, #0a2558 100%) !important;
+  background: linear-gradient(135deg, #002B5C 0%, #022046 100%) !important;
 }
 
 html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar #sidebar-copilot-card {
@@ -1946,7 +1984,7 @@ html[data-theme="light"] .clientum-light-dashboard .crm-icon-button:hover,
 html[data-theme="light"] .clientum-light-dashboard .crm-ai-toggle:hover {
   background: #eef1f6;
   border-color: #a9bfe0;
-  color: #071b3d;
+  color: #002B5C;
 }
 
 html[data-theme="light"] .clientum-light-dashboard .crm-dropdown,
@@ -1984,13 +2022,13 @@ html[data-theme="light"] .clientum-light-dashboard .crm-stale-deals__label {
 html[data-theme="light"] .clientum-light-dashboard .crm-report-link {
   border-color: #c3cee0;
   background: #eef1f6;
-  color: #0a2558;
+  color: #0056B3;
 }
 
 html[data-theme="light"] .clientum-light-dashboard .crm-report-link:hover {
   background: #dbeafe;
   border-color: #a9bfe0;
-  color: #071b3d;
+  color: #002B5C;
 }
 
 html[data-theme="light"] .clientum-light-dashboard .crm-attention-item,
@@ -2038,7 +2076,7 @@ html[data-theme="light"] .clientum-light-dashboard .crm-attention-empty {
 }
 
 html[data-theme="light"] .clientum-light-dashboard .crm-attention-more {
-  color: #0a2558;
+  color: #0056B3;
 }
 
 html[data-theme="light"] .clientum-light-dashboard .crm-stale-deals {
@@ -2070,7 +2108,7 @@ html[data-theme="light"] .clientum-light-dashboard .crm-panel__total strong {
 html[data-theme="light"] .clientum-light-dashboard .crm-kpi-icon {
   border-color: #c3cee0;
   background: #eef1f6;
-  color: #0a2558;
+  color: #022046;
 }
 
 html[data-theme="light"] .clientum-light-dashboard .crm-source-list > div,
@@ -2080,7 +2118,7 @@ html[data-theme="light"] .clientum-light-dashboard .crm-source-list strong {
 
 html[data-theme="light"] .clientum-light-dashboard .crm-report-link {
   border-color: #e2e8f0;
-  color: #0a2558;
+  color: #0056B3;
 }
 
 html[data-theme="light"] .clientum-light-dashboard .crm-assistant-backdrop {
@@ -2110,7 +2148,7 @@ html[data-theme="light"] .clientum-light-dashboard .crm-assistant__composer butt
 
 html[data-theme="light"] .clientum-light-dashboard .crm-assistant__tools button:hover,
 html[data-theme="light"] .clientum-light-dashboard .crm-assistant__composer button:hover {
-  color: #071b3d;
+  color: #002B5C;
   background: #eef1f6;
 }
 
@@ -2121,9 +2159,9 @@ html[data-theme="light"] .clientum-light-dashboard .crm-message__typing {
 
 html[data-theme="light"] .clientum-light-dashboard .crm-chat-reopen {
   border-color: #c3cee0;
-  background: #0a2558;
+  background: #022046;
   color: #ffffff;
-  box-shadow: 0 10px 25px rgb(10 37 88 / .2);
+  box-shadow: 0 10px 25px rgb(2 32 70 / .2);
 }
 
 .crm-assistant-backdrop {
@@ -2174,6 +2212,27 @@ html[data-theme="light"] .clientum-light-dashboard .crm-chat-reopen {
   .crm-top-navbar #dashboard-header-brand {
     display: none;
   }
+}
+
+/* High Contrast WCAG AAA Rules */
+.contrast-aaa {
+  --border-subtle: #475569 !important;
+  --border-strong: #0f172a !important;
+}
+
+.dark.contrast-aaa,
+[data-theme="dark"].contrast-aaa {
+  --border-subtle: #475569 !important;
+  --border-strong: #94a3b8 !important;
+  --crm-card-border: #475569 !important;
+  --crm-panel-border: #475569 !important;
+  --crm-kpi-border: #475569 !important;
+  --crm-board-border: #475569 !important;
+  --crm-stage-border: #475569 !important;
+  --text-secondary: #f1f5f9 !important;
+  --text-muted: #cbd5e1 !important;
+  --crm-text-secondary: #f1f5f9 !important;
+  --crm-text-muted: #cbd5e1 !important;
 }
 
 /* Smooth theme transitions — dashboard surfaces */

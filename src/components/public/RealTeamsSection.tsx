@@ -133,7 +133,7 @@ export const RealTeamsSection: React.FC<RealTeamsSectionProps> = ({ onNavigate, 
   };
 
   return (
-    <section className="space-y-10 font-['Plus_Jakarta_Sans',sans-serif]">
+    <section className="space-y-10 font-['Inter',sans-serif]">
       {/* Header Section */}
       <div className="text-center max-w-3xl mx-auto space-y-3">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-xs font-bold text-blue-800 shadow-xs">

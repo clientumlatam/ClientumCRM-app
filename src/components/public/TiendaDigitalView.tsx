@@ -167,7 +167,7 @@ export const TiendaDigitalView: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto bg-white text-slate-900 text-xs min-h-screen font-['Plus_Jakarta_Sans',sans-serif]">
+    <div className="flex-1 overflow-y-auto bg-white text-slate-900 text-xs min-h-screen font-['Inter',sans-serif]">
       {/* Store Banner */}
       <div className="bg-slate-50 border-b border-slate-200 p-6 sm:p-8 shadow-xs">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">

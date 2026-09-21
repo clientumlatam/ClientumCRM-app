@@ -119,10 +119,10 @@ export const PublicNavbar: React.FC<PublicNavbarProps> = ({
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between gap-4">
           
-          {/* Brand Logo Placeholder & ClientumCRM Title */}
+          {/* Clientum Official Brand Logotipo Horizontal */}
           <div
             id="public-header-brand"
-            className="flex items-center gap-3.5 cursor-pointer select-none group shrink-0"
+            className="flex items-center gap-3.5 cursor-pointer select-none group shrink-0 min-w-0 sm:min-w-[210px] transition-opacity hover:opacity-95"
             onClick={() => handleNavClick('/')}
             role="button"
             tabIndex={0}
@@ -132,38 +132,43 @@ export const PublicNavbar: React.FC<PublicNavbarProps> = ({
                 handleNavClick('/');
               }
             }}
-            aria-label="ClientumCRM Inicio"
+            aria-label="Clientum CRM - Inicio"
           >
-            {/* Professional Minimalist Brand Logo Placeholder */}
+            {/* Brand Logo Isotipo with Clearance / Area of Protection */}
             <div
               id="brand-logo-placeholder"
-              className="relative shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform duration-200"
-              title="ClientumCRM Brand Logo"
+              className="relative shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 p-2 flex items-center justify-center shadow-xs transition-transform duration-200 group-hover:scale-[1.02]"
+              title="Clientum CRM - Isotipo Oficial"
             >
-              <ClientumLogo className="w-9 h-9 drop-shadow-xs" />
+              <img
+                src="/favicon.svg"
+                alt="Clientum"
+                className="w-full h-full object-contain"
+                referrerPolicy="no-referrer"
+              />
               {/* Minimalist Live Service Pulse Indicator */}
               <span
-                className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white"
+                className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900"
                 title="Plataforma Operativa 99.9% Uptime"
               />
             </div>
 
-            {/* ClientumCRM Title & Subtitle with Optical Alignment */}
+            {/* Brand Wordmark with Optical Alignment and Exact Brand Palette */}
             <div className="flex flex-col justify-center select-none">
-              <div className="flex items-center gap-1 leading-none">
-                <span className="text-xl font-extrabold text-slate-900 tracking-tight">
+              <div className="flex items-center gap-1 leading-none font-['Inter',sans-serif]">
+                <span className="text-xl sm:text-[22px] font-extrabold text-[#022046] dark:text-white tracking-tight">
                   Clientum
                 </span>
-                <span className="text-xl font-extrabold text-blue-600 tracking-tight">
+                <span className="text-xl sm:text-[22px] font-extrabold text-[#0056B3] tracking-tight">
                   CRM
                 </span>
               </div>
               <div className="flex items-center gap-1.5 mt-1 leading-none">
-                <span className="text-[10px] text-slate-500 font-semibold tracking-wider uppercase">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold tracking-wider uppercase">
                   Suite Comercial
                 </span>
-                <span className="w-1 h-1 rounded-full bg-slate-300" />
-                <span className="text-[10px] text-blue-600 font-bold tracking-tight">
+                <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600" />
+                <span className="text-[10px] text-[#0056B3] font-bold tracking-tight">
                   AFIP CAE
                 </span>
               </div>
@@ -632,12 +637,12 @@ export const PublicNavbar: React.FC<PublicNavbarProps> = ({
             {/* Interactive Search Bar Trigger */}
             <button
               onClick={() => setIsCommandPaletteOpen(true)}
-              className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-900 text-xs transition-colors cursor-pointer shadow-2xs"
+              className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--bg-surface)] hover:bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-xs transition-colors cursor-pointer"
               title="Buscar módulos, funciones o contactos (⌘K / Ctrl+K)"
             >
-              <Search className="w-3.5 h-3.5 text-[#0f172a] dark:text-white dark:text-slate-400" />
+              <Search className="w-3.5 h-3.5" />
               <span className="text-[11px]">Buscar...</span>
-              <kbd className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-white border border-slate-200 text-[#0f172a] dark:text-white dark:text-slate-400">
+              <kbd className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-[var(--bg-canvas)] border border-[var(--border-subtle)]">
                 ⌘K
               </kbd>
             </button>
@@ -645,38 +650,34 @@ export const PublicNavbar: React.FC<PublicNavbarProps> = ({
             {/* Currency selector quick button */}
             <button
               onClick={onToggleCurrency}
-              className="hidden md:inline-flex items-center px-2.5 py-1.5 rounded-lg border border-[var(--border-subtle)] dark:border-[#1a2642] bg-[var(--bg-muted)] dark:bg-slate-900/60 hover:bg-[var(--bg-card)] dark:hover:bg-slate-800 text-[11px] font-bold text-[var(--text-primary)] dark:text-slate-200 transition-colors cursor-pointer shadow-2xs"
-              title="Alternar entre Pesos Argentinos (ARS) y Dólares (USD)"
+              className="hidden md:inline-flex items-center px-2.5 py-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] hover:bg-[var(--bg-card)] text-[11px] font-bold text-[var(--text-primary)] transition-colors cursor-pointer"
+              title="Alternar moneda"
             >
               {currency === 'ARS' ? 'ARS $' : 'USD $'}
             </button>
 
-            {/* Unified Theme Switcher (Claro / Oscuro / Sistema) */}
+            {/* Unified Theme Switcher */}
             <ThemeSwitcher showLabel={true} />
 
-            {/* Login Link (Iniciar Sesión) */}
+            {/* Login Link */}
             {!isAuthenticated && (
               <button
                 onClick={() => setIsAuthModalOpen(true)}
-                className="hidden md:inline-flex items-center px-3.5 py-2 rounded-full text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                className="hidden md:inline-flex items-center px-3.5 py-2 rounded-full text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--color-primary)] transition-colors cursor-pointer"
               >
                 Iniciar Sesión
               </button>
             )}
 
-            {/* Register / Primary CTA: Crear Cuenta / Ingresar */}
+            {/* Primary CTA */}
             <button
               onClick={() => {
-                if (isAuthenticated) {
-                  enterApp();
-                } else {
-                  setIsAuthModalOpen(true);
-                }
+                if (isAuthenticated) enterApp();
+                else setIsAuthModalOpen(true);
               }}
-              className="group relative inline-flex items-center gap-2 px-4.5 py-2 rounded-full bg-[#eef1f6] dark:bg-[#eef1f6] dark:bg-[#ffffff] dark:bg-[#0F172A] hover:bg-[#eef1f6] hover:dark:bg-[#eef1f6] hover:dark:bg-[#1E293B] text-[#0f172a] dark:text-white font-bold text-xs tracking-wide shadow-md shadow-slate-900/20 border border-[#cbd5e1] dark:border-[#cbd5e1] dark:border-slate-700 transition-all duration-200 active:scale-95 cursor-pointer whitespace-nowrap"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-primary)] text-[var(--bg-navbar)] hover:bg-[var(--color-primary-dark)] font-bold text-xs tracking-wide transition-all active:scale-95 cursor-pointer whitespace-nowrap"
             >
-              <span>{isAuthenticated ? 'Ir al Dashboard' : 'Registrarse Gratis'}</span>
-              <ArrowRight className="w-3.5 h-3.5 text-sky-400 group-hover:translate-x-0.5 transition-transform" />
+              <span>{isAuthenticated ? 'Ir al Dashboard' : 'Registrarse'}</span>
             </button>
 
             {/* Mobile Menu Button */}

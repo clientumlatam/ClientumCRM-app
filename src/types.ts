@@ -1,4 +1,5 @@
 export type ThemeMode = 'dark' | 'light' | 'system';
+export type ContrastMode = 'normal' | 'aaa';
 export type Language = 'en' | 'es' | 'pt';
 
 export type StageId = 'lead' | 'discovery' | 'qualified' | 'proposal' | 'negotiation' | 'won' | 'lost';

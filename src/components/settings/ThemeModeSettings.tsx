@@ -92,16 +92,16 @@ export const ThemeModeSettings: React.FC<ThemeModeSettingsProps> = ({
                   </div>
                   <div>
                     <h4 className={`text-xs font-bold ${theme === 'light' ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>
-                      Modo Claro
+                      Modo Claro Oficial
                     </h4>
-                    <span className={`text-[11px] font-mono ${theme === 'light' ? 'text-blue-900' : 'text-[var(--text-muted)]'}`}>
-                      Clientum Clarity (WCAG AAA)
+                    <span className={`text-[11px] font-mono ${theme === 'light' ? 'text-[#0056B3]' : 'text-[var(--text-muted)]'}`}>
+                      Manual de Marca v1.0 (#F5F7FA)
                     </span>
                   </div>
                 </div>
 
                 {theme === 'light' && (
-                  <span className="flex items-center gap-1 text-[11px] font-semibold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full border border-blue-300">
+                  <span className="flex items-center gap-1 text-[11px] font-semibold text-[#0056B3] bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
                     <Check className="w-3 h-3" />
                     Activo
                   </span>
@@ -109,26 +109,26 @@ export const ThemeModeSettings: React.FC<ThemeModeSettingsProps> = ({
               </div>
 
               {/* Simulated Workspace Preview */}
-              <div className="rounded-lg bg-[var(--bg-card)] p-3 border border-[var(--border-subtle)] space-y-2 mb-3 shadow-2xs">
-                <div className="flex items-center justify-between text-[10px] text-[var(--text-secondary)] pb-1.5 border-b border-[var(--border-subtle)]">
+              <div className="rounded-lg bg-white p-3 border border-[#e2e8f0] space-y-2 mb-3 shadow-xs">
+                <div className="flex items-center justify-between text-[10px] text-[#212121] pb-1.5 border-b border-[#e2e8f0]">
                   <div className="flex items-center gap-1.5">
-                    <div className="w-2 h-2 rounded-full bg-blue-700" />
-                    <span className="text-[var(--text-primary)] font-bold">Acme Latam Corp</span>
+                    <div className="w-2 h-2 rounded-full bg-[#022046]" />
+                    <span className="text-[#212121] font-bold">Acme Latam Corp</span>
                   </div>
-                  <span className="text-emerald-700 font-mono font-bold">$120,000</span>
+                  <span className="text-[#4CAF50] font-mono font-bold">$120,000</span>
                 </div>
                 <div className="flex items-center gap-2 text-[9px]">
-                  <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-900 font-mono font-semibold border border-blue-200">
+                  <span className="px-1.5 py-0.5 rounded bg-blue-50 text-[#0056B3] font-mono font-semibold border border-blue-200">
                     Negociación
                   </span>
-                  <span className="text-[var(--text-muted)] font-medium">Cierre: 15 Dic</span>
+                  <span className="text-slate-500 font-medium">Cierre: 15 Dic</span>
                 </div>
               </div>
 
               <div className="flex items-center justify-between text-[11px] pt-1">
                 <span className={`flex items-center gap-1.5 ${theme === 'light' ? 'text-[var(--text-secondary)] font-medium' : 'text-[var(--text-muted)]'}`}>
-                  <span className="w-2 h-2 rounded-full bg-amber-500" />
-                  Fondo #f8fafc / Texto #0f172a
+                  <span className="w-2 h-2 rounded-full bg-[#022046]" />
+                  Fondo #F5F7FA / Texto #212121
                 </span>
                 <span className="font-mono text-[10px] text-[var(--text-muted)]">data-theme="light"</span>
               </div>

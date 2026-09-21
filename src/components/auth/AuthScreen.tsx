@@ -126,20 +126,17 @@ export const AuthScreen: React.FC = () => {
 
       {/* Top Navigation Bar */}
       <header className="relative z-10 w-full max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 p-[1px] shadow-lg shadow-blue-500/20">
-            <div className="w-full h-full bg-[var(--bg-canvas,#f8fafc)] dark:bg-[#0d1017] rounded-[11px] flex items-center justify-center">
-              <ClientumLogo className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-base font-bold tracking-tight text-[var(--text-primary,#0f172a)] dark:text-white flex items-center gap-1.5">
-              ClientumCRM
-              <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                PRO
-              </span>
-            </span>
-          </div>
+        <div className="flex items-center gap-3.5 min-w-0 sm:min-w-[209px]">
+          <ClientumLogo
+            variant="horizontal"
+            size="md"
+            badge="CRM"
+            minWidth209={true}
+            alt="Clientum CRM"
+          />
+          <span className="hidden sm:inline-block text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-blue-500/10 text-[#0056B3] dark:text-blue-400 border border-blue-500/20 font-semibold">
+            PRO
+          </span>
         </div>
 
         {/* Language Selector */}
@@ -232,10 +229,16 @@ export const AuthScreen: React.FC = () => {
           <div className="lg:col-span-6 w-full max-w-md mx-auto">
             <div className="bg-[var(--bg-canvas,#f8fafc)] dark:bg-[#0f131d]/90 backdrop-blur-xl border border-[var(--border-subtle,#e2e8f0)] dark:border-[#21293c] rounded-2xl shadow-2xl p-6 sm:p-7 relative overflow-hidden">
               {/* Header Title inside card */}
-              <div className="text-center mb-5">
-                <h2 className="text-lg font-bold text-[var(--text-primary,#0f172a)] dark:text-white tracking-tight flex items-center justify-center gap-2">
-                  <ClientumLogo className="w-5 h-5" />
-                  ClientumCRM
+              <div className="text-center mb-5 flex flex-col items-center">
+                <ClientumLogo
+                  variant="isotipo"
+                  size="xl"
+                  showClearance={true}
+                  className="mx-auto mb-3.5"
+                  alt="Clientum Logo"
+                />
+                <h2 className="text-xl font-bold text-[#022046] dark:text-white tracking-tight font-['Inter',Arial,sans-serif]">
+                  Clientum<span className="text-[#0056B3]">CRM</span>
                 </h2>
                 <p className="text-xs text-[var(--text-muted,#64748b)] dark:text-slate-400 mt-1">
                   {authMode === 'login' && 'Ingresa a tu espacio de trabajo comercial'}

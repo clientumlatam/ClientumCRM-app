@@ -76,7 +76,7 @@ export const QuoteWizardModal: React.FC<{ isOpen: boolean; onClose: () => void }
 
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-      <div className="max-w-2xl w-full bg-white border border-slate-200 rounded-3xl shadow-2xl p-6 sm:p-8 space-y-6 text-slate-800 text-xs font-['Plus_Jakarta_Sans',sans-serif]">
+      <div className="max-w-2xl w-full bg-white border border-slate-200 rounded-3xl shadow-2xl p-6 sm:p-8 space-y-6 text-slate-800 text-xs font-['Inter',sans-serif]">
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-slate-200">
           <div className="flex items-center gap-2.5">

@@ -307,7 +307,7 @@ export const MailAnalyticsPanel: React.FC<{
   return (
     <div
       id="mail-analytics-panel"
-      className={`space-y-6 font-['Plus_Jakarta_Sans',sans-serif] ${className}`}
+      className={`space-y-6 font-['Inter',sans-serif] ${className}`}
     >
       {/* 1. Header Card & Controls */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-2xl bg-[var(--bg-canvas,#f8fafc)] dark:bg-[#090F1E] border border-[var(--border-subtle,#e2e8f0)] dark:border-slate-800 text-[var(--text-primary,#0f172a)] dark:text-white shadow-xl relative overflow-hidden">

@@ -18,7 +18,7 @@ export const PublicTopHeader: React.FC<PublicTopHeaderProps> = ({
   return (
     <div
       id="public-top-header-bar"
-      className="bg-[#eef1f6] dark:bg-[#0F172A] text-[#475569] dark:text-slate-300 border-b border-[#e2e8f0] dark:border-slate-800 text-[11px] font-['Plus_Jakarta_Sans',sans-serif] z-50 relative select-none"
+      className="bg-[#eef1f6] dark:bg-[#0F172A] text-[#475569] dark:text-slate-300 border-b border-[#e2e8f0] dark:border-slate-800 text-[11px] font-['Inter',sans-serif] z-50 relative select-none"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-9 flex items-center justify-between gap-4">
         

@@ -11,17 +11,9 @@ import { TrialBanner } from './components/billing/TrialBanner';
 import { MercadoPagoSubscriptionModal } from './components/billing/MercadoPagoSubscriptionModal';
 import { isPrivateAppPath } from './lib/router/routeRegistry';
 
-const CommandPalette = lazy(() => import('./components/common/CommandPalette').then((module) => ({
-  default: module.CommandPalette,
-})));
-
-const RecordDrawer = lazy(() => import('./components/common/RecordDrawer').then((module) => ({
-  default: module.RecordDrawer,
-})));
-
-const PrivateEnvironment = lazy(() => import('./components/app/PrivateEnvironment').then((module) => ({
-  default: module.PrivateEnvironment,
-})));
+import { CommandPalette } from './components/common/CommandPalette';
+import { RecordDrawer } from './components/common/RecordDrawer';
+import { PrivateEnvironment } from './components/app/PrivateEnvironment';
 
 const AppContent: React.FC = () => {
   const { resolvedTheme } = useTheme();
@@ -69,13 +61,9 @@ const AppContent: React.FC = () => {
     <div className="min-h-screen w-screen overflow-x-hidden bg-slate-50 dark:bg-[#0a0c10] text-slate-900 dark:text-slate-100">
       <TrialBanner />
       <PublicSite />
-      <Suspense fallback={null}>
-        <CommandPalette />
-      </Suspense>
+      <CommandPalette />
       <NewRecordModal />
-      <Suspense fallback={null}>
-        <RecordDrawer />
-      </Suspense>
+      <RecordDrawer />
       <AuthModal />
       <MercadoPagoSubscriptionModal
         isOpen={isMpCheckoutModalOpen}
@@ -87,15 +75,7 @@ const AppContent: React.FC = () => {
   );
 
   const privateEnvironment = (
-    <Suspense
-      fallback={
-        <div className="flex h-screen w-screen items-center justify-center bg-slate-50 dark:bg-[#0a0c10] text-sm text-slate-500 dark:text-slate-400">
-          Cargando Clientum CRM…
-        </div>
-      }
-    >
-      <PrivateEnvironment />
-    </Suspense>
+    <PrivateEnvironment />
   );
 
   if (!isAuthReady && isPrivateRoute) {

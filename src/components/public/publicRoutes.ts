@@ -65,7 +65,10 @@ export type PublicRoutePath =
   | '/crm-whatsapp-ia'
   | '/legal'
   | '/privacidad'
-  | '/terminos';
+  | '/terminos'
+  | '/login'
+  | '/auth'
+  | '/registro';
 
 export interface PublicNavigationItem {
   label: string;

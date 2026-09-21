@@ -17,6 +17,7 @@ import {
   Users,
 } from 'lucide-react';
 import { PublicRoutePath, INDUSTRIES_SUBNAV } from './publicRoutes';
+import { ClientumLogo } from '../common/ClientumLogo';
 
 interface PublicMobileMenuProps {
   currency: 'ARS' | 'USD';
@@ -63,6 +64,19 @@ export const PublicMobileMenu: React.FC<PublicMobileMenuProps> = ({
 
   return (
     <div className="xl:hidden max-h-[85vh] space-y-4 overflow-y-auto border-b border-slate-200 bg-white px-4 py-4 shadow-xl">
+      {/* Brand Header inside Mobile Drawer */}
+      <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+        <ClientumLogo
+          variant="horizontal"
+          size="sm"
+          badge="CRM"
+          alt="Clientum CRM"
+        />
+        <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+          Menú
+        </span>
+      </div>
+
       <div className="relative">
         <Search className="absolute left-3 top-3 h-4 w-4 text-[#64748b] dark:text-white dark:text-slate-400" aria-hidden="true" />
         <input

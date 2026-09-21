@@ -33,6 +33,7 @@ import { PublicBrochurePage } from './PublicBrochurePage';
 import { PublicOrganigramaPage } from './PublicOrganigramaPage';
 import { PublicCrmWhatsappIaPage } from './PublicCrmWhatsappIaPage';
 import { PublicProjectsPage } from './PublicProjectsPage';
+import { AuthScreen } from '../auth/AuthScreen';
 
 export const PublicSite: React.FC = () => {
   // Support both direct public URLs and the hash-based navigation used by
@@ -284,6 +285,11 @@ export const PublicSite: React.FC = () => {
     if (currentPath === '/legal' || currentPath === '/terminos' || currentPath === '/privacidad') {
       const tab = currentPath === '/privacidad' ? 'privacy' : currentPath === '/terminos' ? 'sla' : 'terms';
       return <PublicLegalPage initialTab={tab} onNavigate={handleNavigate} />;
+    }
+
+    // 13b. Dedicated Authentication Screen
+    if (currentPath === '/login' || currentPath === '/auth' || currentPath === '/registro') {
+      return <AuthScreen />;
     }
 
     // 14. Demo Digital Store

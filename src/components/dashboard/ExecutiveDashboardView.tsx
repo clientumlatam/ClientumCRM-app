@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   ArrowRight,
   ArrowUpRight,
@@ -47,6 +47,8 @@ import { RevenueChart } from '../analytics/RevenueChart';
 import { RevenueForecastPanel } from '../analytics/RevenueForecastPanel';
 import { MailAnalyticsPanel } from '../mail/MailAnalyticsPanel';
 import { QuickCaptureModal } from '../common/QuickCaptureModal';
+import { KanbanCard } from '../opportunities/KanbanCard';
+import { WhatsAppQuickActionModal } from '../whatsapp/WhatsAppQuickActionModal';
 
 const CHART_COLORS = ['#0d9488', '#2563eb', '#7c3aed', '#d97706', '#64748b'];
 
@@ -75,6 +77,8 @@ export const ExecutiveDashboardView: React.FC = () => {
     showToast,
     moveOpportunityStage,
     toggleTaskStatus,
+    openAICopilot,
+    addActivity,
   } = useCRM();
 
   const { resolvedTheme } = useTheme();
@@ -89,14 +93,90 @@ export const ExecutiveDashboardView: React.FC = () => {
   const [isQuickCaptureOpen, setIsQuickCaptureOpen] = useState(false);
   const [inputMessage, setInputMessage] = useState('');
   const [isAiTyping, setIsAiTyping] = useState(false);
+  const [draggedOppId, setDraggedOppId] = useState<string | null>(null);
+  const [dragOverStage, setDragOverStage] = useState<StageId | null>(null);
+  const [whatsAppOpp, setWhatsAppOpp] = useState<Opportunity | null>(null);
+
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
       id: 'm-1',
       sender: 'assistant',
-      text: '¡Hola! Soy Clientum Copilot. Hoy tenés 3 oportunidades clave que concentran $478.000 de forecast comercial para priorizar.',
+      text: '¡Hola! Soy Clientum Copilot. Estoy listo para ayudarte a analizar métricas, pipeline comercial y prioridades de hoy.',
       time: 'Ahora',
     },
   ]);
+
+  const getPriorityColor = useCallback((p: string) => {
+    switch (p) {
+      case 'Critical':
+        return 'text-rose-700 bg-rose-50 border-rose-200';
+      case 'High':
+        return 'text-amber-700 bg-amber-50 border-amber-200';
+      case 'Medium':
+        return 'text-blue-700 bg-blue-50 border-blue-200';
+      default:
+        return 'text-[var(--text-secondary)] bg-[var(--bg-muted)] border-[var(--border-subtle)]';
+    }
+  }, []);
+
+  const getContact = useCallback(
+    (opp: Opportunity) =>
+      people.find((person) => person.id === opp.contactId) ||
+      people.find((person) => `${person.firstName} ${person.lastName}` === opp.contactName),
+    [people]
+  );
+
+  const handleDragStart = useCallback((e: React.DragEvent, id: string) => {
+    e.dataTransfer.setData('text/plain', id);
+    setDraggedOppId(id);
+  }, []);
+
+  const handleDragOver = (e: React.DragEvent, stageId: StageId) => {
+    e.preventDefault();
+    if (dragOverStage !== stageId) {
+      setDragOverStage(stageId);
+    }
+  };
+
+  const handleDragLeave = () => {
+    setDragOverStage(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, stageId: StageId) => {
+    e.preventDefault();
+    const id = e.dataTransfer.getData('text/plain') || draggedOppId;
+    if (id) {
+      moveOpportunityStage(id, stageId);
+      const stageName = STAGES.find((s) => s.id === stageId)?.name || stageId;
+      showToast(`Oportunidad movida a "${stageName}"`, 'success');
+    }
+    setDraggedOppId(null);
+    setDragOverStage(null);
+  };
+
+  const handleSelectRecord = useCallback(
+    (id: string) => {
+      setSelectedRecord({ type: 'opportunity', id });
+      setActiveTab('opportunities');
+    },
+    [setSelectedRecord, setActiveTab]
+  );
+
+  const handleWhatsAppClick = useCallback((opp: Opportunity) => {
+    setWhatsAppOpp(opp);
+  }, []);
+
+  const handleAICopilotClick = useCallback(
+    (opp: Opportunity) => {
+      openAICopilot({
+        type: 'deal',
+        id: opp.id,
+        name: opp.name,
+        initialPrompt: `Analiza la oportunidad "${opp.name}" ($${opp.amount.toLocaleString('es-AR')}) en etapa ${opp.stage} y sugiere los siguientes pasos comerciales.`,
+      });
+    },
+    [openAICopilot]
+  );
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -249,57 +329,33 @@ export const ExecutiveDashboardView: React.FC = () => {
           </div>
 
           <div className="flex items-center flex-wrap gap-2.5">
-            {/* Filter Dropdown */}
-            <div className="relative">
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl bg-[var(--bg-card)] dark:bg-slate-800 border border-[var(--border-subtle)] dark:border-[var(--border-subtle,#e2e8f0)] dark:border-slate-700 text-[var(--text-secondary)] dark:text-[var(--text-primary,#0f172a)] dark:text-slate-200 hover:bg-[var(--bg-muted)] dark:hover:bg-slate-700/60 shadow-2xs transition-all cursor-pointer"
-                onClick={() => setIsPipelineDropdownOpen(!isPipelineDropdownOpen)}
-              >
-                <Filter size={13} className="text-[var(--text-muted,#64748b)] dark:text-slate-400" />
-                <span>{pipelineFilter}</span>
-                <ChevronDown size={13} className="text-[var(--text-muted,#64748b)] dark:text-slate-400" />
-              </button>
-              {isPipelineDropdownOpen && (
-                <div className="absolute right-0 mt-1.5 w-48 py-1.5 bg-[var(--bg-card)] dark:bg-slate-800 border border-[var(--border-subtle)] dark:border-[var(--border-subtle,#e2e8f0)] dark:border-slate-700 rounded-xl shadow-xl z-30">
-                  {(['Todos los negocios', 'New Business', 'Expansion', 'Renewal'] as const).map((item) => (
-                    <button
-                      key={item}
-                      type="button"
-                      className={`w-full px-3.5 py-2 text-left text-xs font-medium transition-colors ${ pipelineFilter === item ? 'bg-blue-50 dark:bg-blue-900/30 text-[var(--clientum-action,#0056B3)] dark:text-blue-400 font-semibold' : 'text-[var(--text-secondary)] dark:text-[var(--text-secondary,#475569)] dark:text-slate-300 hover:bg-[var(--bg-muted)] dark:hover:bg-slate-700/50' }`}
-                      onClick={() => {
-                        setPipelineFilter(item);
-                        setIsPipelineDropdownOpen(false);
-                      }}
-                    >
-                      {item}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            {/* AI Copilot Drawer Toggle Button */}
+            <button
+              id="crm-ai-toggle"
+              type="button"
+              onClick={() => setIsChatOpen(!isChatOpen)}
+              className={`crm-ai-toggle inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold shadow-xs transition-all cursor-pointer ${
+                isChatOpen
+                  ? 'bg-slate-200 dark:bg-slate-800 text-[var(--text-primary)] dark:text-slate-200 border border-[var(--border-subtle)]'
+                  : 'bg-[var(--clientum-navy,#022046)] hover:bg-[#002B5C] text-white'
+              }`}
+              title={isChatOpen ? 'Ocultar asistente Copilot IA' : 'Abrir asistente Copilot IA'}
+              aria-label={isChatOpen ? 'Ocultar asistente Copilot IA' : 'Abrir asistente Copilot IA'}
+              aria-expanded={isChatOpen}
+            >
+              <Sparkles size={14} className={isChatOpen ? 'text-amber-500' : 'text-emerald-400'} />
+              <span>{isChatOpen ? 'Ocultar asistente' : 'Abrir asistente'}</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" aria-hidden="true" />
+            </button>
 
-            {/* Quick Action Buttons */}
+            {/* Quick Action Button */}
             <button
               type="button"
               onClick={() => openNewRecordModal('opportunity')}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--clientum-action,#0056B3)] hover:bg-[var(--bg-card-hover,#f1f5f9)] dark:hover:bg-[#004494] text-white text-xs font-semibold shadow-xs hover:shadow transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--clientum-action,#0056B3)] hover:bg-[#004494] text-white text-xs font-semibold shadow-xs hover:shadow transition-all cursor-pointer"
             >
               <Plus size={14} />
               <span>Nuevo trato</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setIsChatOpen(true);
-                handleSendMessage('¿Qué negocios debería priorizar hoy?');
-              }}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-[var(--clientum-navy,#022046)] hover:bg-[var(--bg-card-hover,#f1f5f9)] dark:hover:bg-[#002B5C] text-white shadow-xs transition-all cursor-pointer"
-              title="Copilot IA: ¿Qué debería hacer hoy?"
-            >
-              <Sparkles size={14} />
-              <span>¿Qué hacer hoy?</span>
             </button>
           </div>
         </div>
@@ -347,8 +403,8 @@ export const ExecutiveDashboardView: React.FC = () => {
           </div>
         )}
 
-        {/* 5 High-Impact Executive KPI Cards */}
-        <div className="crm-kpi-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
+        {/* 4 High-Impact Executive KPI Cards */}
+        <div className="crm-kpi-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           {/* Card 1: Pipeline Activo */}
           <div className="crm-kpi-card bg-[var(--bg-card)] dark:bg-[#0e1626] border border-[var(--border-subtle)]/80 dark:border-[#1c2d47] rounded-2xl p-4 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between gap-2 mb-2">
@@ -379,7 +435,7 @@ export const ExecutiveDashboardView: React.FC = () => {
           <div className="crm-kpi-card bg-[var(--bg-card)] dark:bg-[#0e1626] border border-[var(--border-subtle)]/80 dark:border-[#1c2d47] rounded-2xl p-4 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between gap-2 mb-2">
               <span className="text-[11px] font-bold text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400 uppercase tracking-wider">
-                Vendido
+                Vendido / Facturado
               </span>
               <span className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200/60 dark:border-blue-800/40 flex items-center justify-center text-[var(--clientum-action,#0056B3)]">
                 <BriefcaseBusiness size={14} />
@@ -404,7 +460,7 @@ export const ExecutiveDashboardView: React.FC = () => {
           <div className="crm-kpi-card bg-[var(--bg-card)] dark:bg-[#0e1626] border border-[var(--border-subtle)]/80 dark:border-[#1c2d47] rounded-2xl p-4 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between gap-2 mb-2">
               <span className="text-[11px] font-bold text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400 uppercase tracking-wider">
-                Conversión
+                Tasa de Conversión
               </span>
               <span className="w-7 h-7 rounded-lg bg-purple-50 dark:bg-purple-950/50 border border-purple-200/60 dark:border-purple-800/40 flex items-center justify-center text-purple-600 dark:text-purple-400">
                 <Target size={14} />
@@ -412,7 +468,7 @@ export const ExecutiveDashboardView: React.FC = () => {
             </div>
             <div>
               <div className="text-xl sm:text-2xl font-extrabold text-[var(--clientum-navy,#022046)] dark:text-white tabular-nums tracking-tight font-mono">
-                32,4%
+                {winRate > 0 ? `${winRate}%` : '32,4%'}
               </div>
               <div className="flex items-center gap-1.5 mt-1.5 text-xs text-[var(--clientum-success,#4CAF50)] font-semibold">
                 <ArrowUpRight size={12} />
@@ -420,7 +476,7 @@ export const ExecutiveDashboardView: React.FC = () => {
               </div>
             </div>
             <div className="mt-3 pt-2.5 border-t border-[var(--border-subtle)] dark:border-[#1c2d47]/70 text-[11px] text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400 font-medium">
-              6 negocios evaluados
+              {activeOpportunities.length + (wonTotal > 0 ? 1 : 0)} negocios evaluados
             </div>
           </div>
 
@@ -499,36 +555,82 @@ export const ExecutiveDashboardView: React.FC = () => {
               Velocidad de cierre PyME
             </div>
           </div>
-
-          {/* Card 5: Atención Requerida */}
-          <div className="crm-kpi-card bg-[var(--bg-card)] dark:bg-[#0e1626] border border-[var(--border-subtle)]/80 dark:border-[#1c2d47] rounded-2xl p-4 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-[11px] font-bold text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400 uppercase tracking-wider">
-                Atención Requerida
-              </span>
-              <span className="w-7 h-7 rounded-lg flex items-center justify-center border bg-rose-50 dark:bg-rose-950/50 border-rose-200/60 dark:border-rose-800/40 text-rose-600 dark:text-rose-400">
-                <AlertTriangle size={14} />
-              </span>
-            </div>
-            <div>
-              <div className="text-xl sm:text-2xl font-extrabold text-rose-600 dark:text-rose-400 tabular-nums tracking-tight font-mono">
-                5 acciones
-              </div>
-              <div className="text-[11px] text-[var(--text-secondary)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400 mt-1 leading-tight font-medium">
-                2 estancados · 2 tareas vencidas · 1 sin seguimiento
-              </div>
-            </div>
-            <div className="mt-3 pt-2.5 border-t border-[var(--border-subtle)] dark:border-[#1c2d47]/70 text-[11px] text-rose-600 dark:text-rose-400 font-bold">
-              Requiere acción hoy
-            </div>
-          </div>
         </div>
 
-        {/* Projected Sales & Weighted Pipeline 3-Month Forecast */}
-        <RevenueForecastPanel />
+        {/* Evolución de Ingresos y Distribución por Fuentes */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div className="lg:col-span-2">
+            <RevenueChart />
+          </div>
 
-        {/* Revenue Trend Chart */}
-        <RevenueChart />
+          {/* Distribución por Origen / Fuentes */}
+          <div className="crm-panel bg-[var(--bg-card)] dark:bg-[#0e1626] border border-[var(--border-subtle)]/80 dark:border-[#1c2d47] rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-[var(--border-subtle)] dark:border-[#1c2d47]">
+              <div>
+                <h3 className="text-sm font-bold text-[var(--text-primary)] dark:text-white">
+                  Distribución por Fuentes
+                </h3>
+                <p className="text-xs text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400">
+                  Canales de adquisición de oportunidades
+                </p>
+              </div>
+              <span className="text-xs font-semibold text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400">
+                {filteredOpportunities.length} tratos
+              </span>
+            </div>
+
+            <div className="flex items-center justify-center relative my-2">
+              <div className="w-36 h-36">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={sourceData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={44}
+                      outerRadius={62}
+                      paddingAngle={3}
+                      dataKey="value"
+                      stroke="none"
+                    >
+                      {sourceData.map((entry) => (
+                        <Cell key={entry.name} fill={entry.color} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <span className="text-xl font-extrabold text-[var(--text-primary)] dark:text-white tabular-nums font-mono">
+                  {filteredOpportunities.length}
+                </span>
+                <span className="text-[10px] text-[var(--text-muted,#64748b)] dark:text-slate-400 font-medium">Tratos</span>
+              </div>
+            </div>
+
+            <div className="space-y-2 mt-2 pt-3 border-t border-[var(--border-subtle)] dark:border-[var(--border-subtle,#e2e8f0)] dark:border-slate-800/80">
+              {sourceData.map((item) => (
+                <div key={item.name} className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
+                    <span className="text-[var(--text-secondary)] dark:text-[var(--text-secondary,#475569)] dark:text-slate-300 font-medium">{item.name}</span>
+                  </div>
+                  <span className="font-bold text-[var(--text-primary)] dark:text-[var(--text-primary,#0f172a)] dark:text-slate-100">
+                    {item.value}% <span className="text-[var(--text-muted,#64748b)] dark:text-slate-400 font-normal">({item.count})</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('analytics')}
+              className="mt-3 w-full py-1.5 text-center text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 inline-flex items-center justify-center gap-1 cursor-pointer"
+            >
+              Ver reporte analítico detallado <ArrowRight size={12} />
+            </button>
+          </div>
+        </div>
 
         {/* Actionable Priorities Panel (Atención Prioritaria) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -698,107 +800,142 @@ export const ExecutiveDashboardView: React.FC = () => {
           </div>
         </div>
 
-        {/* Commercial Pipeline Funnel & Stage Breakdown */}
-        <div className="bg-[var(--bg-card)] dark:bg-[#0e1626] border border-[var(--border-subtle)]/80 dark:border-[#1c2d47] rounded-2xl p-5 shadow-xs">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-[var(--border-subtle)] dark:border-[#1c2d47]">
+        {/* Interactive Commercial Pipeline Board (Drag & Drop) */}
+        <div id="crm-pipeline-board" className="crm-pipeline-board bg-[var(--bg-card)] dark:bg-[#0e1626] border border-[var(--border-subtle)]/80 dark:border-[#1c2d47] rounded-2xl p-5 shadow-xs">
+          {/* Pipeline Header with Stage Selector & Actions */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 mb-4 border-b border-[var(--border-subtle)] dark:border-[#1c2d47]">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <Layers size={14} className="text-blue-600 dark:text-blue-400" />
-                <span className="text-[10px] font-bold tracking-widest text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400 uppercase">
-                  Dónde intervenir
+                <span className="w-2 h-2 rounded-full bg-[var(--clientum-action,#0056B3)]" />
+                <span className="text-[10px] font-bold tracking-widest text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400 uppercase font-mono">
+                  GESTIÓN COMERCIAL ACTIVA
                 </span>
               </div>
-              <h2 className="text-base font-bold text-[var(--text-primary)] dark:text-white tracking-tight">
-                Embudo del Pipeline Comercial
+              <h2 className="text-base font-bold text-[var(--clientum-navy,#022046)] dark:text-white tracking-tight">
+                Tablero de Pipeline Comercial
               </h2>
               <p className="text-xs text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400">
-                Distribución de oportunidades y volumen financiero por etapa activa.
+                Arrastrá y soltá negocios entre etapas para actualizar su estado y probabilidad en tiempo real.
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => setActiveTab('opportunities')}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-[var(--bg-muted)] dark:bg-slate-800 hover:bg-[var(--bg-muted)] dark:hover:bg-slate-700 text-[var(--text-primary)] dark:text-[var(--text-primary,#0f172a)] dark:text-slate-200 transition-colors cursor-pointer self-start sm:self-center"
-            >
-              <span>Abrir Pipeline</span>
-              <ArrowRight size={13} />
-            </button>
+
+            <div className="flex items-center flex-wrap gap-2.5">
+              {/* Pipeline Type Filter Dropdown */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsPipelineDropdownOpen(!isPipelineDropdownOpen)}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-xl bg-[var(--bg-muted)] dark:bg-slate-800 border border-[var(--border-subtle)] dark:border-slate-700 text-[var(--text-secondary)] dark:text-slate-200 hover:bg-[var(--bg-muted)]/80 shadow-2xs transition-all cursor-pointer"
+                >
+                  <Filter size={12} className="text-[var(--text-muted,#64748b)] dark:text-slate-400" />
+                  <span>{pipelineFilter}</span>
+                  <ChevronDown size={12} className="text-[var(--text-muted,#64748b)] dark:text-slate-400" />
+                </button>
+                {isPipelineDropdownOpen && (
+                  <div className="absolute right-0 mt-1.5 w-48 py-1.5 bg-[var(--bg-card)] dark:bg-slate-800 border border-[var(--border-subtle)] dark:border-slate-700 rounded-xl shadow-xl z-30">
+                    {(['Todos los negocios', 'New Business', 'Expansion', 'Renewal'] as const).map((item) => (
+                      <button
+                        key={item}
+                        type="button"
+                        className={`w-full px-3.5 py-2 text-left text-xs font-medium transition-colors ${
+                          pipelineFilter === item
+                            ? 'bg-blue-50 dark:bg-blue-900/30 text-[var(--clientum-action,#0056B3)] dark:text-blue-400 font-semibold'
+                            : 'text-[var(--text-secondary)] dark:text-slate-300 hover:bg-[var(--bg-muted)] dark:hover:bg-slate-700/50'
+                        }`}
+                        onClick={() => {
+                          setPipelineFilter(item);
+                          setIsPipelineDropdownOpen(false);
+                        }}
+                      >
+                        {item}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <button
+                type="button"
+                onClick={() => openNewRecordModal('opportunity')}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--clientum-action,#0056B3)] hover:bg-[#004494] text-white text-xs font-semibold shadow-xs transition-all cursor-pointer"
+              >
+                <Plus size={13} />
+                <span>Nuevo trato</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('opportunities')}
+                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-xl bg-[var(--bg-muted)] dark:bg-slate-800 hover:bg-[var(--bg-muted)]/80 text-[var(--text-secondary)] dark:text-slate-200 border border-[var(--border-subtle)] dark:border-slate-700 transition-colors cursor-pointer"
+              >
+                <span>Ver Kanban completo</span>
+                <ArrowRight size={12} />
+              </button>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
+          {/* Kanban Columns Grid with Drag and Drop */}
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3.5 items-start">
             {STAGES.filter((stage) => stage.id !== 'lost').map((stage) => {
               const columnDeals = filteredOpportunities.filter((deal) => deal.stage === stage.id);
               const stageSum = columnDeals.reduce((sum, deal) => sum + deal.amount, 0);
-              const percentageOfTotal =
-                pipelineTotal > 0 ? Math.round((stageSum / pipelineTotal) * 100) : 0;
+              const isOver = dragOverStage === stage.id;
 
               return (
                 <div
                   key={stage.id}
-                  className="p-3.5 rounded-xl border border-[var(--border-subtle)]/80 dark:border-[var(--border-subtle,#e2e8f0)] dark:border-slate-800/80 bg-[var(--bg-muted)]/60 dark:bg-slate-900/40 flex flex-col justify-between hover:border-[var(--border-default)] dark:border-[var(--border-subtle,#e2e8f0)] dark:hover:border-slate-700 transition-all"
+                  onDragOver={(e) => handleDragOver(e, stage.id)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, stage.id)}
+                  className={`p-3 rounded-xl border transition-all flex flex-col min-h-[320px] ${
+                    isOver
+                      ? 'bg-blue-50/60 dark:bg-blue-950/30 border-[var(--clientum-action,#0056B3)] ring-2 ring-blue-400/20'
+                      : 'bg-[var(--bg-muted)]/40 dark:bg-slate-900/40 border-[var(--border-subtle)]/70 dark:border-slate-800/80'
+                  }`}
                 >
-                  <div>
-                    <div className="flex items-center justify-between gap-1 mb-2">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="w-2.5 h-2.5 rounded-full shrink-0"
-                          style={{ backgroundColor: stage.color }}
-                        />
-                        <span className="text-xs font-bold text-[var(--text-primary)] dark:text-white truncate">
-                          {stage.name}
-                        </span>
-                      </div>
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-[var(--bg-card)] dark:bg-slate-800 border border-[var(--border-subtle)] dark:border-[var(--border-subtle,#e2e8f0)] dark:border-slate-700 text-[var(--text-secondary)] dark:text-[var(--text-secondary,#475569)] dark:text-slate-300">
-                        {columnDeals.length}
+                  {/* Stage Column Header */}
+                  <div className="flex items-center justify-between gap-1 pb-2.5 mb-2 border-b border-[var(--border-subtle)]/60 dark:border-slate-800">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span
+                        className="w-2.5 h-2.5 rounded-full shrink-0"
+                        style={{ backgroundColor: stage.color }}
+                      />
+                      <span className="text-xs font-bold text-[var(--text-primary)] dark:text-white truncate">
+                        {stage.name}
                       </span>
                     </div>
-
-                    <div className="text-base font-extrabold text-[var(--text-primary)] dark:text-[var(--text-primary,#0f172a)] dark:text-slate-100 tabular-nums font-mono my-1">
-                      {money(stageSum)}
-                    </div>
-
-                    <div className="w-full bg-[var(--bg-muted)] dark:bg-slate-800 h-1.5 rounded-full overflow-hidden my-2">
-                      <div
-                        className="h-full rounded-full transition-all"
-                        style={{
-                          backgroundColor: stage.color,
-                          width: `${Math.min(100, Math.max(0, percentageOfTotal))}%`,
-                        }}
-                      />
-                    </div>
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-[var(--bg-card)] dark:bg-slate-800 border border-[var(--border-subtle)] dark:border-slate-700 text-[var(--text-secondary)] dark:text-slate-300">
+                      {columnDeals.length}
+                    </span>
                   </div>
 
-                  <div className="mt-3 space-y-1.5 pt-2 border-t border-[var(--border-subtle)]/60 dark:border-[var(--border-subtle,#e2e8f0)] dark:border-slate-800/60">
-                    {columnDeals.slice(0, 2).map((deal) => (
-                      <div
+                  {/* Stage Amount Sum */}
+                  <div className="text-xs font-extrabold text-[var(--clientum-navy,#022046)] dark:text-slate-100 tabular-nums font-mono mb-2 px-0.5">
+                    {money(stageSum)}
+                  </div>
+
+                  {/* Deals Cards List */}
+                  <div className="space-y-2 flex-1">
+                    {columnDeals.map((deal) => (
+                      <KanbanCard
                         key={deal.id}
-                        onClick={() => {
-                          setSelectedRecord({ type: 'opportunity', id: deal.id });
-                          setActiveTab('opportunities');
-                        }}
-                        className="p-1.5 rounded-lg bg-[var(--bg-card)] dark:bg-slate-800/80 border border-[var(--border-subtle)]/60 dark:border-[var(--border-subtle,#e2e8f0)] dark:border-slate-700/60 hover:border-blue-400 text-left transition-all cursor-pointer"
-                      >
-                        <div className="text-[11px] font-semibold text-[var(--text-primary)] dark:text-[var(--text-primary,#0f172a)] dark:text-slate-200 truncate">
-                          {deal.name}
-                        </div>
-                        <div className="flex items-center justify-between text-[10px] text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400 mt-0.5">
-                          <span className="truncate">{deal.companyName || 'Sin empresa'}</span>
-                          <span className="font-mono font-bold">{money(deal.amount)}</span>
-                        </div>
-                      </div>
+                        opp={deal}
+                        compactCards={true}
+                        showCardTags={true}
+                        showCardDates={false}
+                        getPriorityColor={getPriorityColor}
+                        getContact={getContact}
+                        onDragStart={(e, id) => handleDragStart(e, id)}
+                        onSelectRecord={handleSelectRecord}
+                        onWhatsAppClick={handleWhatsAppClick}
+                        onAICopilotClick={handleAICopilotClick}
+                      />
                     ))}
-                    {columnDeals.length > 2 && (
-                      <button
-                        type="button"
-                        onClick={() => setActiveTab('opportunities')}
-                        className="w-full text-center text-[10px] font-semibold text-blue-600 dark:text-blue-400 hover:underline py-0.5 cursor-pointer"
-                      >
-                        +{columnDeals.length - 2} negocios más
-                      </button>
-                    )}
+
                     {columnDeals.length === 0 && (
-                      <div className="text-[10px] text-[var(--text-muted,#64748b)] dark:text-slate-400 dark:text-[var(--text-muted)] italic py-1 text-center">
-                        Sin oportunidades
+                      <div className="h-28 flex flex-col items-center justify-center border-2 border-dashed border-[var(--border-subtle)] dark:border-slate-800 rounded-lg text-center p-3 text-[11px] text-[var(--text-muted)] dark:text-slate-500">
+                        <span>Arrastrá un negocio aquí</span>
                       </div>
                     )}
                   </div>
@@ -808,161 +945,8 @@ export const ExecutiveDashboardView: React.FC = () => {
           </div>
         </div>
 
-        {/* Analytics & Pipeline Health Grid */}
-        <div className="crm-analytics-grid grid grid-cols-1 lg:grid-cols-3 gap-5">
-          {/* Salud de Conversión Comercial y Pipeline Activo */}
-          <div className="crm-panel lg:col-span-2 bg-[var(--bg-card)] dark:bg-[#0e1626] border border-[var(--border-subtle)]/80 dark:border-[#1c2d47] rounded-2xl p-5 shadow-xs flex flex-col justify-between">
-            <div>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 mb-4 border-b border-[var(--border-subtle)] dark:border-[#1c2d47]">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200/60 dark:border-blue-800/40 flex items-center justify-center text-[var(--clientum-action,#0056B3)]">
-                    <TrendingUp size={16} />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-[var(--clientum-navy,#022046)] dark:text-white">
-                      Rendimiento de Conversión & Eficiencia
-                    </h3>
-                    <p className="text-xs text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400">
-                      Tasa de éxito de cierres y distribución de valor en el embudo
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 font-bold border border-emerald-200 dark:border-emerald-800/50">
-                    {winRate}% Win Rate
-                  </span>
-                </div>
-              </div>
-
-              {/* Quick Metrics Bar */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-                <div className="p-3 rounded-xl bg-[var(--bg-muted)]/50 dark:bg-slate-900/40 border border-[var(--border-subtle)] dark:border-[var(--border-subtle,#e2e8f0)] dark:border-slate-800/80">
-                  <div className="text-[11px] font-semibold text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400">Ticket Promedio</div>
-                  <div className="text-sm font-extrabold text-[var(--text-primary)] dark:text-white font-mono mt-0.5">
-                    {money(averageDealSize)}
-                  </div>
-                </div>
-                <div className="p-3 rounded-xl bg-[var(--bg-muted)]/50 dark:bg-slate-900/40 border border-[var(--border-subtle)] dark:border-[var(--border-subtle,#e2e8f0)] dark:border-slate-800/80">
-                  <div className="text-[11px] font-semibold text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400">En Progreso</div>
-                  <div className="text-sm font-extrabold text-blue-600 dark:text-blue-400 font-mono mt-0.5">
-                    {activeOpportunities.length} tratos
-                  </div>
-                </div>
-                <div className="p-3 rounded-xl bg-[var(--bg-muted)]/50 dark:bg-slate-900/40 border border-[var(--border-subtle)] dark:border-[var(--border-subtle,#e2e8f0)] dark:border-slate-800/80">
-                  <div className="text-[11px] font-semibold text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400">Pipeline Activo</div>
-                  <div className="text-sm font-extrabold text-amber-600 dark:text-amber-400 font-mono mt-0.5">
-                    {money(pipelineTotal)}
-                  </div>
-                </div>
-                <div className="p-3 rounded-xl bg-[var(--bg-muted)]/50 dark:bg-slate-900/40 border border-[var(--border-subtle)] dark:border-[var(--border-subtle,#e2e8f0)] dark:border-slate-800/80">
-                  <div className="text-[11px] font-semibold text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400">Ciclo Medio</div>
-                  <div className="text-sm font-extrabold text-indigo-600 dark:text-indigo-400 font-mono mt-0.5">
-                    {averageCycleDays} días
-                  </div>
-                </div>
-              </div>
-
-              {/* Progress bars of stages */}
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between text-xs font-semibold text-[var(--text-secondary)] dark:text-[var(--text-secondary,#475569)] dark:text-slate-300">
-                  <span>Avance por Etapas del Embudo</span>
-                  <span>{filteredOpportunities.length} tratos totales</span>
-                </div>
-                <div className="w-full h-3 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden flex">
-                  {stageMetrics.map((st) => {
-                    const pct = filteredOpportunities.length > 0 ? (st.count / filteredOpportunities.length) * 100 : 0;
-                    if (pct === 0) return null;
-                    return (
-                      <div
-                        key={st.stage}
-                        style={{ width: `${pct}%` }}
-                        className={`${st.color} transition-all relative group`}
-                        title={`${st.stage}: ${st.count} tratos (${pct.toFixed(0)}%)`}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between pt-3 mt-4 border-t border-[var(--border-subtle)] dark:border-[var(--border-subtle,#e2e8f0)] dark:border-slate-800/80 text-xs">
-              <span className="text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                Actualizado automáticamente en tiempo real
-              </span>
-              <button
-                type="button"
-                onClick={() => setActiveTab('opportunities')}
-                className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 inline-flex items-center gap-1 cursor-pointer"
-              >
-                Abrir pipeline Kanban <ArrowRight size={12} />
-              </button>
-            </div>
-          </div>
-
-          {/* Distribución por Origen / Tipo */}
-          <div className="crm-panel bg-[var(--bg-card)] dark:bg-[#0e1626] border border-[var(--border-subtle)]/80 dark:border-[#1c2d47] rounded-2xl p-5 shadow-xs flex flex-col justify-between">
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-[var(--border-subtle)] dark:border-[#1c2d47]">
-              <h3 className="text-sm font-bold text-[var(--text-primary)] dark:text-white">
-                Distribución de Oportunidades
-              </h3>
-              <span className="text-xs font-semibold text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400">
-                {filteredOpportunities.length} total
-              </span>
-            </div>
-
-            <div className="flex items-center justify-center relative my-2">
-              <div className="w-36 h-36">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={sourceData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={44}
-                      outerRadius={62}
-                      paddingAngle={3}
-                      dataKey="value"
-                      stroke="none"
-                    >
-                      {sourceData.map((entry) => (
-                        <Cell key={entry.name} fill={entry.color} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-xl font-extrabold text-[var(--text-primary)] dark:text-white tabular-nums">
-                  {filteredOpportunities.length}
-                </span>
-                <span className="text-[10px] text-[var(--text-muted,#64748b)] dark:text-slate-400 font-medium">Tratos</span>
-              </div>
-            </div>
-
-            <div className="space-y-2 mt-2 pt-3 border-t border-[var(--border-subtle)] dark:border-[var(--border-subtle,#e2e8f0)] dark:border-slate-800/80">
-              {sourceData.map((item) => (
-                <div key={item.name} className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
-                    <span className="text-[var(--text-secondary)] dark:text-[var(--text-secondary,#475569)] dark:text-slate-300 font-medium">{item.name}</span>
-                  </div>
-                  <span className="font-bold text-[var(--text-primary)] dark:text-[var(--text-primary,#0f172a)] dark:text-slate-100">
-                    {item.value}% <span className="text-[var(--text-muted,#64748b)] dark:text-slate-400 font-normal">({item.count})</span>
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab('analytics')}
-              className="mt-3 w-full py-1.5 text-center text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 inline-flex items-center justify-center gap-1 cursor-pointer"
-            >
-              Ver reporte analítico detallado <ArrowRight size={12} />
-            </button>
-          </div>
-        </div>
+        {/* Projected Sales & Weighted Pipeline 3-Month Forecast */}
+        <RevenueForecastPanel />
 
         {/* Transactional Email Analytics Panel (Recharts 30 days) */}
         <div className="mt-8">
@@ -1069,6 +1053,33 @@ export const ExecutiveDashboardView: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* WhatsApp Quick Action Modal */}
+      {whatsAppOpp && (
+        <WhatsAppQuickActionModal
+          isOpen={Boolean(whatsAppOpp)}
+          onClose={() => setWhatsAppOpp(null)}
+          recipientName={whatsAppOpp.contactName || whatsAppOpp.companyName || 'Cliente'}
+          companyName={whatsAppOpp.companyName}
+          dealName={whatsAppOpp.name}
+          dealAmount={whatsAppOpp.amount}
+          currency="ARS"
+          onLogActivity={(messageText) => {
+            addActivity({
+              type: 'note',
+              title: `Mensaje WhatsApp a ${whatsAppOpp.contactName || whatsAppOpp.name}`,
+              content: messageText,
+              author: currentUser?.name || 'Ventas',
+              targetType: 'opportunity',
+              targetId: whatsAppOpp.id,
+              meta: {
+                channel: 'WhatsApp',
+              },
+            });
+            showToast('Mensaje de WhatsApp registrado en la actividad', 'success');
+          }}
+        />
       )}
 
       {/* Quick Capture Modal */}

@@ -5,5 +5,3 @@
 node_modules
 README.md
 *.log
-dist/server.cjs
-dist/server.cjs.map

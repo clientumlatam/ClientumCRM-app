@@ -130,7 +130,7 @@ export const MailSettings: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 font-['Plus_Jakarta_Sans',sans-serif] text-[var(--text-primary,#0f172a)] dark:text-slate-200">
+    <div className="space-y-6 font-['Inter',sans-serif] text-[var(--text-primary,#0f172a)] dark:text-slate-200">
       {/* Header Overview Card */}
       <div className="rounded-2xl border border-[var(--border-subtle,#e2e8f0)] dark:border-slate-800 bg-[var(--bg-canvas,#f8fafc)] dark:bg-[#090F1E] p-6 shadow-xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
