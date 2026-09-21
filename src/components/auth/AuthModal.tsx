@@ -3,7 +3,7 @@ import { X, Zap, Mail, Lock, User, Building, Eye, EyeOff, ArrowRight, Sparkles, 
 import { useCRM } from "../../context/CRMContext";
 import { SocialAuthButtons } from "./SocialAuthButtons";
 import { ClientumLogo } from "../common/ClientumLogo";
-import { signInWithEmail, registerWithEmail, sendFirebasePasswordReset } from "../../firebase";
+import { isDemoAuthFallbackEnabled, signInWithEmail, registerWithEmail, sendFirebasePasswordReset } from "../../firebase";
 import { bootstrapClientumAccount } from "../../lib/api";
 
 export const AuthModal: React.FC = () => {
@@ -139,7 +139,7 @@ export const AuthModal: React.FC = () => {
           </div>
 
           {/* Quick Demo button */}
-          {mode === "login" && (
+          {mode === "login" && isDemoAuthFallbackEnabled && (
             <div className="mb-4 rounded-xl border border-[var(--color-primary-border)] bg-[var(--color-primary-light)] p-3">
               <button
                 type="button"

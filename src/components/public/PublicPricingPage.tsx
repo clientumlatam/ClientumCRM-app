@@ -22,6 +22,7 @@ import { useCRM } from '../../context/CRMContext';
 import { PublicRoutePath } from './publicRoutes';
 import { ClientumPlanId } from '../../types';
 import { downloadWooCommerceCsv } from '../../data/woocommerceCatalog';
+import { trackAnalyticsEvent } from '../../lib/analytics';
 
 interface PublicPricingPageProps {
   currency: 'ARS' | 'USD';
@@ -37,9 +38,6 @@ export const PublicPricingPage: React.FC<PublicPricingPageProps> = ({
   onOpenWizard,
 }) => {
   const {
-    enterApp,
-    trialSubscription,
-    startFreeTrial,
     openMercadoPagoCheckout,
     showToast,
   } = useCRM();
@@ -222,9 +220,12 @@ export const PublicPricingPage: React.FC<PublicPricingPageProps> = ({
   ];
 
   const handleSelectPlan = (planId: ClientumPlanId) => {
-    startFreeTrial(planId);
-    showToast(`¡Plan seleccionado! Iniciando configuración para ${planId}`, 'success');
-    enterApp(true);
+    trackAnalyticsEvent('plan_selected', {
+      plan: planId,
+      billing_cycle: billingCycle,
+      location: 'pricing_page',
+    });
+    openMercadoPagoCheckout(planId);
   };
 
   const handleDownloadBrochure = () => {

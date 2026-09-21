@@ -14,3 +14,15 @@ For authenticated routes, browser storage flags are only a local-development con
 **Why:** Treating a persisted client flag as proof of identity allowed a stale or fabricated session to reopen the private CRM shell.
 
 **How to apply:** Keep the local demo fallback behind development checks, gate private navigation on auth readiness, and sign out through Firebase before clearing the local view state.
+
+When overriding the bundled Firebase project with `VITE_FIREBASE_*`, also provide
+`VITE_FIREBASE_DATABASE_ID` when the project does not use its default Firestore
+database; never reuse the bundled applet database ID for another project.
+
+**Why:** The Firebase project and Firestore database are independent configuration
+values, so silently combining an environment project with the applet database can
+make valid authenticated reads target the wrong database.
+
+**How to apply:** Prefer the explicit environment database ID, otherwise use the
+project's default database for environment-configured projects and the applet ID
+only for the bundled project.

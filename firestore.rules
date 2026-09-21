@@ -8,40 +8,13 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    match /test/{docId} {
-      allow read: if true;
-    }
-    match /_connection_test/{docId} {
-      allow read: if true;
-    }
-    match /_system_health/{docId} {
-      allow read: if true;
-    }
-
-    // Regla principal: cada usuario tiene control total y exclusivo de su perfil y de todos sus datos (workspace, crm, etc.)
+    // Each authenticated user has exclusive access to their own profile and CRM data.
     match /users/{userId} {
       allow read, write: if isOwner(userId);
       
       match /{allSubcollections=**} {
         allow read, write: if isOwner(userId);
       }
-    }
-
-    // Colecciones raíz
-    match /deals/{dealId} {
-      allow read, write: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid || request.resource.data.userId == request.auth.uid);
-    }
-    match /companies/{companyId} {
-      allow read, write: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid || request.resource.data.userId == request.auth.uid);
-    }
-    match /contacts/{contactId} {
-      allow read, write: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid || request.resource.data.userId == request.auth.uid);
-    }
-    match /tasks/{taskId} {
-      allow read, write: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid || request.resource.data.userId == request.auth.uid);
-    }
-    match /activities/{activityId} {
-      allow read, write: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid || request.resource.data.userId == request.auth.uid);
     }
   }
 }

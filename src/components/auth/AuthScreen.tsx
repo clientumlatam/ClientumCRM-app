@@ -21,7 +21,7 @@ import { useCRM } from '../../context/CRMContext';
 import { Language } from '../../types';
 import { SocialAuthButtons } from './SocialAuthButtons';
 import { PasswordResetFlow } from './PasswordResetFlow';
-import { signInWithEmail, registerWithEmail } from '../../firebase';
+import { isDemoAuthFallbackEnabled, signInWithEmail, registerWithEmail } from '../../firebase';
 import { bootstrapClientumAccount } from '../../lib/api';
 
 // Zod schema for password validation
@@ -403,7 +403,7 @@ export const AuthScreen: React.FC = () => {
                   <SocialAuthButtons />
 
                   {/* Quick 1-Click Demo Button for instant testing */}
-                  {authMode === 'login' && Boolean((import.meta as any).env?.DEV) && (
+                  {authMode === 'login' && isDemoAuthFallbackEnabled && (
                     <div className="pt-2 border-t border-[var(--border-subtle,#e2e8f0)] dark:border-[#1a202d] space-y-2">
                       <button
                         id="auth-screen-demo-btn"

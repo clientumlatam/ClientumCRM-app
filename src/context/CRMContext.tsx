@@ -49,8 +49,10 @@ import {
   seedUserSubcollectionsIfEmpty,
   subscribeToAuthState,
   syncUserProfileToFirestore,
+  auth,
   db,
   isLiveFirebaseReady,
+  isDemoAuthFallbackEnabled,
 } from '../firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { INITIAL_WEBMAIL_EMAILS } from '../data/webmailInitialData';
@@ -931,10 +933,10 @@ export const CRMProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   });
 
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
-  const [isAuthReady, setIsAuthReady] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => !isLiveFirebaseReady);
+  const [isAuthReady, setIsAuthReady] = useState(() => !isLiveFirebaseReady);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
-  const demoSessionRef = useRef(true);
+  const demoSessionRef = useRef(isDemoAuthFallbackEnabled);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [gmailAccessToken, setGmailAccessToken] = useState<string | null>(null);
 
@@ -1086,7 +1088,7 @@ export const CRMProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const syncClerkAuth = useCallback((identity: { id: string; email: string; name: string; avatar?: string | null } | null) => {
     if (!identity) {
-      if (demoSessionRef.current) {
+      if (isDemoAuthFallbackEnabled && demoSessionRef.current) {
         setIsAuthenticated(true);
         setIsAuthReady(true);
         return;
@@ -1249,7 +1251,12 @@ export const CRMProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     let cancelled = false;
 
-    if (!isAuthReady || !isAuthenticated || !currentUser.id) {
+    if (
+      !isAuthReady ||
+      !isAuthenticated ||
+      !currentUser.id ||
+      (isLiveFirebaseReady && auth.currentUser?.uid !== currentUser.id)
+    ) {
       setIsCrmRemoteReady(false);
       return () => {
         cancelled = true;
@@ -1277,45 +1284,35 @@ export const CRMProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           currentUser.id,
           'opportunities',
           (items) => {
-            if (items && items.length > 0) {
-              setOpportunities(ensureUniqueIds(items, 'opp'));
-            }
+            setOpportunities(ensureUniqueIds(items || [], 'opp'));
           }
         );
         const unsubComp = subscribeToUserSubcollection<Company>(
           currentUser.id,
           'companies',
           (items) => {
-            if (items && items.length > 0) {
-              setCompanies(items);
-            }
+            setCompanies(items || []);
           }
         );
         const unsubPeople = subscribeToUserSubcollection<Person>(
           currentUser.id,
           'people',
           (items) => {
-            if (items && items.length > 0) {
-              setPeople(items);
-            }
+            setPeople(items || []);
           }
         );
         const unsubTasks = subscribeToUserSubcollection<Task>(
           currentUser.id,
           'tasks',
           (items) => {
-            if (items && items.length > 0) {
-              setTasks(items);
-            }
+            setTasks(items || []);
           }
         );
         const unsubActivities = subscribeToUserSubcollection<Activity>(
           currentUser.id,
           'activities',
           (items) => {
-            if (items && items.length > 0) {
-              setActivities(items);
-            }
+            setActivities(items || []);
           }
         );
 
@@ -1550,6 +1547,40 @@ export const CRMProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, []);
 
   const login = useCallback((email: string, _pass?: string) => {
+    if (isLiveFirebaseReady) {
+      const firebaseUser = auth.currentUser;
+      if (!firebaseUser) {
+        setIsAuthenticated(false);
+        return;
+      }
+
+      const found = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+      const displayName = firebaseUser.displayName || found?.name || email.split('@')[0];
+      const userToSet: User = {
+        id: firebaseUser.uid,
+        name: displayName,
+        email: firebaseUser.email || email,
+        role: found?.role || 'Administrador',
+        avatar: firebaseUser.photoURL || found?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=2563eb&color=fff`,
+      };
+
+      demoSessionRef.current = false;
+      setCurrentUser(userToSet);
+      try {
+        localStorage.setItem('clientum_crm_current_user', JSON.stringify(userToSet));
+        sessionStorage.setItem('clientum_view_mode', 'app');
+      } catch (error) {
+        console.warn('Storage access denied', error);
+      }
+      setIsAuthenticated(true);
+      setIsAuthReady(true);
+      setActiveTab('dashboard');
+      setIsAuthModalOpen(false);
+      setIsPublicSiteVisible(false);
+      navigateEnvironment('/app');
+      return;
+    }
+
     demoSessionRef.current = true;
     const found = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
     const handle = email.split('@')[0];
@@ -1586,6 +1617,40 @@ export const CRMProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [users]);
 
   const register = useCallback((name: string, email: string, _pass?: string, _company?: string) => {
+    if (isLiveFirebaseReady) {
+      const firebaseUser = auth.currentUser;
+      if (!firebaseUser) {
+        setIsAuthenticated(false);
+        return;
+      }
+
+      const userDisplayName = name.trim() || firebaseUser.displayName || email.split('@')[0];
+      const newUser: User = {
+        id: firebaseUser.uid,
+        name: userDisplayName,
+        email: firebaseUser.email || email,
+        role: 'Administrador',
+        avatar: firebaseUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(userDisplayName)}&background=2563eb&color=fff`,
+      };
+
+      demoSessionRef.current = false;
+      setCurrentUser(newUser);
+      try {
+        localStorage.setItem('clientum_crm_current_user', JSON.stringify(newUser));
+        sessionStorage.setItem('clientum_view_mode', 'app');
+      } catch (error) {
+        console.warn('Storage access denied', error);
+      }
+      startFreeTrial('professional');
+      setIsAuthenticated(true);
+      setIsAuthReady(true);
+      setActiveTab('dashboard');
+      setIsAuthModalOpen(false);
+      setIsPublicSiteVisible(false);
+      navigateEnvironment('/app');
+      return;
+    }
+
     const userDisplayName = name.trim() || 'Usuario Clientum';
     const newUser: User = {
       id: 'usr-' + Date.now(),

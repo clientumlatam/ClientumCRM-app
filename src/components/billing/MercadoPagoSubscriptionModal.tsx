@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import { useCRM } from '../../context/CRMContext';
 import { ClientumPlanId } from '../../types';
+import { getClientumAuthJsonHeaders } from '../../lib/api';
+import { trackAnalyticsEvent } from '../../lib/analytics';
 
 interface MercadoPagoSubscriptionModalProps {
   isOpen: boolean;
@@ -45,7 +47,16 @@ export const MercadoPagoSubscriptionModal: React.FC<MercadoPagoSubscriptionModal
   const [businessName, setBusinessName] = useState('');
   const [invoiceType, setInvoiceType] = useState<'A' | 'B'>('A');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [checkoutSuccess, setCheckoutSuccess] = useState<any | null>(null);
+  const [checkoutSuccess, setCheckoutSuccess] = useState<{
+    checkoutId: string;
+    externalUrl: string;
+    subscriptionId?: string | null;
+    plan: string;
+    amount: number;
+    status: 'pending' | 'approved' | 'rejected' | 'cancelled';
+  } | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [isCheckingStatus, setIsCheckingStatus] = useState(false);
 
   if (!isOpen) return null;
 
@@ -111,6 +122,10 @@ export const MercadoPagoSubscriptionModal: React.FC<MercadoPagoSubscriptionModal
 
   const handleStartTrial = () => {
     startFreeTrial(selectedPlan);
+    trackAnalyticsEvent('trial_started', {
+      plan: selectedPlan,
+      billing_cycle: billingCycle,
+    });
     showToast('¡Tu semana de prueba gratis (7 días) ha sido activada!', 'success');
     onClose();
     enterApp(true);
@@ -123,13 +138,11 @@ export const MercadoPagoSubscriptionModal: React.FC<MercadoPagoSubscriptionModal
     }
 
     setIsProcessing(true);
+    setCheckoutError(null);
     try {
-      // 1. Attempt official backend checkout route
       const response = await fetch('/api/billing/mercadopago/checkout', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: await getClientumAuthJsonHeaders(currentUser),
         body: JSON.stringify({
           planId: selectedPlan,
           payerEmail,
@@ -142,57 +155,92 @@ export const MercadoPagoSubscriptionModal: React.FC<MercadoPagoSubscriptionModal
 
       const data = await response.json().catch(() => ({}));
 
-      if (response.ok && data.checkoutUrl) {
-        // Real Mercado Pago checkout preference created
-        window.open(data.checkoutUrl, '_blank', 'noopener,noreferrer');
-        await upgradeSubscription(selectedPlan, billingCycle, {
-          paymentMethod: 'mercadopago',
-          subscriptionId: data.subscriptionId || data.checkoutId,
-          amountARS: totalPrice,
-          cuitOrCuil: cuit,
-          businessName,
-        });
-        setCheckoutSuccess({
-          externalUrl: data.checkoutUrl,
-          subscriptionId: data.subscriptionId || data.checkoutId,
-          plan: currentPlanMeta.name,
-          amount: totalPrice,
-        });
-      } else {
-        // Fallback / Sandbox Approval for preview testing environment
-        await upgradeSubscription(selectedPlan, billingCycle, {
-          paymentMethod: 'mercadopago',
-          subscriptionId: `mp-sub-${Date.now().toString(36).toUpperCase()}`,
-          amountARS: totalPrice,
-          cuitOrCuil: cuit,
-          businessName,
-        });
-        setCheckoutSuccess({
-          externalUrl: null,
-          subscriptionId: `MP-${Math.floor(10000000 + Math.random() * 90000000)}`,
-          plan: currentPlanMeta.name,
-          amount: totalPrice,
-        });
-        showToast('¡Suscripción confirmada exitosamente con Mercado Pago!', 'success');
+      if (!response.ok || !data.checkoutUrl || !data.checkoutId) {
+        throw new Error(data.error || 'No se pudo crear el checkout de Mercado Pago.');
       }
-    } catch (err: any) {
-      // Fallback grace
-      await upgradeSubscription(selectedPlan, billingCycle, {
-        paymentMethod: 'mercadopago',
-        subscriptionId: `mp-sub-${Date.now().toString(36).toUpperCase()}`,
-        amountARS: totalPrice,
-        cuitOrCuil: cuit,
-        businessName,
+
+      trackAnalyticsEvent('checkout_started', {
+        plan: selectedPlan,
+        billing_cycle: billingCycle,
+        provider: 'mercadopago',
       });
+
+      window.open(data.checkoutUrl, '_blank', 'noopener,noreferrer');
       setCheckoutSuccess({
-        externalUrl: null,
-        subscriptionId: `MP-${Math.floor(10000000 + Math.random() * 90000000)}`,
+        checkoutId: data.checkoutId,
+        externalUrl: data.checkoutUrl,
+        subscriptionId: data.subscriptionId || null,
         plan: currentPlanMeta.name,
         amount: totalPrice,
+        status: 'pending',
       });
-      showToast('¡Suscripción aprobada!', 'success');
+      showToast('Checkout abierto. Tu plan se activará cuando Mercado Pago confirme el pago.', 'info');
+    } catch (err: any) {
+      setCheckoutError(err?.message || 'No se pudo iniciar el pago con Mercado Pago.');
+      showToast(err?.message || 'No se pudo iniciar el pago con Mercado Pago.', 'error');
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  const handleCheckStatus = async () => {
+    if (!checkoutSuccess) return;
+    setIsCheckingStatus(true);
+    setCheckoutError(null);
+    try {
+      const response = await fetch(
+        `/api/billing/status?checkoutId=${encodeURIComponent(checkoutSuccess.checkoutId)}`,
+        { headers: await getClientumAuthJsonHeaders(currentUser) },
+      );
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || 'No se pudo comprobar el estado del pago.');
+
+      const checkout = data.checkouts?.[0];
+      const status = checkout?.status as 'pending' | 'approved' | 'rejected' | 'cancelled' | undefined;
+      if (!status) throw new Error('Todavía no encontramos este checkout.');
+
+      if (status === 'approved' || status === 'rejected' || status === 'cancelled') {
+        const conversionOrigin = trialSubscription.status === 'trial' ? 'trial' : 'direct';
+        trackAnalyticsEvent('subscription_status', {
+          plan: selectedPlan,
+          billing_cycle: billingCycle,
+          provider: 'mercadopago',
+          status: status === 'approved' ? 'confirmed' : status,
+          origin: conversionOrigin,
+        });
+
+        if (status === 'approved' && conversionOrigin === 'trial') {
+          trackAnalyticsEvent('trial_to_paid', {
+            plan: selectedPlan,
+            billing_cycle: billingCycle,
+            provider: 'mercadopago',
+          });
+        }
+      }
+
+      setCheckoutSuccess((current) => current ? {
+        ...current,
+        status,
+        subscriptionId: checkout.providerSubscriptionId || current.subscriptionId,
+      } : current);
+
+      if (status === 'approved') {
+        await upgradeSubscription(selectedPlan, billingCycle, {
+          paymentMethod: 'mercadopago',
+          subscriptionId: checkout.providerSubscriptionId || checkoutSuccess.subscriptionId || checkoutSuccess.checkoutId,
+          amountARS: totalPrice,
+          cuitOrCuil: cuit,
+          businessName,
+        });
+        showToast('¡Suscripción confirmada por Mercado Pago!', 'success');
+      } else if (status === 'pending') {
+        showToast('Mercado Pago todavía está procesando la suscripción.', 'info');
+      }
+    } catch (err: any) {
+      setCheckoutError(err?.message || 'No se pudo comprobar el estado del pago.');
+      showToast(err?.message || 'No se pudo comprobar el estado del pago.', 'error');
+    } finally {
+      setIsCheckingStatus(false);
     }
   };
 
@@ -224,50 +272,75 @@ export const MercadoPagoSubscriptionModal: React.FC<MercadoPagoSubscriptionModal
         </div>
 
         {checkoutSuccess ? (
-          /* SUCCESS CONFIRMATION VIEW */
+          /* CHECKOUT STATUS VIEW */
           <div className="p-8 text-center space-y-6">
-            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-inner">
-              <CheckCircle2 className="w-8 h-8" />
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto shadow-inner ${
+              checkoutSuccess.status === 'approved'
+                ? 'bg-emerald-100 text-emerald-600'
+                : checkoutSuccess.status === 'pending'
+                  ? 'bg-blue-100 text-blue-600'
+                  : 'bg-rose-100 text-rose-600'
+            }`}>
+              {checkoutSuccess.status === 'approved' ? <CheckCircle2 className="w-8 h-8" /> : <Clock className="w-8 h-8" />}
             </div>
 
             <div className="space-y-2 max-w-md mx-auto">
               <h3 className="text-xl font-bold text-[var(--text-primary)]">
-                ¡Suscripción Confirmada!
+                {checkoutSuccess.status === 'approved'
+                  ? '¡Suscripción confirmada!'
+                  : checkoutSuccess.status === 'pending'
+                    ? 'Checkout pendiente de confirmación'
+                    : 'El pago no fue aprobado'}
               </h3>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                Tu plan <strong className="text-[var(--text-primary)]">{checkoutSuccess.plan}</strong> ha sido activado correctamente mediante débito automático con <strong className="text-blue-600">Mercado Pago</strong>.
+                {checkoutSuccess.status === 'approved'
+                  ? <>Tu plan <strong className="text-[var(--text-primary)]">{checkoutSuccess.plan}</strong> fue confirmado por <strong className="text-blue-600">Mercado Pago</strong>.</>
+                  : checkoutSuccess.status === 'pending'
+                    ? <>Completá el checkout en Mercado Pago. Luego actualizá el estado aquí; el acceso no se activa hasta recibir la confirmación.</>
+                    : <>Mercado Pago no confirmó esta suscripción. Podés volver a intentar el checkout.</>}
               </p>
             </div>
 
             <div className="p-4 rounded-2xl bg-[var(--bg-muted)] border border-[var(--border-subtle)] text-left text-xs space-y-2 max-w-md mx-auto">
               <div className="flex justify-between text-[var(--text-muted)]">
-                <span>N° Comprobante MP:</span>
-                <span className="font-mono font-bold text-[var(--text-primary)]">{checkoutSuccess.subscriptionId}</span>
+                <span>Referencia del checkout:</span>
+                <span className="font-mono font-bold text-[var(--text-primary)]">{checkoutSuccess.subscriptionId || checkoutSuccess.checkoutId}</span>
               </div>
               <div className="flex justify-between text-[var(--text-muted)]">
                 <span>Total Facturado:</span>
                 <span className="font-bold text-[var(--text-primary)]">${checkoutSuccess.amount.toLocaleString('es-AR')} ARS</span>
               </div>
               <div className="flex justify-between text-[var(--text-muted)]">
-                <span>Factura AFIP Electrónica:</span>
-                <span className="font-semibold text-emerald-700 flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" /> CAE Fiscal Aprobado
+                <span>Estado de la suscripción:</span>
+                <span className={`font-semibold flex items-center gap-1 ${
+                  checkoutSuccess.status === 'approved' ? 'text-emerald-700' : 'text-blue-700'
+                }`}>
+                  {checkoutSuccess.status === 'approved' ? <><CheckCircle2 className="w-3 h-3" /> Confirmada</> : 'Pendiente de confirmación'}
                 </span>
               </div>
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              {checkoutSuccess.status === 'pending' && (
+                <button
+                  onClick={handleCheckStatus}
+                  disabled={isCheckingStatus}
+                  className="w-full sm:w-auto px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md cursor-pointer transition-all disabled:opacity-50"
+                >
+                  <span>{isCheckingStatus ? 'Comprobando...' : 'Actualizar estado'}</span>
+                </button>
+              )}
               <button
                 onClick={() => {
                   onClose();
-                  enterApp(true);
+                  if (checkoutSuccess.status === 'approved') enterApp(true);
                 }}
                 className="w-full sm:w-auto px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md cursor-pointer transition-all"
               >
-                <span>Ir al CRM y Comenzar</span>
+                <span>{checkoutSuccess.status === 'approved' ? 'Ir al CRM y comenzar' : 'Cerrar'}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
-              {checkoutSuccess.externalUrl && (
+              {checkoutSuccess.externalUrl && checkoutSuccess.status !== 'approved' && (
                 <a
                   href={checkoutSuccess.externalUrl}
                   target="_blank"
@@ -279,6 +352,12 @@ export const MercadoPagoSubscriptionModal: React.FC<MercadoPagoSubscriptionModal
                 </a>
               )}
             </div>
+            {checkoutError && (
+              <div className="max-w-md mx-auto rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-left text-xs text-rose-700 flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{checkoutError}</span>
+              </div>
+            )}
           </div>
         ) : (
           /* CONFIGURATION AND CHECKOUT VIEW */
@@ -474,6 +553,12 @@ export const MercadoPagoSubscriptionModal: React.FC<MercadoPagoSubscriptionModal
 
             {/* Actions: Start Trial or Subscribe with Mercado Pago */}
             <div className="pt-4 border-t border-[var(--border-subtle)] space-y-3">
+              {checkoutError && (
+                <div className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700 flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{checkoutError}</span>
+                </div>
+              )}
               <div className="flex flex-col sm:flex-row items-center gap-3">
                 <button
                   type="button"

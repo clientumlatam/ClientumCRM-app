@@ -13,6 +13,7 @@
     "check:artifact-inventory": "node scripts/check-artifact-inventory.mjs",
     "smoke:navigation": "node scripts/navigation-smoke.mjs",
     "smoke:credentials": "node scripts/credentials-isolation-smoke.mjs",
+    "smoke:auth": "node scripts/auth-boundary-smoke.mjs",
     "db:migrate": "node scripts/migrate.mjs"
   },
   "dependencies": {
@@ -30,6 +31,7 @@
     "esbuild": "^0.28.2",
     "express": "^4.22.2",
     "firebase": "^12.18.0",
+    "firebase-admin": "^14.4.0",
     "http-proxy-middleware": "^4.2.0",
     "jspdf": "^4.2.1",
     "lucide-react": "^0.546.0",

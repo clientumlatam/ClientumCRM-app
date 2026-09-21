@@ -36,5 +36,10 @@ export function trackAnalyticsEvent(
   parameters?: Record<string, string | number | boolean>,
 ): void {
   if (!analyticsMeasurementId || typeof window === "undefined" || !window.gtag) return;
-  window.gtag("event", eventName, parameters || {});
+
+  try {
+    window.gtag("event", eventName, parameters || {});
+  } catch {
+    // Analytics must never break the app.
+  }
 }

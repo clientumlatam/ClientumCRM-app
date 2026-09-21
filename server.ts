@@ -31,9 +31,10 @@ dotenv.config();
 
 import { crmRouter } from "./src/server/routes/crm.routes";
 import { tenantMiddleware } from "./src/server/middleware/auth";
+import { getFirebaseAdminAuthStatus, verifyFirebaseIdToken } from "./server/firebaseAdmin";
 
 const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.PORT || 5000);
 
 app.use(express.json({
   limit: "10mb",
@@ -41,9 +42,6 @@ app.use(express.json({
     (request as express.Request & { rawBody?: Buffer }).rawBody = Buffer.from(buffer);
   },
 }));
-
-// Mount modular CRM domain routes
-app.use("/api/crm", tenantMiddleware, crmRouter);
 
 type UserCredentialRecord = {
   updatedAt: string;
@@ -297,13 +295,16 @@ async function getRequestUserId(req: express.Request): Promise<string | null> {
   const authHeader = req.header("authorization") || "";
   if (authHeader.startsWith("Bearer ")) {
     const token = authHeader.slice(7).trim();
-    if (/^[a-zA-Z0-9:_-]{1,128}$/.test(token)) {
-      return token;
+    if (token.length >= 1 && token.length <= 4096) {
+      const verifiedToken = await verifyFirebaseIdToken(token);
+      if (verifiedToken?.uid) return verifiedToken.uid;
     }
   }
 
   const userId = String(req.header("x-clientum-user-id") || "").trim();
-  if (/^[a-zA-Z0-9:_-]{1,120}$/.test(userId)) return userId;
+  if (process.env.NODE_ENV !== "production" && /^[a-zA-Z0-9:_-]{1,120}$/.test(userId)) {
+    return userId;
+  }
 
   return null;
 }
@@ -321,9 +322,21 @@ const requireProductionAuthentication: express.RequestHandler = async (req, res,
     return;
   }
 
+  const authStatus = getFirebaseAdminAuthStatus();
+  if (!authStatus.configured) {
+    res.status(503).json({
+      error: "Firebase Admin authentication is not configured on the server.",
+      code: "AUTH_PROVIDER_NOT_CONFIGURED",
+    });
+    return;
+  }
+
   const userId = await getRequestUserId(req);
   if (!userId) {
-    res.status(401).json({ error: "A verified user session is required." });
+    res.status(401).json({
+      error: "A verified Firebase user session is required.",
+      code: "AUTHENTICATION_REQUIRED",
+    });
     return;
   }
   next();
@@ -458,11 +471,30 @@ app.post("/api/public/newsletter", async (req, res) => {
   }
 });
 
-// Protected application APIs require a Clerk session in production.
+// Protected application APIs require a verified Firebase session in production.
 app.use(
-  ["/api/account", "/api/ai", "/api/expense", "/api/email/send", "/api/crm", "/api/agent", "/api/audit", "/api/payments", "/api/billing", "/api/vercel", "/api/cloudflare"],
+  [
+    "/api/account",
+    "/api/ai",
+    "/api/expense",
+    "/api/email/send",
+    "/api/crm",
+    "/api/agent",
+    "/api/audit",
+    "/api/payments",
+    "/api/billing",
+    "/api/vercel",
+    "/api/cloudflare",
+    "/api/user-credentials",
+    "/api/user-api-keys",
+  ],
   requireProductionAuthentication,
 );
+
+// Mount modular CRM routes only after the production identity guard. The
+// modular router still receives tenantMiddleware for compatibility; tenant
+// derivation is handled by the follow-up isolation task.
+app.use("/api/crm", tenantMiddleware, crmRouter);
 
 function readBoundedQueryNumber(value: unknown, fallback: number, min: number, max: number): number {
   const parsed = Number(value);
@@ -1117,7 +1149,7 @@ function getPlatformMercadoPagoToken(): string | undefined {
 
 function verifyPlatformMercadoPagoWebhook(req: express.Request, resourceId: string): boolean {
   const secret = process.env.PLATFORM_MERCADOPAGO_WEBHOOK_SECRET?.trim();
-  if (!secret || !resourceId) return !secret;
+  if (!secret || !resourceId) return false;
   const signature = String(req.header("x-signature") || "");
   const requestId = String(req.header("x-request-id") || "");
   const ts = signature.match(/(?:^|,)ts=([^,]+)/)?.[1];
@@ -1126,6 +1158,55 @@ function verifyPlatformMercadoPagoWebhook(req: express.Request, resourceId: stri
   const manifest = `id:${resourceId};request-id:${requestId};ts:${ts};`;
   const expected = createHmac("sha256", secret).update(manifest).digest("hex");
   return expected.length === v1.length && timingSafeEqual(Buffer.from(expected), Buffer.from(v1));
+}
+
+type PlatformBillingStatus = "pending" | "approved" | "rejected" | "cancelled" | "paused";
+
+function mapMercadoPagoSubscriptionStatus(value: unknown): PlatformBillingStatus {
+  const status = String(value || "").toLowerCase();
+  if (status === "authorized") return "approved";
+  if (status === "paused") return "paused";
+  if (status === "cancelled" || status === "canceled") return "cancelled";
+  if (status === "rejected") return "rejected";
+  return "pending";
+}
+
+async function refreshPlatformSubscriptionStatus(
+  checkoutId: string,
+  userId: string,
+): Promise<PlatformBillingStatus | null> {
+  if (!credentialDatabase) return null;
+  const accessToken = getPlatformMercadoPagoToken();
+  if (!accessToken) return null;
+
+  const checkoutResult = await credentialDatabase.query<{
+    provider_subscription_id: string | null;
+    status: PlatformBillingStatus;
+  }>(
+    `SELECT provider_subscription_id, status
+     FROM clientum_platform_billing_checkouts
+     WHERE id = $1 AND clerk_user_id = $2
+     LIMIT 1`,
+    [checkoutId, userId],
+  );
+  const checkout = checkoutResult.rows[0];
+  if (!checkout?.provider_subscription_id) return checkout?.status || null;
+
+  const response = await fetch(
+    `https://api.mercadopago.com/preapproval/${encodeURIComponent(checkout.provider_subscription_id)}`,
+    { headers: { Authorization: `Bearer ${accessToken}` } },
+  );
+  if (!response.ok) return checkout.status;
+
+  const resource = await response.json() as { status?: string };
+  const status = mapMercadoPagoSubscriptionStatus(resource.status);
+  await credentialDatabase.query(
+    `UPDATE clientum_platform_billing_checkouts
+     SET status = $1, updated_at = NOW()
+     WHERE id = $2 AND clerk_user_id = $3`,
+    [status, checkoutId, userId],
+  );
+  return status;
 }
 
 app.post("/api/billing/mercadopago/webhook", async (req, res) => {
@@ -1158,15 +1239,7 @@ app.post("/api/billing/mercadopago/webhook", async (req, res) => {
     if (!resource.external_reference) return;
 
     if (isSubscriptionNotification) {
-      const status = resource.status === "authorized"
-        ? "approved"
-        : resource.status === "paused"
-          ? "paused"
-          : resource.status === "cancelled" || resource.status === "canceled"
-            ? "cancelled"
-            : resource.status === "rejected"
-              ? "rejected"
-              : "pending";
+      const status = mapMercadoPagoSubscriptionStatus(resource.status);
       await credentialDatabase.query(
         `UPDATE clientum_platform_billing_checkouts
          SET status = $1, provider_subscription_id = $2,
@@ -1214,17 +1287,48 @@ app.get("/api/billing/status", async (req, res) => {
   }
 
   try {
-    const result = await credentialDatabase.query(
+    await credentialSchemaReady;
+    const requestedCheckoutId = String(req.query.checkoutId || "").trim();
+    const result = await credentialDatabase.query<{
+      checkoutId: string;
+      planId: string;
+      amount: string | number;
+      currency: string;
+      status: PlatformBillingStatus;
+      checkoutUrl: string | null;
+      providerSubscriptionId: string | null;
+      providerPaymentId: string | null;
+      createdAt: string;
+    }>(
       `SELECT id AS "checkoutId", plan_id AS "planId", amount, currency, status,
-              init_point AS "checkoutUrl", created_at AS "createdAt"
+              init_point AS "checkoutUrl", provider_subscription_id AS "providerSubscriptionId",
+              provider_payment_id AS "providerPaymentId", created_at AS "createdAt"
        FROM clientum_platform_billing_checkouts
        WHERE clerk_user_id = $1
+         AND ($2 = '' OR id = $2)
        ORDER BY created_at DESC
        LIMIT 20`,
-      [userId],
+      [userId, requestedCheckoutId],
     );
+
+    if (requestedCheckoutId && result.rows[0]?.status === "pending") {
+      try {
+        const refreshedStatus = await refreshPlatformSubscriptionStatus(requestedCheckoutId, userId);
+        if (refreshedStatus) result.rows[0].status = refreshedStatus;
+      } catch (error: any) {
+        console.warn("Platform billing status refresh failed:", error?.message || error);
+      }
+    }
+
     res.json({
-      configured: Boolean(getPlatformMercadoPagoToken()),
+      configured: Boolean(
+        getPlatformMercadoPagoToken() &&
+        process.env.PLATFORM_MERCADOPAGO_WEBHOOK_SECRET?.trim() &&
+        getPublicAppUrl() &&
+        credentialDatabase,
+      ),
+      appUrlConfigured: Boolean(getPublicAppUrl()),
+      webhookConfigured: Boolean(process.env.PLATFORM_MERCADOPAGO_WEBHOOK_SECRET?.trim()),
       checkouts: result.rows,
     });
   } catch (error: any) {
@@ -1235,7 +1339,11 @@ app.get("/api/billing/status", async (req, res) => {
 
 app.post("/api/billing/mercadopago/checkout", async (req, res) => {
   const verifiedUserId = await getRequestUserId(req);
-  const userId = verifiedUserId || (typeof req.body?.userId === "string" ? req.body.userId.trim() : `user_trial_${Date.now()}`);
+  if (!verifiedUserId) {
+    res.status(401).json({ error: "Inicia sesión antes de crear una suscripción.", code: "AUTHENTICATION_REQUIRED" });
+    return;
+  }
+  const userId = verifiedUserId;
   
   const rawPlanId = req.body?.planId;
   const normalizedPlan = normalizePlatformPlanId(rawPlanId);
@@ -1250,29 +1358,39 @@ app.post("/api/billing/mercadopago/checkout", async (req, res) => {
   const plan = PLATFORM_PLANS[normalizedPlan];
   const accessToken = getPlatformMercadoPagoToken();
   const amount = getPlanAmount(normalizedPlan, billingCycle);
+  const webhookSecretConfigured = Boolean(process.env.PLATFORM_MERCADOPAGO_WEBHOOK_SECRET?.trim());
 
-  // If live credentials or PostgreSQL are not present, return simulated sandbox checkout so users can test immediately
-  if (!accessToken || !credentialDatabase) {
-    const simulatedSubId = `mp_sub_${Date.now()}_${randomBytes(4).toString("hex")}`;
-    const checkoutId = `platform_checkout_${Date.now()}_${randomBytes(4).toString("hex")}`;
-    res.status(200).json({
-      checkoutId,
-      subscriptionId: simulatedSubId,
-      planId: normalizedPlan,
-      billingCycle,
-      checkoutUrl: null,
-      status: "pending",
-      sandbox: true,
-      amount,
-      message: "Modo de simulación Mercado Pago habilitado.",
+  // A payment request must never be reported as successful without a provider
+  // checkout. Preview/demo mode can still use the free trial, but paid access
+  // requires a real Mercado Pago subscription and durable status tracking.
+  if (!accessToken || !credentialDatabase || !webhookSecretConfigured) {
+    res.status(503).json({
+      error: !accessToken
+        ? "Mercado Pago debe estar configurado para activar pagos reales."
+        : !credentialDatabase
+          ? "PostgreSQL debe estar configurado para registrar pagos reales."
+          : "Configura PLATFORM_MERCADOPAGO_WEBHOOK_SECRET para verificar las notificaciones de pago.",
+      code: !accessToken
+        ? "PLATFORM_PAYMENT_NOT_CONFIGURED"
+        : !credentialDatabase
+          ? "POSTGRES_NOT_CONFIGURED"
+          : "PLATFORM_WEBHOOK_NOT_CONFIGURED",
     });
     return;
   }
 
   try {
+    await credentialSchemaReady;
     const planId = normalizedPlan;
     const externalReference = `clientum_platform_${userId}_${Date.now()}_${randomBytes(5).toString("hex")}`;
     const appUrl = getPublicAppUrl();
+    if (!appUrl) {
+      res.status(503).json({
+        error: "APP_URL debe apuntar a una URL pública HTTPS para recibir el retorno y los webhooks de Mercado Pago.",
+        code: "PUBLIC_APP_URL_NOT_CONFIGURED",
+      });
+      return;
+    }
 
     // Map plan id to Mercado Pago preapproval plan ID if present in environment
     const envVarName = `PLATFORM_MP_PLAN_ID_${planId.toUpperCase()}_${billingCycle.toUpperCase()}`;
@@ -1296,10 +1414,8 @@ app.post("/api/billing/mercadopago/checkout", async (req, res) => {
       };
     }
 
-    if (appUrl) {
-      subscriptionPayload.back_url = `${appUrl}/app?billing=subscription`;
-      subscriptionPayload.notification_url = `${appUrl}/api/billing/mercadopago/webhook`;
-    }
+    subscriptionPayload.back_url = `${appUrl}/app?billing=subscription`;
+    subscriptionPayload.notification_url = `${appUrl}/api/billing/mercadopago/webhook`;
 
     const response = await fetch("https://api.mercadopago.com/preapproval", {
       method: "POST",
@@ -1374,8 +1490,10 @@ app.put("/api/billing/subscription/:checkoutId/cancel", async (req, res) => {
     const result = await credentialDatabase.query<{
       provider_subscription_id: string | null;
       clerk_user_id: string;
+      status: PlatformBillingStatus;
     }>(
       `SELECT provider_subscription_id, clerk_user_id
+              , status
        FROM clientum_platform_billing_checkouts
        WHERE id = $1 LIMIT 1`,
       [checkoutId]
@@ -1394,7 +1512,12 @@ app.put("/api/billing/subscription/:checkoutId/cancel", async (req, res) => {
 
     const subId = subscription.provider_subscription_id;
     if (!subId) {
-      // For simulated or pending checkout with no provider sub ID, just mark state locally
+      if (subscription.status === "approved") {
+        res.status(409).json({ error: "Mercado Pago todavía no entregó una suscripción confirmada para cancelar." });
+        return;
+      }
+      // A pending checkout without a provider subscription can be closed locally
+      // because it has not granted paid access.
       await credentialDatabase.query(
         `UPDATE clientum_platform_billing_checkouts
          SET status = $1, updated_at = NOW()
@@ -1406,22 +1529,24 @@ app.put("/api/billing/subscription/:checkoutId/cancel", async (req, res) => {
     }
 
     const accessToken = getPlatformMercadoPagoToken();
-    if (accessToken) {
-      const response = await fetch(`https://api.mercadopago.com/preapproval/${encodeURIComponent(subId)}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status: targetStatus }),
-      });
+    if (!accessToken) {
+      res.status(503).json({ error: "Mercado Pago no está configurado para modificar esta suscripción." });
+      return;
+    }
+    const response = await fetch(`https://api.mercadopago.com/preapproval/${encodeURIComponent(subId)}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status: targetStatus }),
+    });
 
-      if (!response.ok) {
-        const payload = await response.json().catch(() => ({}));
-        console.error(`${isPause ? "Pause" : "Cancel"} Mercado Pago subscription failed:`, response.status, payload);
-        res.status(502).json({ error: `Mercado Pago rechazó la ${isPause ? "pausa" : "cancelación"} de la suscripción.` });
-        return;
-      }
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      console.error(`${isPause ? "Pause" : "Cancel"} Mercado Pago subscription failed:`, response.status, payload);
+      res.status(502).json({ error: `Mercado Pago rechazó la ${isPause ? "pausa" : "cancelación"} de la suscripción.` });
+      return;
     }
 
     await credentialDatabase.query(
@@ -4318,16 +4443,6 @@ async function main() {
       // only Firebase's public client configuration to the Vite bundle; all
       // server credentials remain backend-only.
       define: {
-        "import.meta.env.VITE_CLERK_PUBLISHABLE_KEY": JSON.stringify(process.env.VITE_CLERK_PUBLISHABLE_KEY || ""),
-        "import.meta.env.VITE_CLERK_PROXY_URL": JSON.stringify(process.env.VITE_CLERK_PROXY_URL || ""),
-        "import.meta.env.VITE_CLERK_SIGN_IN_URL": JSON.stringify(process.env.VITE_CLERK_SIGN_IN_URL || ""),
-        "import.meta.env.VITE_CLERK_SIGN_UP_URL": JSON.stringify(process.env.VITE_CLERK_SIGN_UP_URL || ""),
-        "import.meta.env.VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL": JSON.stringify(
-          process.env.VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL || "/app",
-        ),
-        "import.meta.env.VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL": JSON.stringify(
-          process.env.VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL || "/app",
-        ),
         "import.meta.env.VITE_GOOGLE_ANALYTICS_ID": JSON.stringify(process.env.VITE_GOOGLE_ANALYTICS_ID || ""),
         "import.meta.env.VITE_FIREBASE_API_KEY": JSON.stringify(process.env.VITE_FIREBASE_API_KEY || ""),
         "import.meta.env.VITE_FIREBASE_AUTH_DOMAIN": JSON.stringify(process.env.VITE_FIREBASE_AUTH_DOMAIN || ""),

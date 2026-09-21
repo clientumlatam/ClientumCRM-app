@@ -1,0 +1,18 @@
+Che, revisé `ExecutiveDashboardView.tsx` (el dashboard principal) y hay un patrón bastante llamativo: **varias tarjetas usan datos hardcodeados/demo mezclados con datos reales, sin que se note la diferencia**. Esto es lo raro, con línea aproximada:
+
+**1. Métricas que se calculan bien... pero no se muestran**
+- `averageCycleDays` se calcula correctamente (línea ~204) a partir de `opportunities` reales, pero la tarjeta "Ciclo de Venta" ignora esa variable y muestra el literal fijo `27 días` / `↓ 7,8%` (línea ~547). Los modos "Mediana", "Por etapa" y "Por vendedor" también son 100% texto fijo (24 días, Fernando 22d, Sarah 29d, Marcus 31d) — nombres de vendedores que probablemente ni existen en tu base.
+- Igual con la tarjeta **"ATENCIÓN REQUERIDA"**: existen `overdueTasks` y `staleOpportunities` calculados con la data real (líneas 234-240), pero la tarjeta muestra el texto fijo `5 acciones` / `2 estancados · 2 tareas vencidas · 1 sin seguimiento` (línea ~599) sin usar esas variables.
+
+**2. Fallbacks "silenciosos" que se disfrazan de datos reales**
+- `money(pipelineTotal > 0 ? pipelineTotal : 582000)` (línea 445) y lo mismo con `weightedPipeline`, `wonTotal`, `winRate` — si el pipeline real da 0, en vez de mostrar "$0" o un estado vacío, muestra un número demo ($582.000, $54.000, 32,4%) como si fuera real. No hay ningún indicador visual de "esto es un placeholder".
+- "Vinoteca Valle Andino" está hardcodeado como el nombre del último trato ganado (línea ~475), pase lo que pase con los datos reales.
+- "5 negocios en gestión" y "6 negocios evaluados" (líneas 455 y 504) son texto fijo, no `activeOpportunities.length`.
+
+**3. `sourceData` (Distribución por Fuentes) totalmente inventado**
+El gráfico de torta "Canales de adquisición" (línea 258) es un array fijo: WhatsApp 42%, Google/Maps 28%, Referidos 18%, Instagram 12% — no se calcula de `filteredOpportunities` en ningún lado, así que el gráfico nunca cambia sea cual sea tu data real.
+
+**4. El "Copilot IA" no es IA, es un script con datos ficticios**
+`handleSendMessage` (línea ~265) hace matching de palabras clave y devuelve respuestas pre-escritas que mencionan empresas y montos inventados (GAMAN, Ferretería El Oeste, Distribuidora Patagónica, Roberto Benítez) — no consulta ni la API de Claude ni tus datos reales de `opportunities`/`tasks`, aunque el copy dice "Analizando datos del CRM...".
+
+En resumen: el dashboard tiene la lógica de cálculo real armada (pipeline, ciclo, tareas vencidas, etc.) pero en varios puntos la UI muestra directamente strings/arrays demo en lugar de esas variables, y los fallbacks de "sin datos" son montos ficticios en vez de estados vacíos honestos. Si querés, te armo la lista puntual de qué reemplazar por variable real en cada tarjeta.

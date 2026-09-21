@@ -1,0 +1,37 @@
+la voy a publicar con vercel en el dominio en produccion que es clientum.com.ar
+Free
+15 minutes ago
+Evaluating task overlap
+Evaluating task overlap
+
+Perfecto. Para Vercel, asegurate de cargar VITE_GOOGLE_ANALYTICS_ID también en Environment → Production; las variables compartidas de Replit no se copian automáticamente. Usá npm run build como build command y el dominio clientum.com.ar. Mientras lo publicás, voy a revisar que la configuración del repo sea compatible con ese despliegue.
+Show less
+Found files and 4 other actions
+Opened server.ts
+Opened vite.config.ts
+Considering Vercel configuration
+Considering Vercel configuration
+Opened vercel.json
+Opened [...path].ts
+Opened server.ts
+Verifying deployment status
+Verifying deployment status
+
+La configuración de Vercel del repo ya está preparada: vercel.json sirve el frontend y enruta /api/* al handler Express. Voy a comprobar si clientum.com.ar ya responde; si todavía no está online, seguimos esperando el deploy.
+Show less
+Fetched a URL and 2 other actions
+Took a screenshot
+
+Buen dato: clientum.com.ar ya está publicado en Vercel y responde con HTTP 200, redirigiendo al dominio canónico www.clientum.com.ar. Ahora voy a verificar que el bundle de producción incluya GA4 y disparar el flujo público en el sitio live; después necesitamos comprobar la recepción en GA4 Realtime/DebugView.
+3 actions
+
+La producción ya está sirviendo el bundle correcto: encontré el ID de GA4 dentro de /assets/index-DaXQQMU6.js. También detecté que un endpoint separado de estado de billing responde 500 en Vercel; no afecta la carga del sitio, pero sí puede impedir que el evento final subscription_status se dispare desde ese endpoint. Primero voy a probar el flujo público y luego separaré claramente qué quedó confirmado y qué requiere DebugView/Realtime.
+2 actions
+
+El navegador interactivo no está disponible en este entorno, así que no puedo hacer clics reales ni abrir la cuenta de GA4 desde acá. Sí puedo validar el artefacto público: voy a confirmar que los tres nombres de evento y solamente sus dimensiones permitidas estén presentes en el bundle live, y después te voy a pedir la confirmación de Realtime/DebugView desde tu propiedad de GA4.
+Show less
+Searched for "src="[^"]+\.js"" and 10 other actions
+Searched /tmp/clientum-live.js for ".{0,180}(plan_selected|checkout_started|subscription_status).{0,300}" and 1 other action
+Worked for 1 minute
+
+You've reached your daily free quota limit. It will reset at 12:00 AM UTC.

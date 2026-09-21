@@ -1,0 +1,52 @@
+Started task
+Prevent unauthenticated requests from being trusted in production
+
+The browser uses Firebase Auth, but the current Express boundary accepts a bearer-shaped value or x-clientum-user-id without verifying a Firebase ID token. This leaves the production identity boundary weaker than the UI suggests.
+
+I’ll trace the current auth boundary, read the task plan and relevant project memory, then update the server/client contract and documentation together. After that I’ll run the focused checks and verify the workflow before completing the assigned task.
+3 actions
+
+The project already records the key constraint: the local user-id header must be demo-only, while production requests need Firebase verification. I’m narrowing the implementation now to the actual middleware, Firebase initialization, API helper, CRM request paths, and the existing auth documentation/examples.
+Show less
+Searched server.ts, src, api, scripts, README.md, docs, . for "x-clientum-user-id|Authorization|Bearer|verifyIdToken|firebase-admin|firebase"
+Read lines 1–280 of server.ts and 2 other actions
+Read lines 1–260 of src/firebase.ts and 2 other actions
+Read lines 900–1220 of src/context/CRMContext.tsx and 2 other actions
+Found files and 1 other action
+Inspecting server components
+Inspecting server components
+Read lines 250–360 of server.ts and 3 other actions
+Read lines 1–150 of README.md and 4 other actions
+Searched src/context/CRMContext.tsx, src for "getClientumAuthHeaders|getClientumJsonHeaders|getClientumAuthJsonHeaders|fetch\('/api|fetch\("/api|fetch\(`/api" and 1 other action
+Read .local/skills/package-management/SKILL.md and 4 other actions
+Read lines 1–110 of server.ts and 4 other actions
+Read lines 1–180 of api/[...path].ts and 3 other actions
+Searched src/context/CRMContext.tsx, src/lib, src/hooks for "getClientumAuth|fetch\("
+Read lines 1–110 of docs/11-referencia-api.md and 4 other actions
+Evaluating follow-up tasks
+Evaluating follow-up tasks
+Searched server.ts for "requireProductionAuthentication|app\.use\(|getRequestUserId\(" and 2 other actions
+Read lines 1030–1080 of src/context/CRMContext.tsx and 3 other actions
+Read lines 1–180 of src/context/AuthContext.tsx and 1 other action
+Searched package-lock.json, package.json for "firebase-admin" and 1 other action
+Read lines 430–520 of server.ts and 6 other actions
+Modifying middleware for security
+Modifying middleware for security
+Read lines 1–180 of server/db.ts and 2 other actions
+Planning package installation
+Planning package installation
+
+The current boundary has two concrete gaps: production accepts an unverified bearer/header value, and the modular /api/crm router is mounted before the production auth middleware and trusts tenant headers. I’ll fix both so every protected CRM route derives identity from the verified Firebase user, while preserving the explicit local demo path only outside production.
+Show less
+Installed Firebase server verification dependency
+Installed firebase-admin
+Clarifying user authentication process
+Clarifying user authentication process
+Read lines 1100–1185 of src/context/CRMContext.tsx and 3 other actions
+Considering client configurations
+Considering client configurations
+Read firebase-applet-config.json and 1 other action
+Edited server.ts
+Worked for 1 minute
+
+You've reached your daily free quota limit. It will reset at 12:00 AM UTC.

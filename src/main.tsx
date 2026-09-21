@@ -23,7 +23,9 @@ try {
   console.warn('Deploy storage check error:', e);
 }
 
-if ('serviceWorker' in navigator) {
+const isNavigationSmoke = new URLSearchParams(window.location.search).has('smoke');
+
+if ('serviceWorker' in navigator && !isNavigationSmoke) {
   window.addEventListener('load', () => {
     const swUrl = `/sw.js?v=${encodeURIComponent(currentBuildTime)}`;
     navigator.serviceWorker.register(swUrl).then((registration) => {

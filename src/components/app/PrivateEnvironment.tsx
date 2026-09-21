@@ -31,7 +31,7 @@ import { ExpressAuditModal } from '../public/ExpressAuditModal';
 
 // Dynamic Route Views with React.lazy and specific chunk names for optimized code-splitting
 const ExecutiveDashboardView = lazy(
-  () => import(/* webpackChunkName: "dashboard-executive" */ '../dashboard/ExecutiveDashboardView').then((m) => ({ default: m.ExecutiveDashboardView }))
+  () => import(/* webpackChunkName: "dashboard-executive" */ '../dashboard/ExecutiveDashboardPolished').then((m) => ({ default: m.ExecutiveDashboardPolished }))
 );
 const UnifiedControlHub = lazy(
   () => import(/* webpackChunkName: "workspace-unified-hub" */ '../workspace/UnifiedControlHub').then((m) => ({ default: m.UnifiedControlHub }))
@@ -208,6 +208,8 @@ const MainContent: React.FC = () => {
     focusMode,
   } = useCRM();
 
+  const isPolishedDashboard = !focusMode && (activeTab === 'dashboard' || activeTab === 'userDashboard');
+
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [isSimulatorOpen, setIsSimulatorOpen] = useState(false);
   const [isAuditOpen, setIsAuditOpen] = useState(false);
@@ -225,7 +227,7 @@ const MainContent: React.FC = () => {
 
   return (
     <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-      {(!isOnline || isSyncPending) && (
+      {!isPolishedDashboard && (!isOnline || isSyncPending) && (
         <div className="bg-amber-500 text-slate-950 px-4 py-2 text-xs font-semibold flex items-center justify-between gap-2 shadow-sm z-50 transition-all">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-slate-950 animate-ping shrink-0" />
@@ -238,7 +240,7 @@ const MainContent: React.FC = () => {
           <span className="text-[11px] opacity-90 uppercase tracking-wider font-bold shrink-0">Clientum Cloud Sync</span>
         </div>
       )}
-      <div id="clientum-top-navbar" className="flex flex-col w-full shrink-0 z-30">
+      {!isPolishedDashboard && <div id="clientum-top-navbar" className="flex flex-col w-full shrink-0 z-30">
         <CrmTopHeader
           onOpenConfig={() => setIsConfigOpen(true)}
           onOpenVoiceNote={() => setIsVoiceNoteOpen(true)}
@@ -247,10 +249,10 @@ const MainContent: React.FC = () => {
           hasModuleCredentials={hasModuleCredentials}
         />
         {!focusMode && <CrmSubHeader />}
-      </div>
-      <TrialBanner />
+      </div>}
+      {!isPolishedDashboard && <TrialBanner />}
 
-      <main className="crm-main-content flex-1 flex flex-col min-h-0 overflow-hidden relative">
+      <main className={isPolishedDashboard ? 'flex-1 flex flex-col min-h-0 overflow-hidden relative' : 'crm-main-content flex-1 flex flex-col min-h-0 overflow-hidden relative'}>
         <Suspense fallback={<ViewFallbackLoader />}>
           {(activeTab === 'dashboard' || activeTab === 'userDashboard') && <ExecutiveDashboardView />}
           {(activeTab === 'ecosystemHub' || activeTab === 'featureHub') && <UnifiedControlHub />}
@@ -368,10 +370,11 @@ const MainContent: React.FC = () => {
 };
 
 export const PrivateEnvironment: React.FC = () => {
-  const { focusMode } = useCRM();
+  const { activeTab, focusMode } = useCRM();
+  const isPolishedDashboard = !focusMode && (activeTab === 'dashboard' || activeTab === 'userDashboard');
   return (
     <div className={`clientum-light-dashboard flex h-[100dvh] min-h-screen w-screen overflow-hidden bg-[var(--bg-canvas)] text-[var(--text-primary)] font-['Inter',sans-serif] ${focusMode ? 'focus-mode-active' : ''}`}>
-      {!focusMode && <Sidebar />}
+      {!focusMode && !isPolishedDashboard && <Sidebar />}
       <MainContent />
     </div>
   );

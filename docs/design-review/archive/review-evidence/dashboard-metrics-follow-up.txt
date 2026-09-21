@@ -1,0 +1,25 @@
+Necesito ver el resto del archivo, sobre todo la parte truncada (líneas 194-957), donde están los cálculos de métricas.Revisé `ExecutiveDashboardView.tsx` (el dashboard principal, "Resumen ejecutivo") y hay varios problemas concretos, no solo cosas "raras" de estilo:
+
+**1. El filtro de pipeline está roto — nunca va a filtrar nada**
+El dropdown "Todos los negocios" ofrece las opciones `'B2B Enterprise'`, `'PyME / SMB'`, `'Recurrente / SaaS'`, pero el campo real `Opportunity['type']` en `types.ts` solo acepta `'New Business' | 'Expansion' | 'Renewal'`. Como esos strings no coinciden con ningún dato real (confirmé en `initialData.ts`), elegir cualquier opción del filtro que no sea "Todos los negocios" va a devolver **siempre 0 resultados**, silenciosamente.
+
+**2. Hay métricas calculadas que se calculan... y después se ignoran**
+- `averageCycleDays` (líneas 204-212) se computa con una fórmula real basada en `createdAt`/`closeDate`, pero el card "Ciclo de Venta" nunca lo usa — muestra literalmente el string fijo `"27 días"` / `"24 días"` sin importar el modo seleccionado.
+- `averageDealSize` se calcula y no se usa en ningún lado del componente.
+- Los sub-modos "Por etapa" y "Por vendedor" del mismo card muestran datos totalmente inventados y fijos (Fernando/Sarah/Marcus, nombres que ni siquiera son consistentes con el resto de la data en español/AR).
+
+**3. Textos "quemados" que no reflejan los datos reales**
+- "5 negocios en gestión" (debajo de Pipeline Activo) — fijo, no usa `activeOpportunities.length`.
+- "6 negocios evaluados" (debajo de Conversión) — fijo, no usa `decidedDeals.length`.
+- "Vinoteca Valle Andino" como nombre del deal ganado — fijo, no toma el nombre real de `wonDeals`.
+- El card "ATENCIÓN REQUERIDA" muestra "5 acciones" y "2 estancados · 2 tareas vencidas · 1 sin seguimiento" fijo, a pesar de que `overdueTasks` y `staleOpportunities` sí están calculados y se usan más abajo en otra sección.
+
+**4. `sourceData` (Distribución por Fuentes) es 100% mock**
+El pie chart de canales de adquisición (WhatsApp 42%, Google 28%, etc.) es un array hardcodeado, no se calcula a partir de las oportunidades reales — aunque el conteo total del centro del donut (`filteredOpportunities.length`) sí es real, lo que genera una inconsistencia visual (el total real puede no coincidir con la suma de los porcentajes mockeados).
+
+**5. El chatbot "Copilot" es completamente scripted**
+No llama a ningún modelo/API — son respuestas `if/else` con texto fijo (incluye referencias hardcodeadas a "GAMAN", "Ferretería El Oeste", montos específicos) que no reflejan el estado real del CRM ni cambian con los datos.
+
+En resumen: parece un dashboard generado donde se armó la lógica de cálculo real pero al momento de "cablear" el JSX se dejaron/mezclaron placeholders de demo, y algunos quedaron sin reemplazar. El bug más grave para producción es el del filtro de pipeline (funcionalidad rota), y el más engañoso es que las tarjetas muestran texto fijo que parece dinámico pero no lo es.
+
+¿Querés que te arme el fix para el filtro de pipeline primero (es el más urgente), o preferís que limpie todo el archivo de una?

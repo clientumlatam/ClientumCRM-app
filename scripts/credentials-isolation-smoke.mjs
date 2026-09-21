@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 
-const baseUrl = (process.env.SMOKE_BASE_URL || 'http://127.0.0.1:3000').replace(/\/+$/, '');
+const baseUrl = (process.env.SMOKE_BASE_URL || 'http://127.0.0.1:5000').replace(/\/+$/, '');
 const moduleId = 'payments';
 const runId = randomUUID().replace(/-/g, '');
 const userA = `credential-isolation-a-${runId}`;

@@ -1,4 +1,5 @@
 import { User } from '../types';
+import { auth, isLiveFirebaseReady } from '../firebase';
 
 export const getClientumUserHeaders = (user?: Pick<User, 'id' | 'role'>): Record<string, string> => {
   let userId = user?.id;
@@ -24,9 +25,17 @@ export const getClientumJsonHeaders = (user?: Pick<User, 'id' | 'role'>): Record
 });
 
 export const getClientumAuthHeaders = async (user?: Pick<User, 'id' | 'role'>): Promise<Record<string, string>> => {
-  // Clerk authenticates browser requests with the same-origin session cookie.
-  // The user header remains only as a development aid for local smoke tests.
-  return getClientumUserHeaders(user);
+  const headers: Record<string, string> = {};
+  if (isLiveFirebaseReady && auth.currentUser) {
+    const idToken = await auth.currentUser.getIdToken();
+    if (idToken) headers.Authorization = `Bearer ${idToken}`;
+  }
+
+  // The user header remains a development-only aid for the local demo session.
+  if ((import.meta as any)?.env?.DEV && !headers.Authorization) {
+    Object.assign(headers, getClientumUserHeaders(user));
+  }
+  return headers;
 };
 
 export const getClientumAuthJsonHeaders = async (user?: Pick<User, 'id' | 'role'>): Promise<Record<string, string>> => ({
@@ -47,8 +56,8 @@ export interface ClientumAccountBootstrap {
  * its display name when the registration form supplied a company name.
  *
  * Authentication should not be lost if PostgreSQL is temporarily unavailable:
- * Clerk remains the source of truth for the session and the CRM bootstrap can
- * retry tenant initialization on the next authenticated request.
+ * Firebase remains the source of truth for the session and the CRM bootstrap
+ * can retry tenant initialization on the next authenticated request.
  */
 export const bootstrapClientumAccount = async (profile: {
   name?: string;

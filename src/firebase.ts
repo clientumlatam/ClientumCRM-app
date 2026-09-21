@@ -47,14 +47,20 @@ export const firebaseConfig = {
   measurementId: metaEnv.VITE_FIREBASE_MEASUREMENT_ID || appletConfig.measurementId || "",
 };
 
+// The applet database belongs to the bundled Firebase project. If a developer
+// supplies a project through VITE_* variables, use that project's default
+// database unless an explicit database ID is provided.
+export const firebaseDatabaseId =
+  metaEnv.VITE_FIREBASE_DATABASE_ID ||
+  metaEnv.VITE_FIREBASE_FIRESTORE_DATABASE_ID ||
+  (metaEnv.VITE_FIREBASE_PROJECT_ID ? "" : appletConfig.firestoreDatabaseId || "");
+
 export const isLiveFirebaseConfigured = Boolean(
   firebaseConfig.apiKey &&
   firebaseConfig.authDomain &&
   firebaseConfig.projectId &&
   firebaseConfig.appId,
 );
-
-export const isDemoAuthFallbackEnabled = Boolean(metaEnv.DEV);
 
 // Never initialize Firebase with an empty configuration. Firebase validates
 // the API key during initialization, so doing so can crash the entire app
@@ -70,6 +76,7 @@ if (isLiveFirebaseConfigured) {
 
 export { app };
 export const isLiveFirebaseReady = Boolean(isLiveFirebaseConfigured && app);
+export const isDemoAuthFallbackEnabled = Boolean(metaEnv.DEV && !isLiveFirebaseConfigured);
 export const auth: Auth = isLiveFirebaseReady
   ? getAuth(app as FirebaseApp)
   : (null as unknown as Auth);
@@ -81,12 +88,12 @@ export const db: Firestore = isLiveFirebaseReady
           experimentalAutoDetectLongPolling: true,
           experimentalForceLongPolling: true,
         };
-        return appletConfig.firestoreDatabaseId
-          ? initializeFirestore(app as FirebaseApp, firestoreSettings, appletConfig.firestoreDatabaseId)
+        return firebaseDatabaseId
+          ? initializeFirestore(app as FirebaseApp, firestoreSettings, firebaseDatabaseId)
           : initializeFirestore(app as FirebaseApp, firestoreSettings);
       } catch (err) {
-        return appletConfig.firestoreDatabaseId
-          ? getFirestore(app as FirebaseApp, appletConfig.firestoreDatabaseId)
+        return firebaseDatabaseId
+          ? getFirestore(app as FirebaseApp, firebaseDatabaseId)
           : getFirestore(app as FirebaseApp);
       }
     })()
@@ -143,10 +150,10 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
  * Validate connection to Firestore on initial boot without throwing unhandled rejection or 10s backend timeout error.
  */
 export async function testFirestoreConnection(): Promise<boolean> {
-  if (!isLiveFirebaseReady || !db) return false;
+  if (!isLiveFirebaseReady || !db || !auth.currentUser) return false;
   try {
     const timeout = new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 3000));
-    const checkDoc = getDoc(doc(db, 'test', 'connection')).then(() => true).catch(() => false);
+    const checkDoc = getDoc(doc(db, 'users', auth.currentUser.uid)).then(() => true).catch(() => false);
     return await Promise.race([checkDoc, timeout]);
   } catch (error: any) {
     console.warn("Firestore running in offline or cached persistence mode:", error?.message || error);
@@ -154,6 +161,10 @@ export async function testFirestoreConnection(): Promise<boolean> {
   }
 }
 testFirestoreConnection().catch(() => {});
+
+function isAuthorizedForUser(userId: string): boolean {
+  return Boolean(isLiveFirebaseReady && db && auth.currentUser?.uid === userId);
+}
 
 /**
  * Subscribe to the real Firebase session when Firebase is configured.
@@ -202,7 +213,7 @@ googleProvider.addScope('profile');
  * Helper to sync user profile into Firestore
  */
 export async function syncUserProfileToFirestore(user: { uid: string; email?: string | null; displayName?: string | null; photoURL?: string | null; providerId?: string }): Promise<void> {
-  if (!isLiveFirebaseReady || !db || !user?.uid) return;
+  if (!user?.uid || !isAuthorizedForUser(user.uid)) return;
   try {
     const userRef = doc(db, 'users', user.uid);
     await setDoc(userRef, {
@@ -231,7 +242,7 @@ export async function syncWorkspaceToFirestore(userId: string, data: {
   theme?: string;
   [key: string]: any;
 }): Promise<void> {
-  if (!isLiveFirebaseReady || !db || !userId) return;
+  if (!userId || !isAuthorizedForUser(userId)) return;
   try {
     const workspaceRef = doc(db, 'users', userId, 'workspace', 'crm');
     await setDoc(workspaceRef, {
@@ -253,7 +264,7 @@ export async function fetchWorkspaceFromFirestore(userId: string): Promise<{
   tasks?: any[];
   activities?: any[];
 } | null> {
-  if (!isLiveFirebaseReady || !db || !userId) return null;
+  if (!userId || !isAuthorizedForUser(userId)) return null;
   try {
     const workspaceRef = doc(db, 'users', userId, 'workspace', 'crm');
     const snap = await getDoc(workspaceRef);
@@ -278,7 +289,7 @@ export function subscribeToUserSubcollection<T = any>(
   onData: (items: T[]) => void,
   onError?: (err: Error) => void
 ): () => void {
-  if (!isLiveFirebaseReady || !db || !userId) {
+  if (!userId || !isAuthorizedForUser(userId)) {
     return () => {};
   }
   try {
@@ -313,7 +324,7 @@ export async function saveUserSubcollectionRecord(
   id: string,
   data: any
 ): Promise<void> {
-  if (!isLiveFirebaseReady || !db || !userId || !id) return;
+  if (!userId || !id || !isAuthorizedForUser(userId)) return;
   try {
     const docRef = doc(db, 'users', userId, subcollectionName, id);
     const cleanData = JSON.parse(JSON.stringify(data));
@@ -331,7 +342,7 @@ export async function deleteUserSubcollectionRecord(
   subcollectionName: CRMSubcollectionName,
   id: string
 ): Promise<void> {
-  if (!isLiveFirebaseReady || !db || !userId || !id) return;
+  if (!userId || !id || !isAuthorizedForUser(userId)) return;
   try {
     const docRef = doc(db, 'users', userId, subcollectionName, id);
     await deleteDoc(docRef);
@@ -353,7 +364,7 @@ export async function seedUserSubcollectionsIfEmpty(
     activities?: any[];
   }
 ): Promise<boolean> {
-  if (!isLiveFirebaseReady || !db || !userId) return false;
+  if (!userId || !isAuthorizedForUser(userId)) return false;
   try {
     const subcollections: CRMSubcollectionName[] = [
       'opportunities',

@@ -12,3 +12,4 @@
 - [Vercel Clerk delivery](vercel-clerk-delivery.md) — external deployments must not use an unavailable Replit Clerk proxy, and the Service Worker must skip cross-origin requests.
 - [Vercel serverless imports](vercel-serverless-imports.md) — serverless handlers must not statically load Vite's development-only runtime.
 - [Production demo access](production-demo-access.md) — the demo button is a local UI session, not a substitute for an authenticated Clerk user or persistent backend access.
+- [Payment confirmation safety](payment-confirmation-safety.md) — paid access stays pending until a verified provider confirmation; never simulate successful billing.

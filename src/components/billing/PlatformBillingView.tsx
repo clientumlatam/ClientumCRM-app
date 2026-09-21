@@ -9,7 +9,7 @@ type Checkout = {
   planId: string;
   amount: string | number;
   currency: string;
-  status: "pending" | "approved" | "rejected" | "cancelled";
+  status: "pending" | "approved" | "rejected" | "cancelled" | "paused";
   createdAt: string;
 };
 
@@ -18,6 +18,7 @@ const statusLabel: Record<Checkout["status"], string> = {
   approved: "Aprobado",
   rejected: "Rechazado",
   cancelled: "Cancelado",
+  paused: "Pausado",
 };
 
 export const PlatformBillingView: React.FC = () => {
@@ -25,6 +26,7 @@ export const PlatformBillingView: React.FC = () => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [checkouts, setCheckouts] = useState<Checkout[]>([]);
   const [configured, setConfigured] = useState<boolean | null>(null);
+  const [configurationMessage, setConfigurationMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [checkoutPlan, setCheckoutPlan] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
@@ -44,6 +46,15 @@ export const PlatformBillingView: React.FC = () => {
       setPlans(plansPayload.plans || []);
       setCheckouts(statusPayload.checkouts || []);
       setConfigured(Boolean(statusPayload.configured));
+      setConfigurationMessage(
+        statusPayload.configured
+          ? null
+          : !statusPayload.webhookConfigured
+            ? "Configura PLATFORM_MERCADOPAGO_WEBHOOK_SECRET para verificar las notificaciones de pago."
+            : !statusPayload.appUrlConfigured
+              ? "Configura APP_URL con una URL pública HTTPS para recibir los retornos y webhooks de Mercado Pago."
+              : "Agrega PLATFORM_MERCADOPAGO_ACCESS_TOKEN en Replit Secrets para habilitar cobros.",
+      );
     } catch (error) {
       showToast(error instanceof Error ? error.message : "No se pudo cargar la facturación.", "error");
     } finally {
@@ -136,7 +147,7 @@ export const PlatformBillingView: React.FC = () => {
 
       {configured === false && (
         <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-200">
-          Mercado Pago todavía no está configurado. Agrega `PLATFORM_MERCADOPAGO_ACCESS_TOKEN` en Replit Secrets antes de cobrar.
+          Mercado Pago todavía no está listo para cobrar. {configurationMessage}
         </div>
       )}
 
@@ -186,7 +197,7 @@ export const PlatformBillingView: React.FC = () => {
               </div>
               <ul className="mt-4 space-y-2 text-xs text-[var(--text-secondary,#475569)] dark:text-slate-300">
                 <li className="flex gap-2"><Check className="h-3.5 w-3.5 text-emerald-400" /> Workspace persistente en Neon</li>
-                <li className="flex gap-2"><Check className="h-3.5 w-3.5 text-emerald-400" /> Acceso autenticado con Clerk</li>
+                <li className="flex gap-2"><Check className="h-3.5 w-3.5 text-emerald-400" /> Acceso autenticado con Firebase</li>
                 <li className="flex gap-2"><Check className="h-3.5 w-3.5 text-emerald-400" /> Soporte de la plataforma</li>
               </ul>
               <button

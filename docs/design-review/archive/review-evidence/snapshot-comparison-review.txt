@@ -1,0 +1,23 @@
+Revisé los dos HTML (son snapshots guardados de la página real, no el código fuente). Ojo: **son páginas distintas** — el archivo `_1_` es el sitio público de marketing (landing de clientum.com.ar, sin login), y el `_2_` es el dashboard interno logueado ("Resumen Ejecutivo"). Si buscabas comparar dos vistas del dashboard, subiste el archivo equivocado en el `_1_`.
+
+Con el `_2_` pude confirmar con los **datos reales del CRM** los bugs que había encontrado en el código, y aparece uno nuevo más grave que solo se ve con datos reales:
+
+**El card "ATENCIÓN REQUERIDA" miente respecto al resto de la misma página**
+- El card dice: *"5 acciones · 2 estancados · 2 tareas vencidas · 1 sin seguimiento"*
+- Pero el panel "Tareas Pendientes & Prioritarias", más abajo en la misma pantalla, muestra **4 vencidas** (Llamar a GAMAN, Enviar propuesta a Ferretería El Oeste, Seguimiento Distribuidora Patagónica, Corralón Sur — las 4 listadas explícitamente).
+- Y el panel "Negocios sin Seguimiento Reciente" lista **4 tratos estancados** (GAMAN, Distribuidora Patagónica, Ferretería El Oeste, Corralón Sur — 9 a 13 días sin contacto), no 1.
+
+O sea: un usuario que mire el dashboard ve "2 tareas vencidas" arriba y "4 vencidas" quince centímetros más abajo. Esto confirma que el card de arriba usa el texto hardcodeado que había encontrado en el código (nunca lee `overdueTasks`/`staleOpportunities`, que sí son reales y sí están bien calculados en el resto de la página).
+
+**"Tasa de Conversión: 100%" es técnicamente correcta pero engañosa**
+Con los datos actuales: 5 negocios activos + 1 ganado (Vinoteca Valle Andino, $54.000) + 0 perdidos → `wonDeals/decidedDeals` = 1/1 = 100%. El cálculo en sí no está roto, pero como solo hay **un** trato "decidido" en toda la base, ese 100% es estadísticamente vacío. Y el texto de abajo, "6 negocios evaluados" (hardcodeado, ya lo había visto en el código), es directamente falso: no evaluó 6, evaluó 1. Ese texto suma el total de oportunidades (5 activas + 1 ganada = 6) y lo pone como si fueran las "evaluadas" para la tasa de conversión, cuando en realidad solo una entró en el cálculo.
+
+**Pipeline Activo ($582.000, "5 negocios en gestión") — coincide, pero de casualidad**
+Sumé a mano el Kanban: Nuevo $32k + Calificación $298k ($120k+$178k) + Propuesta $72k + Negociación $180k = $582.000, con 5 tratos → el número da bien *con este dataset puntual*, pero seguí confirmando en el código que el texto "5 negocios en gestión" está hardcodeado, no calculado. Apenas se cierre o cree un trato, va a quedar desactualizado y nadie lo va a notar porque hoy "por suerte" coincide.
+
+**"Pipeline Total (Best Case) $636.000" mezcla abierto + cerrado bajo la etiqueta "oportunidades abiertas"**
+$636.000 = $582.000 (activo) + $54.000 (ganado). El label dice "6 oportunidades abiertas evaluadas", pero una de esas 6 ya está cerrada/ganada, no abierta. Esto está en `RevenueForecastPanel.tsx`, que no llegué a auditar a fondo — si querés lo reviso también.
+
+En síntesis: los números "de verdad" (los que sí leen el estado del CRM) están bien calculados y son coherentes entre sí en toda la página. El problema es puntual y localizado: el card **ATENCIÓN REQUERIDA** y los subtítulos de las 4 tarjetas KPI de arriba tienen texto fijo que el equipo de diseño/demo dejó puesto y nunca conectó a los datos reales — y ahora que se ve con datos reales, se nota como una contradicción visible en la misma pantalla, no solo como "código sospechoso".
+
+¿Querés que arregle esos 4-5 puntos (conectar `overdueTasks`, `staleOpportunities`, `activeOpportunities.length`, `decidedDeals.length` y el nombre real del deal ganado) directamente en el zip?

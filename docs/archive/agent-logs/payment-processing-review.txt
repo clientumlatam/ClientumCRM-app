@@ -1,0 +1,469 @@
+Add payment processing
+Free
+25 minutes ago
+Reviewing payment processing integration
+Reviewing payment processing integration
+
+I’ll inspect the current app and its payment-related setup first, then I’ll wire the smallest complete payment flow that fits the existing architecture. I’ll also verify whether a billing provider is already connected before changing the code.
+5 actions
+
+The project already contains payment migrations and Mercado Pago references, so I’m tracing that existing flow instead of adding a second billing system. Next I’m checking the server routes, client billing UI, and provider configuration to see what is missing or incomplete.
+11 actions
+
+The app already has a Mercado Pago implementation for both customer checkouts and Clientum subscriptions, but it is a custom credential-based flow and no Replit billing provider is connected. Because “payment processing” is provider-agnostic, I’m checking the available Stripe, Whop, and Shopify options before deciding whether to extend Mercado Pago or add a supported provider.
+5 actions
+
+The available choices are:
+
+    Stripe — most flexible for one-time payments and subscriptions, but it requires Stripe account setup.
+    Whop — fastest path to hosted checkout and subscriptions.
+    Shopify — best only if you are selling physical products with inventory and shipping.
+
+The current app is a SaaS/CRM, so Stripe or Whop are the relevant choices. Pick one and I’ll connect it and finish the payment flow in the app.
+Choose an integration to connectDismissed.
+Worked for 30 seconds
+Inspecting payment processes
+Inspecting payment processes
+
+The provider connection was dismissed, so I won’t add Stripe or Whop. I’m checking whether the existing Mercado Pago flow is already usable as-is or needs a safe completion; if it is already complete, I’ll report that rather than creating an unconnected or simulated payment system.
+18 actions
+
+Payment processing could not be added through a new provider because the Stripe/Whop connection prompt was dismissed.
+
+The project already contains a Mercado Pago checkout and recurring-subscription flow, including:
+
+    Hosted checkout creation
+    Pending/approved/rejected states
+    Verified webhook updates
+    Subscription cancellation
+    PostgreSQL checkout history
+    Free-trial separation from paid access
+
+It requires these production settings to process real payments:
+
+    PLATFORM_MERCADOPAGO_ACCESS_TOKEN
+    APP_URL pointing to a public HTTPS URL
+    PostgreSQL persistence
+
+No code changes were made because no payment provider was approved, and the existing Mercado Pago implementation is already present.
+Worked for 29 seconds
+
+VITE_GOOGLE_ANALYTICS_ID G-ZHTE9JJS2N Production Added 6m ago VITE_FIREBASE_MEASUREMENT_ID G-ZHTE9JJS2N Production Added Sep 11 VITE_FIREBASE_STORAGE_BUCKET clientumlatam-1c475.firebasestorage.app Production Updated Sep 11 VITE_FIREBASE_PROJECT_ID clientumlatam-1c475 Production Updated Sep 11 VITE_FIREBASE_APP_ID 1:504396963131:web:42768ee2aad01719022b1e Production Updated Sep 11 VITE_FIREBASE_MESSAGING_SENDER_ID 504396963131 Production Updated Sep 11 VITE_FIREBASE_AUTH_DOMAIN clientumlatam-1c475.firebaseapp.com Production Updated Sep 11 VITE_FIREBASE_API_KEY GOOGLE_API_KEY
+Free
+20 minutes agoCommands
+api
+artifacts
+attached_assets
+dist
+docs
+clientum-design-review
+01-introduccion-y-arquitectura.md
+02-estructura-del-proyecto.md
+03-sistema-de-navegacion.md
+04-sistema-de-temas-identidad-y-estilos.md
+05-integraciones-y-salud.md
+06-ia-y-asistentes.md
+07-variables-de-entorno-y-despliegue.md
+08-roadmap-y-mantenimiento.md
+09-guia-de-onboarding.md
+10-guia-de-contribucion.md
+11-referencia-api.md
+12-guia-de-uso.md
+README.md
+migrations
+public
+scripts
+server
+src
+firebase-applet-config.json
+firebase-blueprint.json
+firestore.rules
+index.html
+metadata.json
+README (copy).md
+A
+README.md
+server.ts
+M
+skills-lock.json
+tsconfig.json
+vercel.json
+vite.config.ts
+Packager files
+bun.lock
+package-lock.json
+M
+package.json
+M
+# ClientumOS
+
+ClientumOS is a React/Express CRM workspace for sales operations, customer data,
+activities, AI-assisted work, and optional ERP and communication modules. The
+repository contains a working product shell plus integrations whose availability
+depends on provider credentials and PostgreSQL. It does not by itself guarantee
+AFIP, WhatsApp, email, payment, or AI delivery.
+
+## Quick start
+
+### Prerequisites
+
+- Node.js 20+ (the Replit configuration uses Node 24).
+- npm.
+- PostgreSQL for authenticated persistence. A Neon connection is supported.
+- A Firebase project when using real sign-in. The development demo fallback is
+  available only when the Vite app is running in development without live
+  Firebase configuration.
+
+```bash
+npm install
+cp .env.example .env
+npm run dev
+```
+
+The Replit workflow runs `PORT=5000 npm run dev`. The local server listens on
+`PORT` (5000 by default in the server, 5000 in the workflow) and serves both
+the Vite app and Express API. Use relative `/api/...` URLs; do not hard-code
+localhost into the client.
+
+## Environment and secrets
+
+`.env.example` is the authoritative list of names. Never commit real values.
+Public Firebase browser configuration uses `VITE_FIREBASE_*` variables (the
+bundled `firebase-applet-config.json` can provide development defaults). Server
+secrets such as `SESSION_SECRET`, `WORKFLOW_ENCRYPTION_KEY`, provider tokens,
+SMTP credentials, and platform billing credentials must stay in Replit
+Secrets or the deployment environment.
+
+The server accepts `NEON_DATABASE_URL` or `DATABASE_URL`, and can use managed
+`PGHOST`, `PGUSER`, `PGDATABASE`, and related `PG*` variables. The migration
+script specifically uses `DATABASE_URL` or managed `PG*` variables. See
+[environment and deployment](./docs/07-variables-de-entorno-y-despliegue.md).
+
+## Database and production commands
+
+```bash
+npm run db:migrate   # requires DATABASE_URL or PGHOST/PGUSER/PGDATABASE
+npm run lint         # TypeScript check
+npm run build        # Vite client + dist/server.cjs
+npm start             # serves the production build
+```
+
+The server runs the numbered migrations when a PostgreSQL connection is
+available, but `npm run db:migrate` is the explicit repeatable migration path.
+Without PostgreSQL, public pages and the local/demo workspace can render, but
+authenticated CRM persistence, workspace credentials, audit data, and platform
+billing are unavailable.
+
+## Authentication and data boundaries
+
+Firebase Auth is initialized only when the required public client configuration
+is present. In development, the app exposes an explicit local demo session when
+Firebase is not configured; that session is not a production identity. The
+current Express request boundary accepts a bearer-shaped token or
+`x-clientum-user-id` header and derives a deterministic tenant membership for
+the user. The repository does not currently verify Firebase ID tokens in the
+server middleware, so production deployments must treat this as a known
+authentication limitation rather than a completed identity guarantee.
+
+CRM records, imports, duplicate decisions, agent tasks, audit entries, and
+workspace credential metadata are scoped by the authenticated user/tenant in
+PostgreSQL. Workspace provider credentials are encrypted server-side; they are
+not the same as platform-managed secrets.
+
+## Deployment and health checks
+
+- **Replit:** use the configured `Start application` workflow and port 5000.
+- **Vercel:** `vercel.json` rewrites `/api/*` to `api/[...path].ts` and serves
+  the SPA fallback. Set the required environment variables in Vercel, keep
+  server-only secrets out of `VITE_*`, and verify the production build before
+  publishing.
+- `GET /health`, `/api/health`, `/api/version`, and `/api/deploy-version` are
+  lightweight service responses.
+- `GET /ready` checks PostgreSQL and returns `503` with
+  `DATABASE_UNAVAILABLE` when the database is not ready. A green health
+  response does not prove that every external provider is configured.
+- `GET /api/integrations/ping` reports the provider-shaped status exposed by
+  the app; it is not a complete end-to-end credential or delivery test.
+
+Troubleshooting starts with the workflow logs, then `/health` and `/ready`,
+AI
+Markdown
+0
+0
+Diff
+Ln 1, Col 1
+Spaces: 2
+History
+TE
+tebedow814
+Started task
+Prevent unauthenticated requests from being trusted in production
+
+The browser uses Firebase Auth, but the current Express boundary accepts a bearer-shaped value or x-clientum-user-id without verifying a Firebase ID token. This leaves the production identity boundary weaker than the UI suggests.
+
+I’ll trace the current auth boundary, read the task plan and relevant project memory, then update the server/client contract and documentation together. After that I’ll run the focused checks and verify the workflow before completing the assigned task.
+3 actions
+
+The project already records the key constraint: the local user-id header must be demo-only, while production requests need Firebase verification. I’m narrowing the implementation now to the actual middleware, Firebase initialization, API helper, CRM request paths, and the existing auth documentation/examples.
+Show less
+Searched server.ts, src, api, scripts, README.md, docs, . for "x-clientum-user-id|Authorization|Bearer|verifyIdToken|firebase-admin|firebase"
+Read lines 1–280 of server.ts and 2 other actions
+Read lines 1–260 of src/firebase.ts and 2 other actions
+Read lines 900–1220 of src/context/CRMContext.tsx and 2 other actions
+Found files and 1 other action
+Inspecting server components
+Inspecting server components
+Read lines 250–360 of server.ts and 3 other actions
+Read lines 1–150 of README.md and 4 other actions
+Searched src/context/CRMContext.tsx, src for "getClientumAuthHeaders|getClientumJsonHeaders|getClientumAuthJsonHeaders|fetch\('/api|fetch\("/api|fetch\(`/api" and 1 other action
+Read .local/skills/package-management/SKILL.md and 4 other actions
+Read lines 1–110 of server.ts and 4 other actions
+Read lines 1–180 of api/[...path].ts and 3 other actions
+Searched src/context/CRMContext.tsx, src/lib, src/hooks for "getClientumAuth|fetch\("
+Read lines 1–110 of docs/11-referencia-api.md and 4 other actions
+Evaluating follow-up tasks
+Evaluating follow-up tasks
+Searched server.ts for "requireProductionAuthentication|app\.use\(|getRequestUserId\(" and 2 other actions
+Read lines 1030–1080 of src/context/CRMContext.tsx and 3 other actions
+Read lines 1–180 of src/context/AuthContext.tsx and 1 other action
+Searched package-lock.json, package.json for "firebase-admin" and 1 other action
+Read lines 430–520 of server.ts and 6 other actions
+Modifying middleware for security
+Modifying middleware for security
+Read lines 1–180 of server/db.ts and 2 other actions
+Planning package installation
+Planning package installation
+
+The current boundary has two concrete gaps: production accepts an unverified bearer/header value, and the modular /api/crm router is mounted before the production auth middleware and trusts tenant headers. I’ll fix both so every protected CRM route derives identity from the verified Firebase user, while preserving the explicit local demo path only outside production.
+Show less
+Installed Firebase server verification dependency
+Installed firebase-admin
+Clarifying user authentication process
+Clarifying user authentication process
+Read lines 1100–1185 of src/context/CRMContext.tsx and 3 other actions
+Considering client configurations
+Considering client configurations
+Read firebase-applet-config.json and 1 other action
+Edited server.ts
+Worked for 1 minute
+
+You've reached your daily free quota limit. It will reset at 12:00 AM UTC.Worked for 13 seconds 2 actions
+
+Replit-hosted analytics isn’t available for this workspace, and the user selected third-party analytics. The project already has a Google Analytics wrapper, so I’ll use that existing path. I’ll mark the confirmed subscription with a trial origin and emit trial_to_paid only for users whose current subscription state is an active trial. 2 actions
+
+The conversion event is in place. I’m checking the diff and build now, with special attention to the privacy-safe dimensions and ensuring no payment or customer identifiers enter analytics. 5 actions
+
+The conversion event is implemented and the build passes. The only project-wide typecheck failures remain unrelated dashboard errors. Before completing the assigned task, I’m checking the follow-up-task rules and will propose only follow-ups that do not duplicate the existing GA4 or payload-regression tasks. Loaded skill follow-up-tasks
+
+Two distinct follow-ups remain useful and do not duplicate the existing GA4 verification or payload-regression tasks: measuring non-converting trial expirations, and preventing duplicate conversion counts after repeated status checks. I’ll queue those, then mark this task complete. 2 actions
+
+The implementation and follow-up proposals are complete. I’m marking task #4 complete now with the successful build verification and the known unrelated typecheck baseline noted. Trial conversion task completed Marked task #4 (Measure which free-trial users become paid subscribers) complete without validation Worked for 1 minute Checkpoint made 21 minutes ago
+Free
+12 minutes ago
+
+Understood. That history confirms the trial-to-paid analytics work is already completed:
+
+    trial_to_paid fires only after provider-confirmed payment.
+    Analytics payloads remain privacy-safe.
+    Trial origin is included without sending payment or customer identifiers.
+    Production build passes.
+    Remaining TypeScript errors are unrelated dashboard errors.
+    Follow-ups were already proposed for trial expirations and duplicate conversion prevention.
+
+The payment implementation itself remains ready but still requires Mercado Pago production configuration and PostgreSQL on Vercel before real subscriptions can be processed.
+Worked for 6 seconds
+Checkpoint made 12 minutes ago
+TE
+tebedow814
+Started task
+Documentation Overhaul
+
+Refresh the repository documentation so it accurately describes the current ClientumOS product, runtime, authentication, persistence, integrations, API surface, and development workflow. The repository already contains a root README, an 11-document Spanish technical set, and a separate design-review archive, but several claims and links are stale or incomplete: the README says React 18 while the project uses React 19, the setup omits the real Firebase/PostgreSQL and deployment requirements, the API reference covers only a small legacy subset, and some integration or roadmap text presents configured, simulated, or planned behavior as fully implemented.
+
+Create a clear documentation structure for three audiences: repository users who need to run the project, developers/operators who need architecture and API details, and product users who need practical workflows. Preserve the current convention of an English root README with detailed Spanish documentation unless a page is explicitly intended for an international product audience. Treat docs/clientum-design-review/ as supplementary design guidance and historical review material, not as a source of truth for runtime behavior; make that boundary explicit and inventory its attached snapshots/assets without rewriting or repurposing them.
+tebedow814 completed: Documentation Overhaul
+Ran post-merge setup for task #1
+Checkpoint made 5 minutes ago
+TE
+tebedow814
+Started task
+Prevent unauthenticated requests from being trusted in production
+
+The browser uses Firebase Auth, but the current Express boundary accepts a bearer-shaped value or x-clientum-user-id without verifying a Firebase ID token. This leaves the production identity boundary weaker than the UI suggests.
+Started task
+Make the release checks pass before publishing
+
+The documentation build audit exposed existing release blockers: TypeScript errors in ExecutiveDashboardPolished and missing project_archive files referenced by the artifact inventory check. A clean release needs these checks to be actionable.
+
+You've reached your daily free quota limit. It will reset at 12:00 AM UTC.
+Agent activity Agent activity Agent activity
+Scroll to latest
+You've used up your daily credits. Upgrade to continue.#2 - Prevent unauthenticated requests from being trusted in production
+What & Why
+
+The browser uses Firebase Auth, but the current Express boundary accepts a bearer-shaped value or x-clientum-user-id without verifying a Firebase ID token. This leaves the production identity boundary weaker than the UI suggests.
+Done looks like
+
+    Express verifies Firebase ID tokens (or an explicitly approved production identity provider) before deriving the user and tenant.
+    Development demo behavior remains isolated from production.
+    Authentication documentation and API examples are updated after the implementation.
+
+Relevant files
+
+    server.ts
+    src/firebase.ts
+    src/lib/api.ts
+    src/context/CRMContext.tsx
+
+Dependencies
+Documentation Overhaul#1 - Documentation Overhaul
+What & Why
+
+Refresh the repository documentation so it accurately describes the current ClientumOS product, runtime, authentication, persistence, integrations, API surface, and development workflow. The repository already contains a root README, an 11-document Spanish technical set, and a separate design-review archive, but several claims and links are stale or incomplete: the README says React 18 while the project uses React 19, the setup omits the real Firebase/PostgreSQL and deployment requirements, the API reference covers only a small legacy subset, and some integration or roadmap text presents configured, simulated, or planned behavior as fully implemented.
+
+Create a clear documentation structure for three audiences: repository users who need to run the project, developers/operators who need architecture and API details, and product users who need practical workflows. Preserve the current convention of an English root README with detailed Spanish documentation unless a page is explicitly intended for an international product audience. Treat docs/clientum-design-review/ as supplementary design guidance and historical review material, not as a source of truth for runtime behavior; make that boundary explicit and inventory its attached snapshots/assets without rewriting or repurposing them.
+Done looks like
+
+    The root README provides a reliable quick start, prerequisites, environment setup, development and production commands, migration guidance, deployment notes, troubleshooting pointers, contribution links, and a complete documentation map.
+    The detailed technical index clearly distinguishes canonical implementation documentation from design reviews, generated/dashboard material, roadmap/speculation, and user-facing help.
+    The design-review directory has a clear landing/index document that explains which recommendations are current, which are historical or advisory, and where the corresponding implementation source lives. Its attached_assets directory has a lightweight inventory/readme explaining the pasted snapshots and image/PDF assets, their provenance as review evidence, and that they are not executable or normative implementation files.
+    The architecture, project structure, navigation, auth, data/persistence, environment, deployment, integration, AI, maintenance, onboarding, and contribution docs agree with the current source and configuration.
+    A user-facing guide explains sign-in, workspace setup, CRM workflows, communication channels, AI assistance, ERP/AFIP and billing configuration, imports/exports, settings, and common failure modes without promising capabilities that are only UI demos, configuration screens, or planned work.
+    The API reference documents the active endpoint families, access requirements, tenant/user scoping, request and response conventions, important examples, webhook behavior, health/readiness endpoints, and error/status expectations. It removes obsolete examples such as requiring every request to send a hard-coded X-Tenant-ID when the authenticated server path derives tenant context.
+    Documentation labels feature status and integration limitations explicitly, including Firebase’s development fallback, PostgreSQL readiness/persistence requirements, credential vault behavior, health-check limitations, provider-specific AI configuration, and the difference between local/demo behavior and production identity.
+    All internal documentation links resolve, commands and filenames match the repository, secret examples remain placeholders, and no documentation change modifies application behavior or treats review attachments as executable source.
+
+Out of scope
+
+    Implementing or repairing application features, API endpoints, authentication verification, migrations, integrations, billing, or deployment configuration.
+    Creating guarantees for AFIP, WhatsApp, Mercado Pago, Cloudflare, email, AI providers, support SLAs, pricing, or roadmap dates that are not verifiable in the repository.
+    Editing, recompressing, replacing, or generating new screenshots, PDFs, pasted snapshots, logos, or other files under docs/clientum-design-review/attached_assets/.
+    Adding a new documentation website, CMS, OpenAPI generator, or localized copies of every document.
+    Editing source code, configuration, tests, generated build output, or canvas/artifact content.
+
+Steps
+
+    Audit the existing documentation — Compare the root README and every file under docs/ with the package scripts, environment template, Replit/Vercel configuration, frontend entrypoints, route registry, auth code, persistence code, migrations, scripts, and server routes. Record the canonical behavior and classify each product/integration claim as implemented, configured-but-dependent-on-secrets, demo/simulated, or planned.
+    Rewrite the repository README and setup flow — Document the actual stack and runtime topology, prerequisites, install and development commands, Firebase setup, PostgreSQL/Neon setup, secret boundaries, migration commands, build/start behavior, Replit workflow behavior, Vercel deployment constraints, health/readiness checks, and the correct troubleshooting path. Link to the detailed guides instead of duplicating long technical explanations.
+    Reorganize and update the technical documentation set — Revise the existing numbered architecture, structure, navigation, theme, integration, AI, environment/deployment, maintenance, onboarding, contribution, and API pages. Correct stale paths and technology names, explain the public/private route split and URL aliases, describe the Firebase auth and development fallback accurately, document tenant and credential boundaries, and replace unsupported roadmap or implementation assertions with verified status notes.
+    Document the design-review archive and attached assets — Add an index/readme for docs/clientum-design-review/ that links its brand, CSS/design-system, comparison, review, and strategy documents while marking recommendations versus implemented behavior. Add an asset inventory/readme under docs/clientum-design-review/attached_assets/ that names the pasted text snapshots and binary review assets, points to any relevant parent review, and states that these files are evidence/reference material rather than canonical source or product documentation.
+    Produce practical user-facing product documentation — Add a linked user guide in the existing Spanish documentation style, organized around first login/workspace setup, dashboard and CRM records, pipeline and activities, WhatsApp/email/calendar, AI tools, ERP/AFIP and payments, CSV and custom data, team/settings, and troubleshooting. Base instructions on the actual navigation and components, and call out prerequisites or unavailable functionality where a workflow depends on provider configuration.
+    Expand the API reference from the live server contract — Organize the reference by public, health, authenticated account/workspace, CRM/data quality, agent and AI, email, billing/payments, Cloudflare/Vercel, and webhook endpoints. For each supported endpoint, document method/path, auth or scoping requirements, relevant query/body fields, representative success/error payloads, status codes, and provider prerequisites; explicitly separate legacy middleware routes from the modern authenticated tenant flow.
+    Finalize the documentation index and perform a consistency audit — Update docs/README.md with the complete reading order and document inventory, including the new user guide, design-review landing page, and clearly labeled supplementary/design/generated materials. Check links, referenced files, scripts, environment variable names, endpoint paths, feature-status wording, asset references, and secret-handling guidance against the repository before marking the documentation complete.
+
+Relevant files
+
+    README.md
+    docs/README.md
+    docs/01-introduccion-y-arquitectura.md
+    docs/02-estructura-del-proyecto.md
+    docs/03-sistema-de-navegacion.md
+    docs/04-sistema-de-temas-identidad-y-estilos.md
+    docs/05-integraciones-y-salud.md
+    docs/06-ia-y-asistentes.md
+    docs/07-variables-de-entorno-y-despliegue.md
+    docs/08-roadmap-y-mantenimiento.md
+    docs/09-guia-de-onboarding.md
+    docs/10-guia-de-contribucion.md
+    docs/11-referencia-api.md
+    docs/clientum-design-review/design-review.md
+    docs/clientum-design-review/BrandGuidelines.md
+    docs/clientum-design-review/LogoAssets.md
+    docs/clientum-design-review/clientum_index_css_integration_guide.md
+    docs/clientum-design-review/clientum_vs_collabworkspace_comparison.md
+    docs/clientum-design-review/clientum_vs_collabworkspace_comprehensive_integration_strategy.md
+    docs/clientum-design-review/attached_assets/Pasted-Che-revis-ExecutiveDashboardView-tsx-el-dashboard-princ_1789965486017.txt
+    docs/clientum-design-review/attached_assets/Pasted-la-voy-a-publicar-con-vercel-en-el-dominio-en-produccio_1789968058219.txt
+    docs/clientum-design-review/attached_assets/Pasted-la-voy-a-publicar-con-vercel-en-el-dominio-en-produccio_1789968114517.txt
+    docs/clientum-design-review/attached_assets/Pasted-Necesito-ver-el-resto-del-archivo-sobre-todo-la-parte-t_1789965589651.txt
+    docs/clientum-design-review/attached_assets/Pasted-Necesito-ver-el-resto-del-archivo-sobre-todo-la-parte-t_1789965748666.txt
+    docs/clientum-design-review/attached_assets/Pasted-Revis-los-dos-HTML-son-snapshots-guardados-de-la-p-gina_1789965717763.txt
+    docs/clientum-design-review/attached_assets/Pasted-Worked-for-13-seconds-2-actions-Replit-hosted-analytics_1789968145085.txt
+    docs/clientum-design-review/attached_assets/targeted_element_1789965774285.png
+    package.json
+    .env.example
+    .replit
+    vercel.json
+    server.ts
+    api/[...path].ts
+    src/App.tsx
+    src/components/app/PrivateEnvironment.tsx
+    src/components/auth/AuthScreen.tsx
+    src/components/auth/ProtectedRoute.tsx
+    src/firebase.ts
+    src/context/CRMContext.tsx
+    src/types.ts
+    src/config/sidebar.ts
+    src/lib/router/routeRegistry.ts
+    src/lib/api.ts
+    src/data/publicSiteDocsCatalog.ts
+    src/components/public/PublicHelpCenterPage.tsx
+    src/data/moduleCredentials.ts
+    src/server/middleware/auth.ts
+    server/crmRepository.ts
+    migrations/001_tenant_credentials.sql
+    migrations/002_crm_persistence.sql
+    migrations/003_payments.sql
+    migrations/004_data_quality.sql
+    migrations/005_platform_billing.sql
+    migrations/006_public_leads.sql
+    migrations/007_mp_subscription_gaps.sql
+    scripts/migrate.mjs
+    scripts/check-root-layout.mjs
+    scripts/check-artifact-inventory.mjs
+    scripts/navigation-smoke.mjs
+    scripts/credentials-isolation-smoke.mjs
+
+Open task#3 - Make the release checks pass before publishing
+What & Why
+
+The documentation build audit exposed existing release blockers: TypeScript errors in ExecutiveDashboardPolished and missing project_archive files referenced by the artifact inventory check. A clean release needs these checks to be actionable.
+Done looks like
+
+    npm run lint completes without TypeScript errors.
+    npm run check:artifact-inventory completes with every referenced local asset present or the inventory corrected.
+    The existing build and navigation/credential smoke checks still pass.
+
+Relevant files
+
+    src/components/dashboard/ExecutiveDashboardPolished.tsx
+    scripts/check-artifact-inventory.mjs
+    project_archive/
+    package.json
+
+Dependencies
+Documentation Overhaul#4 - Verify provider delivery instead of relying on health badges
+What & Why
+
+The current integration health and fallback responses can report configured or operational-shaped states without proving end-to-end delivery. Operators need repeatable checks for the providers they enable.
+Done looks like
+
+    Add safe, provider-specific smoke checks for email, WhatsApp webhook verification, Mercado Pago callbacks, AFIP test connectivity, and AI provider calls.
+    Checks use test credentials or sandbox mode and never log secrets.
+    Runbooks document which failures mean configuration, database, authentication, or provider outage.
+
+Relevant files
+
+    server.ts
+    docs/05-integraciones-y-salud.md
+    docs/11-referencia-api.md
+    scripts/
+#4 - Verify provider delivery instead of relying on health badges
+What & Why
+
+The current integration health and fallback responses can report configured or operational-shaped states without proving end-to-end delivery. Operators need repeatable checks for the providers they enable.
+Done looks like
+
+    Add safe, provider-specific smoke checks for email, WhatsApp webhook verification, Mercado Pago callbacks, AFIP test connectivity, and AI provider calls.
+    Checks use test credentials or sandbox mode and never log secrets.
+    Runbooks document which failures mean configuration, database, authentication, or provider outage.
+
+Relevant files
+
+    server.ts
+    docs/05-integraciones-y-salud.md
+    docs/11-referencia-api.md
+    scripts/
+
+Dependencies
+Documentation Overhaul
