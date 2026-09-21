@@ -14,6 +14,7 @@ import { isPrivateAppPath } from './lib/router/routeRegistry';
 import { CommandPalette } from './components/common/CommandPalette';
 import { RecordDrawer } from './components/common/RecordDrawer';
 import { PrivateEnvironment } from './components/app/PrivateEnvironment';
+import { ThemeSync } from './components/common/ThemeSync';
 
 const AppContent: React.FC = () => {
   const { resolvedTheme } = useTheme();
@@ -58,7 +59,8 @@ const AppContent: React.FC = () => {
   }, [enterApp, isAuthReady, isAuthenticated, isPrivateRoute, isPublicSiteVisible, openPublicSite]);
 
   const publicEnvironment = (
-    <div className="min-h-screen w-screen overflow-x-hidden bg-slate-50 dark:bg-[#0a0c10] text-slate-900 dark:text-slate-100">
+    <div className="min-h-screen w-screen overflow-x-hidden bg-[var(--clientum-surface,#F5F7FA)] dark:bg-[var(--clientum-surface,#040711)] text-[var(--clientum-ink,#212121)] dark:text-white">
+      <ThemeSync />
       <TrialBanner />
       <PublicSite />
       <CommandPalette />
@@ -75,12 +77,15 @@ const AppContent: React.FC = () => {
   );
 
   const privateEnvironment = (
-    <PrivateEnvironment />
+    <ThemeSync dataContainerId="theme-sync-private-root">
+      <PrivateEnvironment />
+    </ThemeSync>
   );
 
   if (!isAuthReady && isPrivateRoute) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-slate-50 dark:bg-[#0a0c10] text-sm text-slate-600 dark:text-slate-300">
+      <div className="flex h-screen w-screen items-center justify-center bg-[var(--clientum-surface,#F5F7FA)] dark:bg-[var(--clientum-surface,#040711)] text-sm text-[var(--clientum-ink,#212121)] dark:text-slate-300">
+        <ThemeSync />
         Verificando tu sesión segura con Firebase…
       </div>
     );

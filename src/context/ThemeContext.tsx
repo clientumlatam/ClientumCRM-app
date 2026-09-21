@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { ThemeMode, ContrastMode } from '../types';
 import { syncWorkspaceToFirestore } from '../firebase';
+import { syncThemeToDOM } from '../lib/theme/ThemeSync';
 
 interface ThemeContextType {
   theme: ThemeMode;
@@ -102,30 +103,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode; defaultTheme?:
     if (typeof document === 'undefined') return;
 
     const root = document.documentElement;
-    root.setAttribute('data-theme', theme);
-    root.setAttribute('data-mode', resolvedTheme);
-    root.setAttribute('data-theme-setting', theme);
-    root.setAttribute('data-contrast', contrast);
 
-    if (theme === 'clarity') {
-      root.classList.add('theme-clarity');
-      root.classList.remove('theme-executive');
-    } else if (theme === 'executive') {
-      root.classList.add('theme-executive');
-      root.classList.remove('theme-clarity');
-    } else {
-      root.classList.remove('theme-clarity');
-      root.classList.remove('theme-executive');
-    }
-
-    if (resolvedTheme === 'dark') {
-      root.classList.add('dark');
-      root.classList.remove('light');
-    } else {
-      root.classList.add('light');
-      root.classList.remove('dark');
-    }
-    root.style.colorScheme = resolvedTheme;
+    // Use centralized ThemeSync utility
+    syncThemeToDOM({
+      theme,
+      resolvedTheme,
+      contrast,
+    });
 
     // Advanced Contrast Selector (WCAG AAA) & High Contrast Filter in Dark Mode
     if (contrast === 'aaa') {

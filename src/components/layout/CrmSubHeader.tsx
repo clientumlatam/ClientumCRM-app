@@ -57,13 +57,13 @@ export const CrmSubHeader: React.FC = () => {
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`quick-pill px-3 py-1 rounded-full text-[11px] font-semibold flex items-center space-x-1.5 transition-all cursor-pointer whitespace-nowrap ${ isActive ? 'bg-[var(--color-primary)] text-[var(--bg-navbar)] shadow-sm' : 'bg-[var(--bg-surface)] hover:bg-[var(--bg-card)] text-[var(--text-secondary)] border border-[var(--border-subtle)]' }`}
+                className={`quick-pill px-3 py-1 rounded-full text-[11px] font-semibold flex items-center space-x-1.5 transition-all cursor-pointer whitespace-nowrap ${ isActive ? 'bg-[#0056B3] text-white shadow-xs' : 'bg-[var(--bg-surface)] hover:bg-[var(--bg-card)] text-[var(--text-secondary)] border border-[var(--border-subtle)]' }`}
               >
-                <Icon className={`w-3 h-3 ${isActive ? 'text-[var(--bg-navbar)]' : 'text-[var(--text-secondary)]'}`} />
+                <Icon className={`w-3 h-3 ${isActive ? 'text-white' : 'text-[var(--text-secondary)]'}`} />
                 <span>{item.label}</span>
                 {item.badge && (
                   <span
-                    className={`text-[8px] font-mono font-bold px-1 py-0.1 rounded-full ${ isActive ? 'bg-[var(--bg-navbar)]/20 text-[var(--bg-navbar)]' : 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/20' }`}
+                    className={`text-[8px] font-mono font-bold px-1.5 py-0.5 rounded-full ${ isActive ? 'bg-white/20 text-white' : 'bg-[#0056B3]/10 text-[#0056B3] dark:text-blue-400 border border-[#0056B3]/20' }`}
                   >
                     {item.badge}
                   </span>

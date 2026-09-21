@@ -44,7 +44,7 @@ export const SidebarItem: React.FC<SidebarItemProps> = React.memo(({
             title={isCollapsed ? item.label : undefined}
             className={`relative flex flex-1 items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-bold transition-all duration-150 focus:outline-hidden ${
               isActive
-                ? 'bg-[#0f2851] text-white shadow-xs font-bold before:absolute before:-left-1.5 before:top-2.5 before:bottom-2.5 before:w-1.5 before:bg-blue-400 before:rounded-full'
+                ? 'bg-[#002B5C] text-white shadow-xs font-bold before:absolute before:-left-1.5 before:top-2.5 before:bottom-2.5 before:w-1.5 before:bg-[#0056B3] before:rounded-full'
                 : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100/90 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white'
             } ${isCollapsed ? 'justify-center w-10 flex-none px-0' : ''}`}
           >
@@ -101,11 +101,11 @@ export const SidebarItem: React.FC<SidebarItemProps> = React.memo(({
                 aria-current={subActive ? 'page' : undefined}
                 className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all ${
                   subActive
-                    ? 'bg-blue-50 dark:bg-blue-900/40 text-[#0f2851] dark:text-blue-300 font-bold'
+                    ? 'bg-blue-50 dark:bg-blue-950/60 text-[#002B5C] dark:text-blue-300 font-bold'
                     : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
-                <SubIcon className={`h-3.5 w-3.5 shrink-0 ${subActive ? 'text-[#0f2851] dark:text-blue-300' : 'text-slate-400'}`} />
+                <SubIcon className={`h-3.5 w-3.5 shrink-0 ${subActive ? 'text-[#002B5C] dark:text-blue-300' : 'text-slate-400'}`} />
                 <span className="truncate">{sub.label}</span>
               </button>
             );

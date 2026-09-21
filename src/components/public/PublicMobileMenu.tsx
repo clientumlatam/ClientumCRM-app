@@ -204,7 +204,7 @@ export const PublicMobileMenu: React.FC<PublicMobileMenuProps> = ({
           <button
             type="button"
             onClick={onEnterApp}
-            className={`rounded-xl bg-blue-600 py-2.5 text-center text-xs font-bold text-white shadow-md shadow-blue-600/20 hover:bg-blue-700 ${
+            className={`rounded-xl bg-[#0056B3] py-2.5 text-center text-xs font-bold text-white shadow-md shadow-[#0056B3]/20 hover:bg-[#004494] ${
               isAuthenticated ? 'col-span-2' : ''
             }`}
           >

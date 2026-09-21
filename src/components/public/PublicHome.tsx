@@ -146,11 +146,11 @@ export const PublicHome: React.FC<PublicHomeProps> = ({
               Operá con soporte humano, moneda local y herramientas pensadas para PyMEs latinoamericanas.
             </p>
 
-            {/* Primary Action Buttons - Pill Navy Palette */}
+            {/* Primary Action Buttons - Pill Clientum Brand Action Palette */}
             <div className="pt-3 flex flex-col sm:flex-row items-center justify-center gap-3">
               <button
                 onClick={() => enterApp()}
-                className="w-full sm:w-auto px-6 py-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md shadow-blue-600/25 flex items-center justify-center gap-2 transition-all duration-150 cursor-pointer active:scale-98"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-[#0056B3] hover:bg-[#004494] text-white font-bold text-sm shadow-md shadow-[#0056B3]/25 flex items-center justify-center gap-2 transition-all duration-150 cursor-pointer active:scale-98"
               >
                 <span>Probar Demo Interactiva Gratis</span>
                 <ArrowRight className="w-4 h-4" />
@@ -158,15 +158,15 @@ export const PublicHome: React.FC<PublicHomeProps> = ({
 
               <button
                 onClick={onOpenWizard}
-                className="w-full sm:w-auto px-6 py-3 rounded-full bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 font-bold text-sm shadow-2xs flex items-center justify-center gap-2 transition-all duration-150 cursor-pointer active:scale-98"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-[#022046] dark:text-slate-100 border border-slate-300 dark:border-slate-700 font-bold text-sm shadow-2xs flex items-center justify-center gap-2 transition-all duration-150 cursor-pointer active:scale-98"
               >
-                <Calculator className="w-4 h-4 text-blue-600" />
+                <Calculator className="w-4 h-4 text-[#0056B3]" />
                 <span>Calcular Ahorro & ROI</span>
               </button>
 
               <button
                 onClick={onOpenAudit}
-                className="w-full sm:w-auto px-6 py-3 rounded-full bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 font-bold text-sm shadow-2xs flex items-center justify-center gap-2 transition-all duration-150 cursor-pointer active:scale-98"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-[#022046] dark:text-slate-100 border border-slate-300 dark:border-slate-700 font-bold text-sm shadow-2xs flex items-center justify-center gap-2 transition-all duration-150 cursor-pointer active:scale-98"
               >
                 <Sparkles className="w-4 h-4 text-amber-500" />
                 <span>Auditoría Digital 60s</span>

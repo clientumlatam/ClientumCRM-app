@@ -85,13 +85,13 @@ export const ThemeModeSettings: React.FC<ThemeModeSettingsProps> = ({
               onClick={() => applyTheme('executive')}
               className={`relative p-3.5 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
                 theme === 'executive'
-                  ? 'border-[#0B132B] bg-slate-900 text-white shadow-md ring-2 ring-blue-500/50'
+                  ? 'border-[#0056B3] bg-[#022046] text-white shadow-md ring-2 ring-[#0056B3]/50'
                   : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:border-slate-500'
               }`}
             >
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-[#0B132B] border border-blue-400/40 flex items-center justify-center text-white shadow-2xs">
+                  <div className="w-7 h-7 rounded-lg bg-[#022046] border border-blue-400/40 flex items-center justify-center text-white shadow-2xs">
                     <Sparkles className="w-3.5 h-3.5 text-blue-400" />
                   </div>
                   <div>
@@ -112,13 +112,13 @@ export const ThemeModeSettings: React.FC<ThemeModeSettingsProps> = ({
                 )}
               </div>
 
-              <div className="rounded-lg bg-[#F4F6FB] p-2.5 border border-[#e2e8f0] space-y-1.5 mb-2">
-                <div className="flex items-center justify-between text-[10px] text-[#0B132B] font-extrabold">
+              <div className="rounded-lg bg-[#F5F7FA] p-2.5 border border-[#e2e8f0] space-y-1.5 mb-2">
+                <div className="flex items-center justify-between text-[10px] text-[#022046] font-extrabold">
                   <span>Executive Dashboard</span>
                   <span className="text-emerald-600 font-mono font-bold">$582.000</span>
                 </div>
                 <div className="text-[9px] text-slate-500 font-mono">
-                  #F4F6FB Canvas / #0B132B Dark Navy
+                  #F5F7FA Canvas / #022046 Navy
                 </div>
               </div>
 

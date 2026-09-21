@@ -149,7 +149,7 @@ export const PublicFooter: React.FC<PublicFooterProps> = ({ onNavigate }) => {
               <button
                 type="submit"
                 disabled={subscribed}
-                className="w-full sm:w-auto px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs tracking-wide transition-all cursor-pointer whitespace-nowrap shadow-lg shadow-blue-600/20 active:scale-95"
+                className="w-full sm:w-auto px-5 py-3 rounded-xl bg-[#0056B3] hover:bg-[#004494] text-white font-bold text-xs tracking-wide transition-all cursor-pointer whitespace-nowrap shadow-lg shadow-[#0056B3]/20 active:scale-95"
               >
                 {subscribed ? '¡Suscrito con Éxito!' : isSubmitting ? 'Enviando...' : 'Suscribirme Gratis'}
               </button>
@@ -168,7 +168,7 @@ export const PublicFooter: React.FC<PublicFooterProps> = ({ onNavigate }) => {
               <ClientumLogo className="w-9 h-9" />
               <div>
                 <span className="text-lg font-extrabold text-[#0f172a] dark:text-white tracking-tight">Clientum</span>
-                <span className="text-lg font-extrabold text-blue-500 tracking-tight">CRM</span>
+                <span className="text-lg font-extrabold text-[#0056B3] tracking-tight ml-1">CRM</span>
                 <span className="block text-[10px] text-[#0f172a] dark:text-white dark:text-slate-400 font-semibold tracking-wider uppercase">
                   Suite Comercial & AFIP CAE
                 </span>
@@ -209,7 +209,7 @@ export const PublicFooter: React.FC<PublicFooterProps> = ({ onNavigate }) => {
             <div className="pt-2 flex flex-wrap gap-2">
               <button
                 onClick={() => enterApp()}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all cursor-pointer shadow-md shadow-blue-600/20"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0056B3] hover:bg-[#004494] text-white text-xs font-bold transition-all cursor-pointer shadow-md shadow-[#0056B3]/20"
               >
                 <span>Acceder a la Demo en Vivo</span>
                 <ArrowRight className="w-3.5 h-3.5" />

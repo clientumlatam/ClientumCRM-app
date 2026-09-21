@@ -1,0 +1,174 @@
+/* ==========================================================================
+   CLIENTUM CRM - BRAND SYNCHRONIZATION MODULE
+   Archivo: src/styles/brand-sync.css
+   Strictly standardizes spacing variables, font-scales, and color palette
+   across both 'clarity' and 'executive' themes and views.
+   Aligned with Clientum Brand Manual v1.0 (Clarity, Trust, Progress)
+   ========================================================================== */
+
+:root,
+[data-theme="clarity"],
+[data-theme="executive"],
+.theme-clarity,
+.theme-executive {
+  /* --------------------------------------------------------------------------
+     1. Unified Official Brand Color Palette (Clientum Brand Manual)
+     -------------------------------------------------------------------------- */
+  --clientum-navy: #022046;
+  --clientum-blue: #002B5C;
+  --clientum-action: #0056B3;
+  --clientum-action-hover: #004494;
+  --clientum-success: #4CAF50;
+  --clientum-success-hover: #3d8b40;
+
+  /* Surfaces & Canvas (Light / Clarity / Executive Pro) */
+  --clientum-surface: #F5F7FA;
+  --clientum-surface-card: #FFFFFF;
+  --clientum-surface-elevated: #FFFFFF;
+  --clientum-surface-border: #E2E8F0;
+  --bg-workspace: #F5F7FA;
+  --bg-canvas: #F5F7FA;
+  --bg-surface: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-navbar: #FFFFFF;
+
+  /* Text & Ink (High-contrast WCAG AA/AAA compliant) */
+  --clientum-ink: #212121;
+  --clientum-ink-secondary: #475569;
+  --clientum-ink-muted: #64748B;
+  --text-primary: #212121;
+  --text-secondary: #475569;
+  --text-muted: #64748B;
+
+  /* Borders */
+  --border-subtle: #E2E8F0;
+  --border-default: #CBD5E1;
+  --border-strong: #94A3B8;
+
+  /* --------------------------------------------------------------------------
+     2. Standardized CSS Grid & Spacing Variables (--crm-grid-gap)
+     -------------------------------------------------------------------------- */
+  --space-grid-gap: 16px;
+  --crm-grid-gap: 16px;
+  --crm-grid-gap-base: 16px;
+  --crm-grid-gap-sm: 12px;
+  --crm-grid-gap-lg: 20px;
+  --crm-grid-gap-xl: 24px;
+  
+  --crm-component-gap: 16px;
+  --crm-section-gap: 24px;
+  --crm-card-padding: 16px;
+  --crm-container-padding: 24px;
+
+  /* --------------------------------------------------------------------------
+     3. Standardized Font-Scale Hierarchy (Inter Display & Body)
+     -------------------------------------------------------------------------- */
+  --font-scale-eyebrow: 0.6875rem;    /* 11px - uppercase label/eyebrow */
+  --font-scale-caption: 0.75rem;       /* 12px - auxiliary hints and captions */
+  --font-scale-body-sm: 0.8125rem;     /* 13px - compact data rows */
+  --font-scale-body: 0.875rem;         /* 14px - base UI body text */
+  --font-scale-subheading: 1rem;       /* 16px - card titles, section headers */
+  --font-scale-title: 1.25rem;         /* 20px - module headers */
+  --font-scale-metric: 1.625rem;       /* 26px - KPI numbers (tabular-nums) */
+  --font-scale-display: 1.875rem;      /* 30px - hero headlines */
+
+  /* CRM Base System Tokens */
+  --crm-bg: var(--clientum-surface);
+  --crm-surface: var(--clientum-surface-card);
+  --crm-surface-2: #F1F5F9;
+  --crm-surface-elevated: #FFFFFF;
+  --crm-border: var(--border-subtle);
+  --crm-border-soft: #F1F5F9;
+  --crm-border-strong: var(--border-strong);
+  --crm-muted: var(--clientum-ink-muted);
+  --crm-text: var(--clientum-ink);
+  --crm-text-primary: var(--clientum-ink);
+  --crm-text-secondary: var(--clientum-ink-secondary);
+  --crm-text-muted: var(--clientum-ink-muted);
+}
+
+/* --------------------------------------------------------------------------
+   4. Dark Mode Standardization (Obsidian Dark with High Contrast)
+   -------------------------------------------------------------------------- */
+[data-theme="dark"],
+[data-theme="clarity"][data-mode="dark"],
+[data-theme="executive"][data-mode="dark"],
+.dark {
+  --clientum-surface: #040711;
+  --clientum-surface-card: #0D1527;
+  --clientum-surface-elevated: #111A2D;
+  --clientum-surface-border: #1E2E4A;
+  --bg-workspace: #040711;
+  --bg-canvas: #040711;
+  --bg-surface: #0A0F1D;
+  --bg-card: #0D1527;
+  --bg-navbar: #0A0F1D;
+
+  --clientum-ink: #F1F5F9;
+  --clientum-ink-secondary: #CBD5E1;
+  --clientum-ink-muted: #94A3B8;
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+
+  --border-subtle: #141F33;
+  --border-default: #20324E;
+  --border-strong: #2D436A;
+
+  --crm-bg: #040711;
+  --crm-surface: #0A0F1D;
+  --crm-surface-2: #0E1626;
+  --crm-surface-elevated: #111A2D;
+  --crm-border: #1C2D47;
+  --crm-border-soft: #142034;
+  --crm-border-strong: #2D436A;
+  --crm-muted: #8FA7BF;
+  --crm-text: #F8FAFC;
+  --crm-text-primary: #FFFFFF;
+  --crm-text-secondary: #CBD5E1;
+  --crm-text-muted: #94A3B8;
+
+  /* Preserved 16px Grid Gap across all themes in Dark Mode */
+  --space-grid-gap: 16px;
+  --crm-grid-gap: 16px;
+  --crm-grid-gap-base: 16px;
+  --crm-grid-gap-sm: 12px;
+  --crm-grid-gap-lg: 20px;
+  --crm-grid-gap-xl: 24px;
+}
+
+/* --------------------------------------------------------------------------
+   5. Unified Grid and Layout Classes
+   -------------------------------------------------------------------------- */
+.crm-dashboard,
+.crm-dashboard-grid,
+.crm-kpi-grid,
+.crm-grid-unified {
+  --crm-grid-gap: var(--space-grid-gap, 16px);
+  gap: var(--crm-grid-gap, 16px);
+}
+
+.crm-main-content {
+  --crm-grid-gap: var(--space-grid-gap, 16px);
+}
+
+.crm-grid-uniform-gap {
+  gap: var(--crm-grid-gap, 16px) !important;
+}
+
+.crm-label-eyebrow {
+  font-size: var(--font-scale-eyebrow, 0.6875rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--clientum-ink-muted, #64748B);
+}
+
+.crm-metric-number {
+  font-size: var(--font-scale-metric, 1.625rem);
+  font-weight: 800;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: -0.03em;
+  color: var(--clientum-ink, #212121);
+  font-variant-numeric: tabular-nums;
+}

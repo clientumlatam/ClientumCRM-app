@@ -675,7 +675,7 @@ export const PublicNavbar: React.FC<PublicNavbarProps> = ({
                 if (isAuthenticated) enterApp();
                 else setIsAuthModalOpen(true);
               }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-primary)] text-[var(--bg-navbar)] hover:bg-[var(--color-primary-dark)] font-bold text-xs tracking-wide transition-all active:scale-95 cursor-pointer whitespace-nowrap"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#0056B3] hover:bg-[#004494] text-white font-bold text-xs tracking-wide shadow-xs shadow-[#0056B3]/20 transition-all active:scale-95 cursor-pointer whitespace-nowrap"
             >
               <span>{isAuthenticated ? 'Ir al Dashboard' : 'Registrarse'}</span>
             </button>

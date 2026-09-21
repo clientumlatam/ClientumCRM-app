@@ -6,6 +6,8 @@
    ========================================================================== */
 
 @import "tailwindcss";
+@import "./styles/clientum-ui.css";
+@import "./styles/brand-sync.css";
 
 /* --------------------------------------------------------------------------
    Configuración de Tailwind para temas personalizados
@@ -234,7 +236,7 @@
   --crm-cyan: #14b8a6;
   --crm-cyan-glow: rgba(20, 184, 166, 0.35);
   --crm-cyan-border: rgba(20, 184, 166, 0.45);
-  --crm-grid-gap: 12px;
+  --crm-grid-gap: var(--crm-grid-gap-base, 16px);
 
   /* Colores de componentes específicos (Dark Mode) */
   --crm-kpi-bg: linear-gradient(145deg, #0e1627, #070e1a);
@@ -526,7 +528,7 @@ button:focus-visible {
   --crm-cyan: var(--color-action);
   --crm-cyan-glow: rgba(0, 86, 179, 0.15);
   --crm-cyan-border: rgba(0, 86, 179, 0.35);
-  --crm-grid-gap: var(--space-3, 12px);
+  --crm-grid-gap: var(--crm-grid-gap-base, 16px);
 
   min-width: 0;
   min-height: 0;
@@ -560,7 +562,7 @@ button:focus-visible {
   --crm-cyan: #14b8a6;
   --crm-cyan-glow: rgba(20, 184, 166, 0.35);
   --crm-cyan-border: rgba(20, 184, 166, 0.45);
-  --crm-grid-gap: 12px;
+  --crm-grid-gap: var(--crm-grid-gap-base, 16px);
 
   background:
     radial-gradient(circle at 28% -15%, rgba(14, 165, 233, 0.05), transparent 38%),
@@ -2121,41 +2123,65 @@ html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar [class*="ho
 
 [data-theme="executive"],
 .theme-executive {
-  --clientum-navy: #081021;
-  --clientum-blue: #0A1128;
-  --clientum-action: #1D4ED8;
-  --clientum-surface: #F4F6FB;
+  /* Brand Pallet Alignment (Clientum Brand Manual v1.0) */
+  --clientum-navy: #022046;
+  --clientum-blue: #002B5C;
+  --clientum-action: #0056B3;
+  --clientum-success: #4CAF50;
+  --clientum-surface: #F5F7FA;
   --clientum-surface-card: #FFFFFF;
-  --clientum-ink: #0F172A;
+  --clientum-ink: #212121;
+  --clientum-ink-secondary: #475569;
+  --clientum-ink-muted: #64748b;
   --border-subtle: #E2E8F0;
+  --border-default: #CBD5E1;
+  --border-strong: #94A3B8;
 
-  --bg-workspace: #F4F6FB;
+  /* Synchronized Workspace Backgrounds */
+  --bg-workspace: #F5F7FA;
   --bg-navbar: #FFFFFF;
   --bg-card: #FFFFFF;
-  --bg-surface: #F8FAFC;
+  --bg-surface: #FFFFFF;
   
-  --color-primary: #0B132B;
-  --color-primary-hover: #1E293B;
+  --color-primary: #022046;
+  --color-primary-hover: #002B5C;
+  --color-action: #0056B3;
+  --color-action-hover: #004494;
+
+  /* Synchronized Grid, Spacing & Sizing Scale */
+  --crm-grid-gap: 16px;
+  --crm-bg: var(--clientum-surface);
+  --crm-surface: var(--clientum-surface-card);
+  --crm-surface-2: #F1F5F9;
+  --crm-surface-elevated: #FFFFFF;
+  --crm-border: var(--border-subtle);
+  --crm-border-soft: #F1F5F9;
+  --crm-border-strong: var(--border-strong);
+  --crm-muted: var(--clientum-ink-muted);
+  --crm-text: var(--clientum-ink);
+  --crm-text-primary: var(--clientum-ink);
+  --crm-text-secondary: var(--clientum-ink-secondary);
+  --crm-text-muted: var(--clientum-ink-muted);
 }
 
 .executive-card-elevated {
-  background-color: #ffffff;
-  border: 1px solid #E2E8F0;
+  background-color: var(--clientum-surface-card, #ffffff);
+  border: 1px solid var(--border-subtle, #E2E8F0);
   border-radius: 1rem;
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .executive-card-elevated:hover {
-  border-color: #CBD5E1;
-  box-shadow: 0 8px 25px -4px rgba(15, 23, 42, 0.08);
+  border-color: var(--border-default, #CBD5E1);
+  box-shadow: 0 4px 14px -2px rgba(15, 23, 42, 0.08);
 }
 
 .executive-pill-active {
-  background-color: #0B132B;
+  background-color: var(--color-action, #0056B3);
   color: #FFFFFF;
   font-weight: 700;
-  box-shadow: 0 2px 8px rgba(11, 19, 43, 0.25);
+  box-shadow: 0 2px 8px rgba(0, 86, 179, 0.25);
 }
 
 .executive-alert-card {

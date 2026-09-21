@@ -106,17 +106,17 @@ export const ClientumLogo: React.FC<ClientumLogoProps> = ({
       {/* Brand Typography */}
       <div className="flex flex-col justify-center leading-none">
         <div className="flex items-center gap-1 leading-none font-['Inter',Arial,sans-serif]">
-          <span className={`text-lg font-bold tracking-tight ${onDark ? 'text-white' : 'text-[var(--text-primary)] dark:text-white'}`}>
+          <span className={`text-lg font-bold tracking-tight ${onDark ? 'text-white' : 'text-[#022046] dark:text-white'}`}>
             Clientum
           </span>
           {badge && (
-            <span className={`text-lg font-bold tracking-tight ${onDark ? 'text-[var(--color-primary)]' : 'text-[var(--color-primary)]'}`}>
+            <span className="text-lg font-bold tracking-tight text-[#0056B3]">
               {badge}
             </span>
           )}
         </div>
         {subtitle && (
-          <span className={`mt-1 text-[10px] font-medium tracking-normal ${onDark ? 'text-slate-400' : 'text-[var(--text-muted)]'}`}>
+          <span className={`mt-1 text-[10px] font-medium tracking-normal ${onDark ? 'text-slate-400' : 'text-slate-500 dark:text-slate-400'}`}>
             {subtitle}
           </span>
         )}

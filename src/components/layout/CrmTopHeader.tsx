@@ -125,7 +125,7 @@ export const CrmTopHeader: React.FC<CrmTopHeaderProps> = ({
 
         {/* Active Tab Breadcrumb Badge */}
         <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-xs font-semibold text-[var(--text-secondary)]">
-          <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)] animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-action)] animate-pulse" />
           <span className="capitalize">
             {activeTab === 'dashboard' ? 'Panel Directivo: Resumen Ejecutivo' :
              activeTab === 'userDashboard' ? 'Panel Directivo: Mi Panel Personal' :
@@ -181,7 +181,7 @@ export const CrmTopHeader: React.FC<CrmTopHeaderProps> = ({
         <button
           id="crm-header-copilot-btn"
           onClick={openAICopilot}
-          className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--color-primary)] text-[var(--bg-navbar)] text-xs font-bold shadow-md shadow-[var(--color-primary)]/20 hover:shadow-lg hover:shadow-[var(--color-primary)]/30 transition-all cursor-pointer ring-1 ring-white/10"
+          className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0056B3] hover:bg-[#004494] text-white text-xs font-bold shadow-md shadow-[#0056B3]/25 transition-all cursor-pointer ring-1 ring-white/10"
           title="Copilot AI (Alt+K)"
         >
           <Sparkles className="h-3.5 w-3.5 fill-white/20" />
@@ -330,7 +330,7 @@ export const CrmTopHeader: React.FC<CrmTopHeaderProps> = ({
                   <div className="grid grid-cols-4 gap-1 p-0.5 rounded-lg bg-slate-200/80 dark:bg-slate-900 border border-slate-300/80 dark:border-slate-700">
                     <button
                       onClick={() => setTheme('executive')}
-                      className={`px-1.5 py-1 rounded text-[9px] font-extrabold transition-all cursor-pointer truncate ${theme === 'executive' ? 'bg-[#0B132B] text-white shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}
+                      className={`px-1.5 py-1 rounded text-[9px] font-extrabold transition-all cursor-pointer truncate ${theme === 'executive' ? 'bg-[#022046] text-white shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}
                       title="Tema Executive Pro"
                     >
                       Executive

@@ -306,8 +306,11 @@ export const ExecutiveDashboardView: React.FC = () => {
   };
 
   return (
-    <div className="crm-dashboard flex-1 flex flex-col h-full bg-[var(--clientum-surface,#F5F7FA)] dark:bg-[var(--crm-bg,#040711)] text-[var(--clientum-ink,#212121)] dark:text-[var(--text-primary,#0f172a)] dark:text-slate-100 overflow-y-auto select-none font-['Inter',sans-serif]">
-      <div className="crm-dashboard__content p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto w-full">
+    <div
+      data-theme-container="true"
+      className="crm-dashboard flex-1 flex flex-col h-full bg-[var(--clientum-surface,#F5F7FA)] dark:bg-[var(--crm-bg,#040711)] text-[var(--clientum-ink,#212121)] dark:text-[var(--text-primary,#0f172a)] dark:text-slate-100 overflow-y-auto select-none font-['Inter',sans-serif]"
+    >
+      <div className="crm-dashboard__content p-4 sm:p-6 lg:p-8 space-y-[var(--crm-section-gap,24px)] max-w-7xl mx-auto w-full">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-[var(--border-subtle)]/80 dark:border-[#1c2d47]">
           <div>
@@ -429,7 +432,7 @@ export const ExecutiveDashboardView: React.FC = () => {
         )}
 
         {/* 4 High-Impact Executive KPI Cards */}
-        <div className="crm-kpi-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="crm-kpi-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[var(--crm-grid-gap,16px)]">
           {/* Card 1: Pipeline Activo */}
           <div className="crm-kpi-stat-card">
             <div className="flex items-center justify-between gap-2 mb-2">
@@ -583,7 +586,7 @@ export const ExecutiveDashboardView: React.FC = () => {
         </div>
 
         {/* Actionable Urgent Card & Revenue Forecast Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-[var(--crm-grid-gap,16px)]">
           {/* Card: ATENCIÓN REQUERIDA */}
           <div className="lg:col-span-1 crm-kpi-stat-card">
             <div className="flex items-center justify-between gap-2 mb-2">
@@ -616,7 +619,7 @@ export const ExecutiveDashboardView: React.FC = () => {
         </div>
 
         {/* Evolución de Ingresos y Distribución por Fuentes */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-[var(--crm-grid-gap,16px)]">
           <div className="lg:col-span-2">
             <RevenueChart />
           </div>
@@ -691,7 +694,7 @@ export const ExecutiveDashboardView: React.FC = () => {
         </div>
 
         {/* Actionable Priorities Panel (Atención Prioritaria) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-[var(--crm-grid-gap,16px)]">
           {/* Tareas Críticas y Próximas */}
           <div className="crm-panel-container p-5">
             <div className="crm-section-header">
@@ -934,7 +937,7 @@ export const ExecutiveDashboardView: React.FC = () => {
           </div>
 
           {/* Kanban Columns Grid with Drag and Drop */}
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3.5 items-start">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-[var(--crm-grid-gap,16px)] items-start">
             {STAGES.filter((stage) => stage.id !== 'lost').map((stage) => {
               const columnDeals = filteredOpportunities.filter((deal) => deal.stage === stage.id);
               const stageSum = columnDeals.reduce((sum, deal) => sum + deal.amount, 0);
