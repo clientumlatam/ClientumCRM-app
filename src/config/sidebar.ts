@@ -21,7 +21,6 @@ import {
   Send,
   Bot,
   Mail,
-  ExternalLink,
   Cpu,
   Sparkles,
   Receipt,
@@ -37,6 +36,8 @@ import {
   Zap,
   Users,
   FileCheck,
+  FileText,
+  BookOpen,
 } from 'lucide-react';
 import { ActiveTab } from '../types';
 
@@ -60,293 +61,141 @@ export interface NavSection {
 
 /**
  * Main sidebar navigation configuration.
- * Includes all core modules: Reports & Analytics, Document Management, Integration Settings, Team Management, and Audit Logs.
+ * Reorganized according to the reference navigation structure:
+ * 1. Inicio
+ * 2. Contactos
+ * 3. Empresas
+ * 4. Oportunidades
+ * 5. Pipeline
+ * 6. Tareas
+ * 7. Inbox
+ * 8. Automatizaciones
+ * 9. Reportes
+ * 10. Documentos
+ * 11. Configuración
  */
 export const sidebarConfig: NavSection[] = [
   {
     id: 'main',
-    label: '1. Dirección Comercial & CRM',
+    label: 'CORE',
     categoryIcon: 'sales',
     items: [
       {
         id: 'dashboard',
-        label: 'Dashboard Directivo',
+        label: 'Inicio',
         icon: Home,
-        badge: 'Live',
-        badgeColor: 'bg-blue-500/20 text-blue-400 border border-blue-500/30 font-mono',
+        subItems: [
+          { id: 'dashboard', label: 'Resumen Ejecutivo', icon: Home },
+          { id: 'userDashboard', label: 'Mi Dashboard Personal', icon: LayoutDashboard },
+        ],
       },
       {
-        id: 'userDashboard',
-        label: 'Mi Dashboard Personal',
-        icon: LayoutDashboard,
-        badge: 'Ejecutivo',
-        badgeColor: 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30',
+        id: 'people',
+        label: 'Contactos',
+        icon: Users2,
+        subItems: [
+          { id: 'people', label: 'Directorio B2B & Leads', icon: Users2 },
+          { id: 'googleMaps', label: 'Google Maps Prospector B2B', icon: MapPin },
+          { id: 'customObjects', label: 'Campos & Objetos Personalizados', icon: Database },
+        ],
+      },
+      {
+        id: 'companies',
+        label: 'Empresas',
+        icon: Building2,
+        subItems: [
+          { id: 'companies', label: 'Cuentas Clave Enterprise', icon: Building2 },
+          { id: 'competitorHub', label: 'Radar de Competencia B2B', icon: Compass },
+        ],
+      },
+      {
+        id: 'meddic',
+        label: 'Oportunidades',
+        icon: Target,
+        subItems: [
+          { id: 'meddic', label: 'Matriz MEDDIC & Scoring', icon: Target },
+          { id: 'opportunities', label: 'Listado de Negocios', icon: Briefcase },
+          { id: 'clientPortal', label: 'Portal de Clientes VIP', icon: ShieldCheck },
+        ],
       },
       {
         id: 'opportunities',
-        label: 'Embudo de Ventas [Pipeline]',
-        icon: Briefcase,
-        badge: 'Kanban',
-        badgeColor: 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
+        label: 'Pipeline',
+        icon: FolderKanban,
         subItems: [
-          { id: 'meddic', label: 'Matriz MEDDIC & Scoring', icon: Target },
+          { id: 'opportunities', label: 'Embudo de Ventas Kanban', icon: FolderKanban },
           { id: 'analytics', label: 'Análisis de Desvíos CRM', icon: BarChart3 },
         ],
       },
       {
-        id: 'reportsAnalytics',
-        label: 'Reports & Analytics',
-        icon: BarChart3,
-        badge: 'BI Analytics',
-        badgeColor: 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30',
-      },
-      {
-        id: 'people',
-        label: 'Directorio B2B & Leads',
-        icon: Users2,
-        subItems: [
-          { id: 'companies', label: 'Cuentas Clave Enterprise', icon: Building2 },
-          { id: 'activityInbox', label: 'Historial de Interacciones', icon: Inbox },
-        ],
-      },
-      {
-        id: 'documentManagement',
-        label: 'Document Management',
-        icon: FolderKanban,
-        badge: 'Vault',
-        badgeColor: 'bg-sky-500/20 text-sky-400 border border-sky-500/30',
-      },
-      {
         id: 'tasks',
-        label: 'Agenda & Tareas Comerciales',
+        label: 'Tareas',
         icon: CheckSquare,
         subItems: [
+          { id: 'tasks', label: 'Agenda & Tareas Comerciales', icon: CheckSquare },
           { id: 'calendar', label: 'Calendario de Reuniones', icon: Calendar },
-          { id: 'workflows', label: 'Recordatorios Automatizados', icon: Workflow },
         ],
       },
       {
-        id: 'propuestas',
-        label: 'Generador de Propuestas [PDF]',
-        icon: FileSpreadsheet,
-        badge: 'Pro',
-        badgeColor: 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 font-mono',
-      },
-      {
-        id: 'clientPortal',
-        label: 'Portal de Clientes VIP',
-        icon: ShieldCheck,
-        badge: 'Self-Service',
-        badgeColor: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
-      },
-    ],
-  },
-  {
-    id: 'prospecting',
-    label: '2. Prospección B2B & Intelligence',
-    categoryIcon: 'sales',
-    items: [
-      {
-        id: 'googleMaps',
-        label: 'Google Maps Prospector B2B',
-        icon: MapPin,
-        badge: 'IA Maps',
-        badgeColor: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
-      },
-      {
-        id: 'competitorHub',
-        label: 'Radar de Competencia & Intel',
-        icon: Compass,
-        badge: 'Radar B2B',
-        badgeColor: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
-      },
-      {
-        id: 'seoSuite',
-        label: 'Suite SEO & Auditoría Web',
-        icon: Globe,
-        badge: 'SEO v2',
-        badgeColor: 'bg-sky-500/20 text-sky-400 border border-sky-500/30',
-      },
-      {
-        id: 'gtmStrategy',
-        label: 'Estrategia Go-To-Market AI',
-        icon: Target,
-        badge: 'GTM AI',
-        badgeColor: 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30',
-      },
-    ],
-  },
-  {
-    id: 'communication',
-    label: '3. Comunicación Omnicanal',
-    categoryIcon: 'communication',
-    items: [
-      {
-        id: 'whatsapp',
-        label: 'WhatsApp WACE Hub [IA]',
-        icon: MessageSquare,
-        badge: 'En Línea',
-        badgeColor: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-mono',
-        subItems: [
-          { id: 'messages', label: 'Bandeja de Entrada Unificada', icon: Send },
-          { id: 'campaigns', label: 'Campañas de Difusión', icon: Send },
-          { id: 'chatbot', label: 'Reglas de Auto-Respuesta IA', icon: Bot },
-        ],
-      },
-      {
-        id: 'webmail',
-        label: 'Correo Corporativo [Webmail]',
+        id: 'activityInbox',
+        label: 'Inbox',
         icon: Mail,
-        badge: 'Cloudflare',
-        badgeColor: 'bg-sky-500/20 text-sky-400 border border-sky-500/30 font-mono',
-      },
-      {
-        id: 'wordpressIntegracion',
-        label: 'Plugin WordPress & Webforms',
-        icon: ExternalLink,
-        badge: 'WP Sync',
-        badgeColor: 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
-      },
-    ],
-  },
-  {
-    id: 'ai',
-    label: '4. Inteligencia Artificial & Agentes',
-    categoryIcon: 'ai',
-    items: [
-      {
-        id: 'agenteOS',
-        label: 'AgenteOS [14 Roles IA]',
-        icon: Cpu,
-        badge: 'Autónomo',
-        badgeColor: 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30',
         subItems: [
-          { id: 'sdrOutreach', label: 'Agente SDR Prospección 24/7', icon: Bot },
-          { id: 'aiAssistant', label: 'Capital Gemini Forecasting', icon: Sparkles },
+          { id: 'activityInbox', label: 'Bandeja Unificada de Actividad', icon: Inbox },
+          { id: 'whatsapp', label: 'WhatsApp WACE Hub', icon: MessageSquare },
+          { id: 'messages', label: 'Mensajes Multicanal', icon: Send },
+          { id: 'webmail', label: 'Correo Corporativo Webmail', icon: Mail },
         ],
-      },
-      {
-        id: 'adCopy',
-        label: 'Generador Copy & Ad Creatives',
-        icon: Sparkles,
-        badge: 'Gemini 2.5',
-        badgeColor: 'bg-purple-500/20 text-purple-400 border border-purple-500/30',
-      },
-    ],
-  },
-  {
-    id: 'operations',
-    label: '5. Operaciones, ERP & Facturación',
-    categoryIcon: 'erp',
-    items: [
-      {
-        id: 'operations',
-        label: 'ERP & Logística Avanzada',
-        icon: Compass,
-        badge: 'Módulo 414',
-        badgeColor: 'bg-slate-800 text-[var(--text-secondary,#475569)] dark:text-slate-300 border border-[var(--border-subtle,#e2e8f0)] dark:border-slate-700/80',
-        subItems: [
-          { id: 'erp', label: 'Control de Stock & Delivery', icon: Receipt },
-          { id: 'campusLMS', label: 'Campus LMS & Academia', icon: GraduationCap },
-        ],
-      },
-      {
-        id: 'erpAvanzado',
-        label: 'Facturación Electrónica [AFIP]',
-        icon: Receipt,
-        badge: 'CAE Nativo',
-        badgeColor: 'bg-slate-800 text-[var(--text-secondary,#475569)] dark:text-slate-300 border border-[var(--border-subtle,#e2e8f0)] dark:border-slate-700/80',
-      },
-      {
-        id: 'tiendaDigital',
-        label: 'Portal E-Commerce & Tienda',
-        icon: Store,
-        badge: 'Catálogo',
-        badgeColor: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
-      },
-      {
-        id: 'payments',
-        label: 'Suscripciones & MercadoPago',
-        icon: CreditCard,
-        badge: 'Checkout',
-        badgeColor: 'bg-sky-500/20 text-sky-400 border border-sky-500/30',
       },
     ],
   },
   {
     id: 'control',
-    label: '6. Infraestructura, Sistema & Gobierno',
+    label: 'MANAGEMENT',
     categoryIcon: 'admin',
     items: [
       {
-        id: 'teamManagement',
-        label: 'Team Management',
-        icon: Users,
-        badge: 'Equipos',
-        badgeColor: 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30',
-      },
-      {
-        id: 'integrationSettings',
-        label: 'Integration Settings',
-        icon: Settings,
-        badge: 'API Studio',
-        badgeColor: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
-      },
-      {
-        id: 'auditLogs',
-        label: 'Audit Logs',
-        icon: FileCheck,
-        badge: 'SOC2 Audit',
-        badgeColor: 'bg-rose-500/20 text-rose-400 border border-rose-500/30',
-      },
-      {
-        id: 'customObjects',
-        label: 'Motor de Datos [Schema SQL]',
-        icon: Database,
-        badge: 'Módulo 49',
-        badgeColor: 'bg-slate-800 text-[var(--text-secondary,#475569)] dark:text-slate-300 border border-[var(--border-subtle,#e2e8f0)] dark:border-slate-700/80',
+        id: 'workflows',
+        label: 'Automatizaciones',
+        icon: Zap,
         subItems: [
-          { id: 'csvStudio', label: 'Importador CSV Studio', icon: FileSpreadsheet },
+          { id: 'workflows', label: 'Flujos de Trabajo & Workflows', icon: Workflow },
+          { id: 'automation', label: 'Campañas Automáticas', icon: Zap },
+          { id: 'chatbot', label: 'Reglas de Auto-Respuesta IA', icon: Bot },
+          { id: 'agenteOS', label: 'AgenteOS (14 Roles IA)', icon: Cpu },
         ],
       },
       {
-        id: 'workspaceIntegrations',
-        label: 'Sincronización Cloud & Backups',
-        icon: HardDrive,
-        badge: 'Cloud Sync',
-        badgeColor: 'bg-slate-800 text-[var(--text-secondary,#475569)] dark:text-slate-300 border border-[var(--border-subtle,#e2e8f0)] dark:border-slate-700/80',
+        id: 'reportsAnalytics',
+        label: 'Reportes',
+        icon: BarChart3,
+        subItems: [
+          { id: 'reportsAnalytics', label: 'Reports & BI Analytics', icon: BarChart3 },
+          { id: 'analytics', label: 'Pronóstico de Ingresos & Pipeline', icon: BarChart3 },
+        ],
       },
       {
-        id: 'domainManager',
-        label: 'Gestor de Dominios & DNS',
-        icon: Globe,
-        badge: 'DNS',
-        badgeColor: 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
-      },
-      {
-        id: 'vscrmSuite',
-        label: 'VSCode CRM Extension Studio',
-        icon: Code2,
-        badge: 'IDE Extension',
-        badgeColor: 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30',
-      },
-      {
-        id: 'adminConsole',
-        label: 'Consola Admin Global',
-        icon: ShieldAlert,
-        badge: 'Root Ops',
-        badgeColor: 'bg-rose-500/20 text-rose-400 border border-rose-500/30',
+        id: 'documentManagement',
+        label: 'Documentos',
+        icon: FileText,
+        subItems: [
+          { id: 'documentManagement', label: 'Gestión Documental & Archivos', icon: FolderKanban },
+          { id: 'propuestas', label: 'Generador de Propuestas [PDF]', icon: FileSpreadsheet },
+          { id: 'brochure', label: 'Brochures & Material Comercial', icon: BookOpen },
+        ],
       },
       {
         id: 'settings',
-        label: 'Configuración Workspace Settings',
+        label: 'Configuración',
         icon: Settings,
-        badge: 'Enterprise',
-        badgeColor: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
         subItems: [
+          { id: 'settings', label: 'Ajustes Workspace Settings', icon: Settings },
+          { id: 'teamManagement', label: 'Gestión de Equipos', icon: Users },
           { id: 'rbacRoles', label: 'Roles & Permisos (RBAC)', icon: Shield },
+          { id: 'integrationSettings', label: 'Integraciones & API Hub', icon: Zap },
           { id: 'auditLogs', label: 'Auditoría & Logs SOC2', icon: FileCheck },
-          { id: 'apiIntegrations', label: 'Integraciones & API Hub', icon: Zap },
+          { id: 'erpAvanzado', label: 'Facturación Electrónica AFIP', icon: Receipt },
+          { id: 'adminConsole', label: 'Consola Admin Root', icon: ShieldAlert },
         ],
       },
     ],

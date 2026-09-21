@@ -76,61 +76,150 @@ export const ThemeModeSettings: React.FC<ThemeModeSettingsProps> = ({
           </div>
         </div>
 
-        {/* 3-Mode Selection Cards */}
+        {/* Theme Selection Cards */}
         {showPreviews && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Light Mode Card */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+            {/* Executive Pro Theme Card (Nuevo basado en imagen) */}
             <div
-              id="theme-option-light"
-              onClick={() => applyTheme('light')}
-              className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${ theme === 'light' ? 'border-blue-500 bg-[#f8fafc] text-[var(--text-primary)] shadow-md shadow-blue-500/10 ring-1 ring-blue-500/30' : 'border-[var(--border-subtle)] bg-[var(--bg-muted)] text-[var(--text-secondary)] hover:border-[var(--border-strong)]' }`}
+              id="theme-option-executive"
+              onClick={() => applyTheme('executive')}
+              className={`relative p-3.5 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
+                theme === 'executive'
+                  ? 'border-[#0B132B] bg-slate-900 text-white shadow-md ring-2 ring-blue-500/50'
+                  : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:border-slate-500'
+              }`}
             >
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-[var(--bg-card)] border border-[var(--border-subtle)] flex items-center justify-center text-amber-500 shadow-2xs">
-                    <Sun className="w-4 h-4" />
+              <div className="flex items-start justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-[#0B132B] border border-blue-400/40 flex items-center justify-center text-white shadow-2xs">
+                    <Sparkles className="w-3.5 h-3.5 text-blue-400" />
                   </div>
                   <div>
-                    <h4 className={`text-xs font-bold ${theme === 'light' ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>
-                      Modo Claro Oficial
+                    <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                      Executive Pro
                     </h4>
-                    <span className={`text-[11px] font-mono ${theme === 'light' ? 'text-[#0056B3]' : 'text-[var(--text-muted)]'}`}>
-                      Manual de Marca v1.0 (#F5F7FA)
+                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono font-bold">
+                      Resumen Ejecutivo v4.2
                     </span>
                   </div>
                 </div>
 
-                {theme === 'light' && (
-                  <span className="flex items-center gap-1 text-[11px] font-semibold text-[#0056B3] bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+                {theme === 'executive' && (
+                  <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-500/40">
                     <Check className="w-3 h-3" />
                     Activo
                   </span>
                 )}
               </div>
 
-              {/* Simulated Workspace Preview */}
-              <div className="rounded-lg bg-white p-3 border border-[#e2e8f0] space-y-2 mb-3 shadow-xs">
-                <div className="flex items-center justify-between text-[10px] text-[#212121] pb-1.5 border-b border-[#e2e8f0]">
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-2 h-2 rounded-full bg-[#022046]" />
-                    <span className="text-[#212121] font-bold">Acme Latam Corp</span>
-                  </div>
-                  <span className="text-[#4CAF50] font-mono font-bold">$120,000</span>
+              <div className="rounded-lg bg-[#F4F6FB] p-2.5 border border-[#e2e8f0] space-y-1.5 mb-2">
+                <div className="flex items-center justify-between text-[10px] text-[#0B132B] font-extrabold">
+                  <span>Executive Dashboard</span>
+                  <span className="text-emerald-600 font-mono font-bold">$582.000</span>
                 </div>
-                <div className="flex items-center gap-2 text-[9px]">
-                  <span className="px-1.5 py-0.5 rounded bg-blue-50 text-[#0056B3] font-mono font-semibold border border-blue-200">
-                    Negociación
-                  </span>
-                  <span className="text-slate-500 font-medium">Cierre: 15 Dic</span>
+                <div className="text-[9px] text-slate-500 font-mono">
+                  #F4F6FB Canvas / #0B132B Dark Navy
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-[11px] pt-1">
-                <span className={`flex items-center gap-1.5 ${theme === 'light' ? 'text-[var(--text-secondary)] font-medium' : 'text-[var(--text-muted)]'}`}>
-                  <span className="w-2 h-2 rounded-full bg-[#022046]" />
-                  Fondo #F5F7FA / Texto #212121
-                </span>
-                <span className="font-mono text-[10px] text-[var(--text-muted)]">data-theme="light"</span>
+              <div className="text-[10px] text-slate-500 font-mono">
+                data-theme="executive"
+              </div>
+            </div>
+
+            {/* Clientum Clarity Theme Card (Featured) */}
+            <div
+              id="theme-option-clarity"
+              onClick={() => applyTheme('clarity')}
+              className={`relative p-3.5 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
+                theme === 'clarity'
+                  ? 'border-[#0056B3] bg-blue-50/50 dark:bg-blue-950/30 text-slate-900 dark:text-white shadow-md ring-1 ring-blue-500/40'
+                  : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:border-blue-400'
+              }`}
+            >
+              <div className="flex items-start justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-[#022046] flex items-center justify-center text-white shadow-2xs">
+                    <Sparkles className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                      Clientum Clarity
+                    </h4>
+                    <span className="text-[10px] text-[#0056B3] font-mono font-bold">
+                      Tema Oficial Brand v1.0
+                    </span>
+                  </div>
+                </div>
+
+                {theme === 'clarity' && (
+                  <span className="flex items-center gap-1 text-[10px] font-bold text-[#0056B3] bg-blue-100 dark:bg-blue-900/60 px-2 py-0.5 rounded-full">
+                    <Check className="w-3 h-3" />
+                    Activo
+                  </span>
+                )}
+              </div>
+
+              <div className="rounded-lg bg-[#F5F7FA] p-2.5 border border-[#e2e8f0] space-y-1.5 mb-2">
+                <div className="flex items-center justify-between text-[10px] text-[#022046] font-bold">
+                  <span>ClientumOS Clarity</span>
+                  <span className="text-[#4CAF50] font-mono">$120,000</span>
+                </div>
+                <div className="text-[9px] text-[#0056B3] font-mono">
+                  #022046 Navy / #0056B3 Action
+                </div>
+              </div>
+
+              <div className="text-[10px] text-slate-500 font-mono">
+                data-theme="clarity"
+              </div>
+            </div>
+
+            {/* Light Mode Card */}
+            <div
+              id="theme-option-light"
+              onClick={() => applyTheme('light')}
+              className={`relative p-3.5 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
+                theme === 'light'
+                  ? 'border-blue-500 bg-[#f8fafc] text-slate-900 shadow-md ring-1 ring-blue-500/30'
+                  : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:border-slate-400'
+              }`}
+            >
+              <div className="flex items-start justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 shadow-2xs">
+                    <Sun className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                      Modo Claro Standard
+                    </h4>
+                    <span className="text-[10px] text-slate-500 font-mono">
+                      Claro Convencional
+                    </span>
+                  </div>
+                </div>
+
+                {theme === 'light' && (
+                  <span className="flex items-center gap-1 text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                    <Check className="w-3 h-3" />
+                    Activo
+                  </span>
+                )}
+              </div>
+
+              <div className="rounded-lg bg-white p-2.5 border border-slate-200 space-y-1.5 mb-2">
+                <div className="flex items-center justify-between text-[10px] text-slate-800 font-bold">
+                  <span>Modo Claro</span>
+                  <span className="text-emerald-600 font-mono">$120,000</span>
+                </div>
+                <div className="text-[9px] text-slate-500 font-mono">
+                  Blanco / Neutro
+                </div>
+              </div>
+
+              <div className="text-[10px] text-slate-500 font-mono">
+                data-theme="light"
               </div>
             </div>
 

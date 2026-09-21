@@ -1,131 +1,88 @@
+/* ==========================================================================
+   CLIENTUM CRM - SISTEMA DE DISEÑO GLOBAL
+   Archivo: src/index.css
+   Versión: 1.0 (Optimizado - Sept 2026)
+   Descripción: Estilos globales para Clientum CRM con Tailwind CSS v4.
+   ========================================================================== */
+
 @import "tailwindcss";
 
-/* Tailwind v4 usa prefers-color-scheme por defecto para "dark:". El toggle
-   manual de tema (ThemeContext) alterna la clase .dark en <html>, así que
-   forzamos aquí a que "dark:" responda a esa clase en vez de solo al SO. */
+/* --------------------------------------------------------------------------
+   Configuración de Tailwind para temas personalizados
+   Usa la clase .dark en <html> (no solo prefers-color-scheme)
+   -------------------------------------------------------------------------- */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ==========================================================================
-   PALETA DE MARCA — Navy del logo Clientum
-   Sobrescribe la escala "blue" de Tailwind para que bg-blue-*, text-blue-*,
-   border-blue-*, from-blue-*, etc. usen el navy del logo en toda la app
-   (incluye la landing page), en lugar del azul genérico de Tailwind.
-   ========================================================================== */
+/* --------------------------------------------------------------------------
+   Paleta de Marca Clientum (Brand Manual v1.0 - Sept 2026)
+   Colores oficiales para toda la aplicación (light/dark)
+   -------------------------------------------------------------------------- */
 @theme {
+  /* Fuente principal */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
   --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-  --color-navy: #022046;
-  --color-action: #0056B3;
+
+  /* Paleta de colores de marca */
+  --color-navy: #022046;          /* Official Clientum Brand Navy */
+  --color-corporate-blue: #002B5C; /* Official Clientum Corporate Blue */
+  --color-action: #0056B3;        /* Official Clientum Action Blue */
+  --color-success: #4CAF50;       /* Official Brand Success Green */
+  --color-warning: #F59E0B;       /* Warning (Amber 500) */
+  --color-danger: #EF4444;        /* Danger (Red 500) */
+
+  /* Superficies (Light Mode) */
   --color-blue-50: #f0f4f9;
   --color-blue-100: #dbe4f0;
   --color-blue-200: #b8c9e2;
   --color-blue-300: #8aa9d3;
   --color-blue-400: #5583c0;
-  --color-blue-500: #0056B3; /* Official Clientum Action Blue */
-  --color-blue-600: #002B5C; /* Official Clientum Corporate Blue */
-  --color-blue-700: #022046; /* Official Clientum Brand Navy */
+  --color-blue-500: #0056B3;      /* Action Blue */
+  --color-blue-600: #002B5C;      /* Corporate Blue */
+  --color-blue-700: #022046;      /* Brand Navy */
   --color-blue-800: #011836;
   --color-blue-900: #010f24;
   --color-blue-950: #000814;
 }
 
 /* ==========================================================================
-   Paleta Cromática Oficial (Clientum Brand Guidelines v1.0 — Sept 2026)
+   Variables CSS Globales para Temas Light/Dark
    ========================================================================== */
+
+/* Tema Light, Clientum Clarity & Executive Pro */
 :root,
 [data-theme="light"],
+[data-theme="clarity"],
+[data-theme="executive"],
+.theme-clarity,
+.theme-executive,
 .light {
+  /* Colores de marca */
   --clientum-navy: #022046;
   --clientum-blue: #002B5C;
   --clientum-action: #0056B3;
   --clientum-success: #4CAF50;
-  --clientum-surface: #F5F7FA;
-  --clientum-surface-card: #ffffff;
+
+  /* Superficies */
+  --clientum-surface: #F5F7FA;      /* Fondo principal */
+  --clientum-surface-card: #ffffff; /* Tarjetas */
   --clientum-surface-border: #e2e8f0;
-  --clientum-ink: #212121;
-  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-}
 
-[data-theme="dark"],
-.dark {
-  --clientum-navy: #022046;
-  --clientum-blue: #002B5C;
-  --clientum-action: #0056B3;
-  --clientum-success: #4CAF50;
-  --clientum-surface: #040711;
-  --clientum-surface-card: #0d1527;
-  --clientum-surface-border: #1e2e4a;
-  --clientum-ink: #f1f5f9;
-  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-}
+  /* Texto */
+  --clientum-ink: #212121;           /* Texto principal */
+  --clientum-ink-secondary: #475569;
+  --clientum-ink-muted: #64748b;
 
-body {
-  background-color: var(--clientum-surface);
-  color: var(--clientum-ink);
-  font-family: var(--font-inter);
-}
+  /* Bordes */
+  --border-subtle: #e2e8f0;
+  --border-default: #cbd5e1;
+  --border-strong: #94a3b8;
 
-/* ==========================================================================
-   CLIENTUM CRM DESIGN SYSTEM & MODULAR THEME ENGINE
-   Modular CSS Variable System supporting Light, Dark, and System modes
-   with High Contrast Ratios (WCAG AAA/AA) and Consistent Spacing Tokens
-   ========================================================================== */
+  /* Sombras */
+  --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-popover: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 
-:root,
-[data-theme="light"],
-.light {
-  /* Canvas & Base Surfaces — Clientum Brand Manual v1.0 Palette */
-  --bg-canvas: #F5F7FA;          /* Official Brand Surface #F5F7FA */
-  --bg-surface: #ffffff;
-  --bg-card: #ffffff;
-  --text-primary: #212121;       /* Official Brand Ink #212121 */
-  --text-secondary: #475569;     /* Slate 600 */
-  --border-subtle: #e2e8f0;      /* Slate 200 */
-  --color-primary: #022046;      /* Official Clientum Brand Navy (#022046) */
-  --color-primary-hover: #002B5C; /* Corporate Blue (#002B5C) */
-  --color-primary-light: #eef1f6;
-  --color-primary-text: #022046;
-  --color-action: #0056B3;       /* Official Clientum Action Blue (#0056B3) */
-  --color-action-hover: #002B5C;
-  --color-brand-navy: #022046;
-  --color-brand-action: #0056B3;
-  --color-brand-blue: #002B5C;
-  --color-success: #4CAF50;      /* Official Brand Success Green */
-  --color-success-light: #ecfdf5;
-  --color-success-border: #a7f3d0;
-  --color-warning: #d97706;
-  --color-warning-light: #fffbeb;
-  --color-warning-border: #fde68a;
-  --color-danger: #dc2626;
-  --color-danger-light: #fef2f2;
-  --color-danger-border: #fecaca;
-
-   /* --------------------------------------------------------------------------
-      Clientum Clarity navigation surfaces (Light Mode Dark Navy Sidebar)
-      -------------------------------------------------------------------------- */
-   --sidebar-bg: #021028;
-   --sidebar-header-bg: #021028;
-   --sidebar-footer-bg: #020817;
-   --sidebar-border: #142034;
-   --sidebar-text-primary: #ffffff;
-   --sidebar-text-secondary: #94a3b8;
-   --sidebar-text-muted: #64748b;
-   --sidebar-hover-bg: #0b1a36;
-   --sidebar-hover-text: #ffffff;
-   --sidebar-active-bg: #0056B3;
-   --sidebar-active-text: #ffffff;
-   --sidebar-search-bg: #0b162c;
-   --sidebar-search-border: #182844;
-   --sidebar-search-text: #ffffff;
-   --sidebar-portal-btn-bg: #091224;
-   --sidebar-portal-btn-text: #60A5FA;
-   --sidebar-portal-btn-border: #1b2d4b;
-   --sidebar-copilot-bg: linear-gradient(135deg, #071228 0%, #0a1b3d 100%);
-   --sidebar-copilot-border: #152747;
-   --sidebar-card-text: #ffffff;
-   --sidebar-card-muted: #94a3b8;
-
-  /* Consistent Spacing Tokens */
+  /* Espaciado (Tokens) */
   --space-0: 0px;
   --space-1: 0.25rem;  /* 4px */
   --space-2: 0.5rem;   /* 8px */
@@ -138,88 +95,169 @@ body {
   --space-12: 3rem;    /* 48px */
   --space-16: 4rem;    /* 64px */
 
-  /* CRM Dashboard & Component Tokens (Light Mode Mappings) */
-  --crm-bg: var(--bg-canvas);
-  --crm-surface: var(--bg-surface);
-  --crm-surface-2: var(--bg-muted);
-  --crm-surface-elevated: var(--bg-surface-elevated);
+  /* Colores semánticos para CRM */
+  --color-primary: #022046;         /* Navy */
+  --color-primary-hover: #002B5C;  /* Corporate Blue */
+  --color-primary-light: #eef1f6;
+  --color-primary-text: #022046;
+
+  --color-action: #0056B3;          /* Action Blue */
+  --color-action-hover: #002B5C;
+  --color-action-light: rgba(0, 86, 179, 0.1);
+  --color-action-border: rgba(0, 86, 179, 0.25);
+
+  /* Estados */
+  --color-success: #4CAF50;
+  --color-success-light: #ecfdf5;
+  --color-success-border: #a7f3d0;
+  --color-warning: #F59E0B;
+  --color-warning-light: #fffbeb;
+  --color-warning-border: #fde68a;
+  --color-danger: #EF4444;
+  --color-danger-light: #fef2f2;
+  --color-danger-border: #fecaca;
+
+  /* Sidebar (Light Mode: Surface Claro Elegante) */
+  --sidebar-bg: #ffffff;
+  --sidebar-header-bg: #ffffff;
+  --sidebar-footer-bg: #f8fafc;
+  --sidebar-border: #e2e8f0;
+  --sidebar-text-primary: #0f172a;
+  --sidebar-text-secondary: #475569;
+  --sidebar-text-muted: #64748b;
+  --sidebar-hover-bg: #f1f5f9;
+  --sidebar-hover-text: #0f172a;
+  --sidebar-active-bg: #0f2851;
+  --sidebar-active-text: #ffffff;
+  --sidebar-search-bg: #f8fafc;
+  --sidebar-search-border: #e2e8f0;
+  --sidebar-search-text: #0f172a;
+  --sidebar-portal-btn-bg: #f1f5f9;
+  --sidebar-portal-btn-text: #0f2851;
+  --sidebar-portal-btn-border: #cbd5e1;
+  --sidebar-copilot-bg: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  --sidebar-copilot-border: #e2e8f0;
+
+  /* CRM Dashboard Tokens (Light Mode) */
+  --crm-bg: var(--clientum-surface);
+  --crm-surface: var(--clientum-surface-card);
+  --crm-surface-2: #f1f5f9;
+  --crm-surface-elevated: #ffffff;
   --crm-border: var(--border-subtle);
   --crm-border-soft: #f1f5f9;
   --crm-border-strong: var(--border-strong);
-  --crm-muted: var(--text-muted);
-  --crm-text: var(--text-primary);
-  --crm-text-primary: var(--text-primary);
-  --crm-text-secondary: var(--text-secondary);
-  --crm-text-muted: var(--text-muted);
-  --crm-cyan: var(--color-primary);
+  --crm-muted: var(--clientum-ink-muted);
+  --crm-text: var(--clientum-ink);
+  --crm-text-primary: var(--clientum-ink);
+  --crm-text-secondary: var(--clientum-ink-secondary);
+  --crm-text-muted: var(--clientum-ink-muted);
+  --crm-cyan: var(--color-action);
   --crm-cyan-glow: rgba(0, 86, 179, 0.15);
   --crm-cyan-border: rgba(0, 86, 179, 0.35);
   --crm-grid-gap: 12px;
-  --crm-kpi-bg: var(--bg-card);
-  --crm-kpi-border: var(--border-subtle);
+
+  /* Colores de componentes específicos */
+  --crm-kpi-bg: #ffffff;
+  --crm-kpi-border: #dbe4ef;
   --crm-kpi-accent-bg: #f0fdfa;
   --crm-kpi-accent-border: #99f6e4;
-  --crm-panel-bg: var(--bg-card);
-  --crm-panel-border: var(--border-subtle);
-  --crm-action-bg: var(--bg-surface);
-  --crm-action-border: var(--border-default);
-  --crm-action-text: var(--text-secondary);
-  --crm-action-hover-bg: var(--bg-accent-subtle);
-  --crm-action-hover-text: var(--text-brand);
-  --crm-board-bg: var(--bg-canvas);
-  --crm-board-border: var(--border-subtle);
-  --crm-stage-bg: var(--bg-surface);
-  --crm-stage-border: var(--border-subtle);
-  --crm-card-bg: var(--bg-card);
-  --crm-card-border: var(--border-subtle);
-  --crm-assistant-bg: var(--bg-surface);
-  --crm-assistant-border: var(--border-subtle);
+  --crm-panel-bg: #ffffff;
+  --crm-panel-border: #dbe4ef;
+  --crm-action-bg: #ffffff;
+  --crm-action-border: #cbd5e1;
+  --crm-action-text: #334155;
+  --crm-action-hover-bg: #eef1f6;
+  --crm-action-hover-text: #0056B3;
+  --crm-board-bg: #f8fafc;
+  --crm-board-border: #dbe4ef;
+  --crm-stage-bg: #ffffff;
+  --crm-stage-border: #e2e8f0;
+  --crm-card-bg: #ffffff;
+  --crm-card-border: #dbe4ef;
+  --crm-assistant-bg: #ffffff;
+  --crm-assistant-border: #dbe4ef;
 
-  /* Radius & Shadows */
+  /* Radios y transiciones */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   --radius-full: 9999px;
 
-  --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-popover: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-
+  /* Tipografía */
+  font-family: var(--font-inter);
   color-scheme: light;
 }
 
+/* Tema Dark */
 [data-theme="dark"],
 .dark {
-  --bg-canvas: #040711;          /* Clientum Obsidian Dark */
-  --bg-surface: #0a0f1d;
-  --bg-card: #0d1527;
-  --text-primary: #ffffff;       /* WCAG AAA High Contrast */
-  --text-secondary: #cbd5e1;
-  --border-subtle: #141f33;
-  --color-primary: #0056B3;      /* Official Clientum Action Blue (#0056B3) */
-  --color-primary-hover: #002B5C;
-  --color-primary-light: rgba(0, 86, 179, 0.25);
-  --color-primary-text: #bfdbfe;
-  --color-action: #0056B3;       /* Official Clientum Action Blue (#0056B3) */
-  --color-action-hover: #002B5C;
-  --color-brand-navy: #022046;
-  --color-brand-action: #0056B3;
-  --color-brand-blue: #002B5C;
-  --color-success: #4CAF50;      /* Official Brand Success Green */
-  --color-success-light: rgba(76, 175, 80, 0.15);
-  --color-success-border: rgba(76, 175, 80, 0.3);
-  --color-warning: #f59e0b;
-  --color-warning-light: rgba(245, 158, 11, 0.15);
-  --color-warning-border: rgba(245, 158, 11, 0.3);
-  --color-danger: #ef4444;
-  --color-danger-light: rgba(239, 68, 68, 0.15);
-  --color-danger-border: rgba(239, 68, 68, 0.3);
+  /* Colores de marca (igual en ambos temas) */
+  --clientum-navy: #022046;
+  --clientum-blue: #002B5C;
+  --clientum-action: #0056B3;
+  --clientum-success: #4CAF50;
 
-  /* --------------------------------------------------------------------------
-     Sidebar High-Contrast Visual Separation (Dark Mode: Refined Obsidian)
-     Provides sharp contrast against cards and canvas in dark mode.
-     -------------------------------------------------------------------------- */
+  /* Superficies */
+  --clientum-surface: #040711;      /* Fondo principal (Obsidian Dark) */
+  --clientum-surface-card: #0d1527;
+  --clientum-surface-border: #1e2e4a;
+
+  /* Texto */
+  --clientum-ink: #f1f5f9;           /* Texto principal (High Contrast) */
+  --clientum-ink-secondary: #cbd5e1;
+  --clientum-ink-muted: #94a3b8;
+
+  /* Bordes */
+  --border-subtle: #141f33;
+  --border-default: #20324e;
+  --border-strong: #2d436a;
+
+  /* Sombras */
+  --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --shadow-popover: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+
+  /* CRM Dashboard Tokens (Dark Mode) */
+  --crm-bg: #040711;
+  --crm-surface: #0a0f1d;
+  --crm-surface-2: #0e1626;
+  --crm-surface-elevated: #111a2d;
+  --crm-border: #1c2d47;
+  --crm-border-soft: #142034;
+  --crm-border-strong: #2d436a;
+  --crm-muted: #8fa7bf;
+  --crm-text: #f8fafc;
+  --crm-text-primary: #ffffff;
+  --crm-text-secondary: #cbd5e1;
+  --crm-text-muted: #94a3b8;
+  --crm-cyan: #14b8a6;
+  --crm-cyan-glow: rgba(20, 184, 166, 0.35);
+  --crm-cyan-border: rgba(20, 184, 166, 0.45);
+  --crm-grid-gap: 12px;
+
+  /* Colores de componentes específicos (Dark Mode) */
+  --crm-kpi-bg: linear-gradient(145deg, #0e1627, #070e1a);
+  --crm-kpi-border: #1c2d47;
+  --crm-kpi-accent-bg: linear-gradient(145deg, rgba(16, 44, 58, 0.8), #08111f);
+  --crm-kpi-accent-border: rgba(20, 184, 166, 0.45);
+  --crm-panel-bg: linear-gradient(145deg, rgba(13, 21, 36, 0.98), rgba(8, 14, 26, 0.98));
+  --crm-panel-border: #1c2d47;
+  --crm-action-bg: rgba(12, 19, 34, 0.92);
+  --crm-action-border: #20324e;
+  --crm-action-text: #cbd5e1;
+  --crm-action-hover-bg: #16243d;
+  --crm-action-hover-text: #ffffff;
+  --crm-board-bg: rgba(7, 12, 22, 0.88);
+  --crm-board-border: #1b2b45;
+  --crm-stage-bg: linear-gradient(180deg, rgba(14, 23, 38, 0.94), rgba(9, 16, 28, 0.9));
+  --crm-stage-border: #192a43;
+  --crm-card-bg: linear-gradient(145deg, #111d31, #0c1524);
+  --crm-card-border: #1e314d;
+  --crm-assistant-bg: linear-gradient(180deg, #0b1322, #070d18);
+  --crm-assistant-border: #1b2c46;
+
+  /* Sidebar (Dark Mode: Refined Obsidian) */
   --sidebar-bg: #03060e;
   --sidebar-header-bg: #020409;
   --sidebar-footer-bg: #020409;
@@ -239,85 +277,49 @@ body {
   --sidebar-portal-btn-border: #1b2d4b;
   --sidebar-copilot-bg: linear-gradient(135deg, #071228 0%, #0a1b3d 100%);
   --sidebar-copilot-border: #152747;
-  --sidebar-card-text: #ffffff;
-  --sidebar-card-muted: #94a3b8;
 
-  /* CRM Dashboard & Component Tokens (Dark Mode Mappings) */
-  --crm-bg: var(--bg-canvas);
-  --crm-surface: var(--bg-surface);
-  --crm-surface-2: var(--bg-muted);
-  --crm-surface-elevated: var(--bg-surface-elevated);
-  --crm-border: var(--border-subtle);
-  --crm-border-soft: #142034;
-  --crm-border-strong: var(--border-strong);
-  --crm-muted: var(--text-muted);
-  --crm-text: var(--text-primary);
-  --crm-text-primary: var(--text-primary);
-  --crm-text-secondary: var(--text-secondary);
-  --crm-text-muted: var(--text-muted);
-  --crm-cyan: #0056B3;
-  --crm-cyan-glow: rgba(0, 86, 179, 0.35);
-  --crm-cyan-border: rgba(0, 86, 179, 0.45);
-  --crm-grid-gap: 12px;
-  --crm-kpi-bg: linear-gradient(145deg, #0e1627, #070e1a);
-  --crm-kpi-border: var(--border-subtle);
-  --crm-kpi-accent-bg: linear-gradient(145deg, rgba(16, 44, 58, 0.8), #08111f);
-  --crm-kpi-accent-border: rgba(0, 86, 179, 0.45);
-  --crm-panel-bg: linear-gradient(145deg, rgba(13, 21, 36, 0.98), rgba(8, 14, 26, 0.98));
-  --crm-panel-border: var(--border-subtle);
-  --crm-action-bg: rgba(12, 19, 34, 0.92);
-  --crm-action-border: var(--border-default);
-  --crm-action-text: var(--text-secondary);
-  --crm-action-hover-bg: #16243d;
-  --crm-action-hover-text: var(--text-primary);
-  --crm-board-bg: rgba(7, 12, 22, 0.88);
-  --crm-board-border: var(--border-subtle);
-  --crm-stage-bg: linear-gradient(180deg, rgba(14, 23, 38, 0.94), rgba(9, 16, 28, 0.9));
-  --crm-stage-border: var(--border-subtle);
-  --crm-card-bg: linear-gradient(145deg, #111d31, #0c1524);
-  --crm-card-border: var(--border-subtle);
-  --crm-assistant-bg: linear-gradient(180deg, #0b1322, #070d18);
-  --crm-assistant-border: var(--border-subtle);
-
+  /* Tipografía */
+  font-family: var(--font-inter);
   color-scheme: dark;
 }
 
-/* Global Application Baseline — Inter Typography Stack per Brand Manual */
+/* ==========================================================================
+   Estilos Globales Base
+   ========================================================================== */
 html,
 body,
 #root {
-  background-color: var(--bg-canvas);
-  color: var(--text-primary);
+  background-color: var(--clientum-surface);
+  color: var(--clientum-ink);
   min-height: 100vh;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-family: var(--font-inter);
   font-weight: 400;
   line-height: 1.5;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
-/* Headings Typography Hierarchy per Clientum Brand Manual v1.0 (Inter H1-H3 Stack) */
+/* tipografía para encabezados (Inter H1-H3) */
 h1, h2, h3, h4, h5, h6,
 .crm-heading {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-family: var(--font-inter);
   letter-spacing: -0.02em;
 }
 
 h1 {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
   font-weight: 700;
 }
 
 h2 {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
   font-weight: 600;
 }
 
 h3 {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
   font-weight: 500;
 }
 
-/* Custom Adaptive Scrollbars */
+/* Scrollbars personalizados */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -354,39 +356,41 @@ h3 {
   background: var(--border-strong);
 }
 
-/* High Contrast Sidebar Styling */
+/* Focus states para formularios */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--color-action);
+  outline-offset: 1px;
+}
+
+/* ==========================================================================
+   Estilos para el Sidebar de Clientum
+   ========================================================================== */
 #clientum-sidebar {
   background-color: var(--sidebar-bg) !important;
   border-right-color: var(--sidebar-border) !important;
   color: var(--sidebar-text-primary);
 }
 
-/* Form element focus states */
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible,
-button:focus-visible {
-  outline: 2px solid var(--border-focus);
-  outline-offset: 1px;
-}
-
 /* ==========================================================================
-   Clientum Clarity workspace surfaces
+   Estilos para el Dashboard de Clientum
    ========================================================================== */
 .crm-main-content {
-  background: var(--bg-canvas);
-  color: var(--text-primary);
+  background: var(--bg-canvas, var(--clientum-surface));
+  color: var(--text-primary, var(--clientum-ink));
 }
 
 .crm-top-navbar {
-  background: var(--bg-navbar);
+  background: var(--bg-surface, var(--clientum-surface-card));
   border-bottom: 1px solid var(--border-subtle);
-  color: var(--text-primary);
+  color: var(--text-primary, var(--clientum-ink));
 }
 
 .crm-top-navbar #dashboard-header-brand,
 .crm-top-navbar h1 {
-  color: var(--text-primary);
+  color: var(--text-primary, var(--clientum-ink));
 }
 
 .crm-top-navbar #dashboard-header-brand {
@@ -395,12 +399,12 @@ button:focus-visible {
 
 .crm-top-navbar .text-slate-900,
 .crm-top-navbar .text-slate-800 {
-  color: var(--text-primary) !important;
+  color: var(--text-primary, var(--clientum-ink)) !important;
 }
 
 .crm-top-navbar .text-slate-500,
 .crm-top-navbar .text-slate-400 {
-  color: var(--text-muted) !important;
+  color: var(--text-muted, var(--clientum-ink-muted)) !important;
 }
 
 .crm-top-navbar .border-slate-200,
@@ -416,11 +420,11 @@ button:focus-visible {
 
 .crm-top-navbar input,
 .crm-top-navbar select {
-  color: var(--text-primary) !important;
+  color: var(--text-primary, var(--clientum-ink)) !important;
 }
 
 .crm-top-navbar input::placeholder {
-  color: var(--text-muted) !important;
+  color: var(--text-muted, var(--clientum-ink-muted)) !important;
 }
 
 .crm-top-navbar .text-blue-700,
@@ -432,59 +436,41 @@ button:focus-visible {
   background: #eef1f6 !important;
 }
 
+/* ==========================================================================
+   Estilos para el Dashboard Principal (Executive View)
+   ========================================================================== */
 .crm-dashboard {
-  --crm-bg: #f8fafc;
-  --crm-surface: #ffffff;
-  --crm-surface-2: #f1f5f9;
-  --crm-surface-elevated: #ffffff;
-  --crm-border: #dbe4ef;
-  --crm-border-soft: #e8eef5;
-  --crm-border-strong: #94a3b8;
-  --crm-muted: #64748b;
-  --crm-text: #0f172a;
-  --crm-text-primary: #0f172a;
-  --crm-text-secondary: #334155;
-  --crm-text-muted: #64748b;
-  --crm-cyan: var(--color-action, #0056B3);
-  --crm-cyan-glow: rgba(0, 86, 179, 0.1);
-  --crm-cyan-border: rgba(0, 86, 179, 0.25);
-  --crm-grid-gap: 12px;
-  --crm-kpi-bg: #ffffff;
-  --crm-kpi-border: #dbe4ef;
-  --crm-kpi-accent-bg: #f0fdfa;
-  --crm-kpi-accent-border: #99f6e4;
-  --crm-panel-bg: #ffffff;
-  --crm-panel-border: #dbe4ef;
-  --crm-action-bg: #ffffff;
-  --crm-action-border: #cbd5e1;
-  --crm-action-text: #334155;
-  --crm-action-hover-bg: #eef1f6;
-  --crm-action-hover-text: #0056B3;
-  --crm-board-bg: #f8fafc;
-  --crm-board-border: #dbe4ef;
-  --crm-stage-bg: #ffffff;
-  --crm-stage-border: #e2e8f0;
-  --crm-card-bg: #ffffff;
-  --crm-card-border: #dbe4ef;
-  --crm-assistant-bg: #ffffff;
-  --crm-assistant-border: #dbe4ef;
+  --crm-bg: var(--clientum-surface);
+  --crm-surface: var(--clientum-surface-card);
+  --crm-surface-2: var(--crm-surface-2, #f1f5f9);
+  --crm-surface-elevated: var(--crm-surface-elevated, #ffffff);
+  --crm-border: var(--border-subtle);
+  --crm-border-soft: var(--crm-border-soft, #f1f5f9);
+  --crm-border-strong: var(--crm-border-strong, #94a3b8);
+  --crm-muted: var(--clientum-ink-muted);
+  --crm-text: var(--clientum-ink);
+  --crm-text-primary: var(--clientum-ink);
+  --crm-text-secondary: var(--clientum-ink-secondary);
+  --crm-text-muted: var(--clientum-ink-muted);
+  --crm-cyan: var(--color-action);
+  --crm-cyan-glow: rgba(0, 86, 179, 0.15);
+  --crm-cyan-border: rgba(0, 86, 179, 0.35);
+  --crm-grid-gap: var(--space-3, 12px);
+
   min-width: 0;
   min-height: 0;
   height: 100%;
   display: flex;
   overflow: hidden;
   background:
-    radial-gradient(circle at 28% -15%, rgba(10, 37, 88, .08), transparent 38%),
-    radial-gradient(circle at 88% 110%, rgba(14, 116, 144, .06), transparent 34%),
+    radial-gradient(circle at 28% -15%, rgba(10, 37, 88, 0.08), transparent 38%),
+    radial-gradient(circle at 88% 110%, rgba(14, 116, 144, 0.06), transparent 34%),
     var(--crm-bg);
   color: var(--crm-text);
   position: relative;
 }
 
-/* --------------------------------------------------------------------------
-   Refined Obsidian Dark Mode Palette for Dashboard and Sub-components
-   Provides deep contrast (WCAG AAA) for sidebar, cards, and canvas.
-   -------------------------------------------------------------------------- */
+/* Tema Dark para el Dashboard */
 [data-theme="dark"] .crm-dashboard,
 .dark .crm-dashboard,
 .crm-dashboard.dark {
@@ -504,28 +490,10 @@ button:focus-visible {
   --crm-cyan-glow: rgba(20, 184, 166, 0.35);
   --crm-cyan-border: rgba(20, 184, 166, 0.45);
   --crm-grid-gap: 12px;
-  --crm-kpi-bg: linear-gradient(145deg, #0e1627, #070e1a);
-  --crm-kpi-border: #1c2d47;
-  --crm-kpi-accent-bg: linear-gradient(145deg, rgba(16, 44, 58, 0.8), #08111f);
-  --crm-kpi-accent-border: rgba(20, 184, 166, 0.45);
-  --crm-panel-bg: linear-gradient(145deg, rgba(13, 21, 36, 0.98), rgba(8, 14, 26, 0.98));
-  --crm-panel-border: #1c2d47;
-  --crm-action-bg: rgba(12, 19, 34, 0.92);
-  --crm-action-border: #20324e;
-  --crm-action-text: #cbd5e1;
-  --crm-action-hover-bg: #16243d;
-  --crm-action-hover-text: #ffffff;
-  --crm-board-bg: rgba(7, 12, 22, 0.88);
-  --crm-board-border: #1b2b45;
-  --crm-stage-bg: linear-gradient(180deg, rgba(14, 23, 38, 0.94), rgba(9, 16, 28, 0.9));
-  --crm-stage-border: #192a43;
-  --crm-card-bg: linear-gradient(145deg, #111d31, #0c1524);
-  --crm-card-border: #1e314d;
-  --crm-assistant-bg: linear-gradient(180deg, #0b1322, #070d18);
-  --crm-assistant-border: #1b2c46;
+
   background:
-    radial-gradient(circle at 28% -15%, rgba(14, 165, 233, .05), transparent 38%),
-    radial-gradient(circle at 88% 110%, rgba(20, 184, 166, .05), transparent 34%),
+    radial-gradient(circle at 28% -15%, rgba(14, 165, 233, 0.05), transparent 38%),
+    radial-gradient(circle at 88% 110%, rgba(20, 184, 166, 0.05), transparent 34%),
     var(--crm-bg);
 }
 
@@ -537,6 +505,7 @@ button:focus-visible {
   padding: 27px 27px 32px;
 }
 
+/* Header del Dashboard */
 .crm-dashboard__header {
   display: flex;
   align-items: flex-start;
@@ -547,16 +516,16 @@ button:focus-visible {
 
 .crm-dashboard__header h1 {
   margin: 8px 0 5px;
-  color: var(--crm-text-primary, var(--text-primary));
+  color: var(--crm-text-primary);
   font-size: 23px;
   line-height: 1.1;
-  letter-spacing: -.04em;
+  letter-spacing: -0.04em;
   font-weight: 760;
 }
 
 .crm-dashboard__header p {
   margin: 0;
-  color: var(--crm-text-muted, var(--text-muted));
+  color: var(--crm-text-muted);
   font-size: 12px;
 }
 
@@ -564,10 +533,10 @@ button:focus-visible {
   display: flex;
   align-items: center;
   gap: 7px;
-  color: var(--crm-text-muted, var(--text-muted));
+  color: var(--crm-text-muted);
   font-size: 9px;
   font-weight: 750;
-  letter-spacing: .14em;
+  letter-spacing: 0.14em;
 }
 
 .crm-status-dot,
@@ -576,10 +545,11 @@ button:focus-visible {
   height: 6px;
   display: inline-block;
   border-radius: 999px;
-  background: var(--color-primary, #0056B3);
-  box-shadow: 0 0 11px var(--crm-cyan-glow, rgba(0, 86, 179, 0.25));
+  background: var(--color-action);
+  box-shadow: 0 0 11px var(--crm-cyan-glow);
 }
 
+/* Acciones del Dashboard */
 .crm-dashboard__actions,
 .crm-select-wrap {
   display: flex;
@@ -592,8 +562,8 @@ button:focus-visible {
 .crm-icon-button,
 .crm-ai-toggle {
   border: 1px solid var(--crm-action-border, var(--border-default));
-  background: var(--crm-action-bg, var(--bg-surface));
-  color: var(--crm-action-text, var(--text-secondary));
+  background: var(--crm-action-bg, var(--clientum-surface-card));
+  color: var(--crm-action-text, var(--clientum-ink-secondary));
   height: 34px;
   border-radius: 8px;
   padding: 0 11px;
@@ -604,32 +574,32 @@ button:focus-visible {
   font-size: 11px;
   font-weight: 650;
   cursor: pointer;
-  transition: .18s ease;
+  transition: 0.18s ease;
 }
 
 .crm-icon-button {
   width: 34px;
   padding: 0;
-  color: var(--crm-text-muted, var(--text-muted));
+  color: var(--crm-text-muted);
 }
 
 .crm-select-button:hover,
 .crm-icon-button:hover,
 .crm-ai-toggle:hover {
-  color: var(--crm-action-hover-text, var(--text-brand));
+  color: var(--crm-action-hover-text, var(--clientum-navy));
   border-color: var(--crm-border-strong, var(--border-strong));
-  background: var(--crm-action-hover-bg, var(--bg-card-hover));
+  background: var(--crm-action-hover-bg, var(--clientum-surface-card));
 }
 
 .crm-ai-toggle {
   padding: 0 12px;
-  color: var(--crm-cyan, var(--color-primary));
-  border-color: var(--crm-cyan-border, var(--border-subtle));
-  background: var(--crm-cyan-glow, rgba(0, 86, 179, 0.08));
+  color: var(--crm-cyan);
+  border-color: var(--crm-cyan-border);
+  background: var(--crm-cyan-glow);
 }
 
 .crm-ai-toggle svg {
-  color: var(--crm-cyan, var(--color-primary));
+  color: var(--crm-cyan);
 }
 
 .crm-ai-toggle .crm-online-pip {
@@ -638,6 +608,7 @@ button:focus-visible {
   margin-left: 1px;
 }
 
+/* Dropdowns */
 .crm-dropdown {
   position: absolute;
   z-index: 20;
@@ -646,9 +617,9 @@ button:focus-visible {
   min-width: 180px;
   padding: 6px;
   border-radius: 10px;
-  border: 1px solid var(--crm-border, var(--border-default));
-  background: var(--crm-surface-elevated, var(--bg-surface-elevated));
-  box-shadow: var(--shadow-popover, 0 18px 40px rgba(0, 0, 0, .15));
+  border: 1px solid var(--crm-border);
+  background: var(--crm-surface-elevated);
+  box-shadow: var(--shadow-popover);
 }
 
 .crm-dropdown button {
@@ -658,25 +629,129 @@ button:focus-visible {
   border: 0;
   border-radius: 6px;
   background: transparent;
-  color: var(--crm-text-secondary, var(--text-secondary));
+  color: var(--crm-text-secondary);
   text-align: left;
   font-size: 11px;
   cursor: pointer;
 }
 
 .crm-dropdown button:hover {
-  color: var(--crm-text-primary, var(--text-primary));
-  background: var(--crm-action-hover-bg, var(--bg-card-hover));
+  color: var(--crm-text-primary);
+  background: var(--crm-action-hover-bg);
 }
 
+/* ==========================================================================
+   Tarjetas KPI (Optimizadas con fondo degradado para highlight)
+   ========================================================================== */
+.crm-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--crm-grid-gap);
+  margin-bottom: 18px;
+}
+
+.crm-kpi-card {
+  min-width: 0;
+  padding: 14px 15px 13px;
+  border: 1px solid var(--crm-kpi-border);
+  border-radius: 11px;
+  background: var(--crm-kpi-bg);
+  box-shadow: var(--shadow-card);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.crm-kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-elevated);
+}
+
+/* Tarjeta KPI destacada (para métricas clave) */
+.crm-kpi-card--highlight {
+  border-color: var(--crm-kpi-accent-border);
+  background: linear-gradient(135deg, var(--color-action) 0%, var(--color-navy) 100%);
+  color: white;
+}
+
+.crm-kpi-card--highlight .crm-kpi-icon {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.crm-kpi-card--highlight strong {
+  color: white;
+}
+
+.crm-kpi-card--highlight small {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.crm-kpi-card--accent {
+  border-color: var(--crm-kpi-accent-border);
+  background: var(--crm-kpi-accent-bg);
+}
+
+.crm-kpi-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  color: var(--crm-text-muted);
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.crm-kpi-icon {
+  width: 29px;
+  height: 29px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--crm-cyan-border);
+  border-radius: 8px;
+  color: var(--crm-cyan);
+  background: var(--crm-cyan-glow);
+}
+
+.crm-kpi-card strong {
+  display: block;
+  margin-top: 12px;
+  color: var(--crm-text-primary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 22px;
+  letter-spacing: -0.06em;
+}
+
+.crm-kpi-card--accent strong {
+  color: var(--crm-cyan);
+}
+
+.crm-kpi-card small {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 4px;
+  color: var(--color-success);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.crm-kpi-card small em {
+  color: var(--crm-text-muted);
+  font-style: normal;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   Panel de Atención (Oportunidades y Tratos Estancados)
+   ========================================================================== */
 .crm-attention-panel {
   order: 2;
   margin: 0 0 18px;
   padding: 16px;
-  border: 1px solid var(--crm-panel-border, var(--border-subtle));
+  border: 1px solid var(--crm-panel-border);
   border-radius: 14px;
-  background: var(--crm-panel-bg, var(--bg-card));
-  box-shadow: var(--shadow-card, 0 12px 28px rgba(0, 0, 0, .08));
+  background: var(--crm-panel-bg);
+  box-shadow: var(--shadow-card);
 }
 
 .crm-attention-panel__header {
@@ -688,14 +763,14 @@ button:focus-visible {
 
 .crm-attention-panel__header h2 {
   margin: 4px 0 3px;
-  color: var(--crm-text-primary, var(--text-primary));
+  color: var(--crm-text-primary);
   font-size: 15px;
-  letter-spacing: -.025em;
+  letter-spacing: -0.025em;
 }
 
 .crm-attention-panel__header p {
   margin: 0;
-  color: var(--crm-text-muted, var(--text-muted));
+  color: var(--crm-text-muted);
   font-size: 10px;
 }
 
@@ -705,20 +780,20 @@ button:focus-visible {
   gap: 5px;
   flex: none;
   padding: 6px 8px;
-  border: 1px solid var(--crm-border, var(--border-subtle));
+  border: 1px solid var(--crm-border);
   border-radius: 7px;
-  background: var(--crm-cyan-glow, rgba(0, 86, 179, 0.08));
-  color: var(--crm-cyan, var(--color-primary));
+  background: var(--crm-cyan-glow);
+  color: var(--crm-cyan);
   font-size: 10px;
   font-weight: 700;
   cursor: pointer;
-  transition: .18s ease;
+  transition: 0.18s ease;
 }
 
 .crm-report-link:hover {
-  border-color: var(--crm-cyan-border, var(--border-strong));
-  background: var(--crm-cyan-glow, rgba(0, 86, 179, 0.15));
-  color: var(--crm-cyan, var(--color-primary));
+  border-color: var(--crm-cyan-border);
+  background: var(--crm-cyan-glow);
+  color: var(--crm-cyan);
 }
 
 .crm-attention-list {
@@ -732,15 +807,15 @@ button:focus-visible {
   display: flex;
   align-items: stretch;
   min-width: 0;
-  border: 1px solid var(--crm-card-border, var(--border-subtle));
+  border: 1px solid var(--crm-card-border);
   border-radius: 10px;
-  background: var(--crm-surface-2, var(--bg-card));
-  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+  background: var(--crm-surface-2);
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
 }
 
 .crm-attention-item:hover {
-  border-color: var(--crm-border-strong, var(--border-strong));
-  background: var(--crm-action-hover-bg, var(--bg-card-hover));
+  border-color: var(--crm-border-strong);
+  background: var(--crm-action-hover-bg);
   transform: translateY(-1px);
 }
 
@@ -765,16 +840,16 @@ button:focus-visible {
   flex: none;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--crm-cyan-border, rgba(0, 86, 179, 0.25));
+  border: 1px solid var(--crm-cyan-border);
   border-radius: 8px;
-  color: var(--crm-cyan, var(--color-primary));
-  background: var(--crm-cyan-glow, rgba(0, 86, 179, 0.1));
+  color: var(--crm-cyan);
+  background: var(--crm-cyan-glow);
 }
 
 .crm-attention-item__icon.is-warning {
-  border-color: rgba(245, 158, 11, .3);
+  border-color: rgba(245, 158, 11, 0.3);
   color: #fbbf24;
-  background: rgba(245, 158, 11, .1);
+  background: rgba(245, 158, 11, 0.1);
 }
 
 .crm-attention-item__body {
@@ -786,7 +861,7 @@ button:focus-visible {
 
 .crm-attention-item__body strong {
   overflow: hidden;
-  color: var(--crm-text-primary, var(--text-primary));
+  color: var(--crm-text-primary);
   font-size: 10px;
   font-weight: 700;
   text-overflow: ellipsis;
@@ -794,7 +869,7 @@ button:focus-visible {
 }
 
 .crm-attention-item__body small {
-  color: var(--crm-text-muted, var(--text-muted));
+  color: var(--crm-text-muted);
   font-size: 9px;
 }
 
@@ -810,18 +885,18 @@ button:focus-visible {
   height: 25px;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--crm-border, var(--border-subtle));
+  border: 1px solid var(--crm-border);
   border-radius: 7px;
   background: transparent;
-  color: var(--crm-text-muted, var(--text-muted));
+  color: var(--crm-text-muted);
   cursor: pointer;
-  transition: .18s ease;
+  transition: 0.18s ease;
 }
 
 .crm-attention-item__action button:hover {
-  border-color: var(--crm-cyan, var(--color-primary));
-  color: var(--crm-cyan, var(--color-primary));
-  background: var(--crm-cyan-glow, rgba(0, 86, 179, 0.08));
+  border-color: var(--crm-cyan);
+  color: var(--crm-cyan);
+  background: var(--crm-cyan-glow);
 }
 
 .crm-attention-empty {
@@ -831,9 +906,9 @@ button:focus-visible {
   justify-content: center;
   gap: 7px;
   min-height: 54px;
-  border: 1px dashed var(--crm-border, var(--border-subtle));
+  border: 1px dashed var(--crm-border);
   border-radius: 10px;
-  color: var(--crm-text-muted, var(--text-muted));
+  color: var(--crm-text-muted);
   font-size: 10px;
 }
 
@@ -843,27 +918,27 @@ button:focus-visible {
   padding: 3px 2px;
   border: 0;
   background: transparent;
-  color: var(--crm-cyan, var(--color-primary));
+  color: var(--crm-cyan);
   font-size: 10px;
   font-weight: 700;
   cursor: pointer;
 }
 
 .crm-attention-more:hover {
-  color: var(--crm-action-hover-text, var(--text-brand));
+  color: var(--crm-action-hover-text);
 }
 
 .crm-stale-deals {
   margin-top: 12px;
   padding-top: 11px;
-  border-top: 1px solid var(--crm-border-soft, var(--border-subtle));
+  border-top: 1px solid var(--crm-border-soft);
 }
 
 .crm-stale-deals__label {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: var(--crm-text-muted, var(--text-muted));
+  color: var(--crm-text-muted);
   font-size: 10px;
   font-weight: 700;
 }
@@ -882,19 +957,19 @@ button:focus-visible {
   justify-content: space-between;
   gap: 8px;
   padding: 7px 9px;
-  border: 1px solid var(--crm-border, var(--border-subtle));
+  border: 1px solid var(--crm-border);
   border-radius: 8px;
-  background: var(--crm-surface-2, var(--bg-card));
-  color: var(--crm-text-secondary, var(--text-secondary));
+  background: var(--crm-surface-2);
+  color: var(--crm-text-secondary);
   text-align: left;
   cursor: pointer;
-  transition: .18s ease;
+  transition: 0.18s ease;
 }
 
 .crm-stale-deals__list button:hover {
-  border-color: var(--crm-border-strong, var(--border-strong));
-  color: var(--crm-text-primary, var(--text-primary));
-  background: var(--crm-action-hover-bg, var(--bg-card-hover));
+  border-color: var(--crm-border-strong);
+  color: var(--crm-text-primary);
+  background: var(--crm-action-hover-bg);
 }
 
 .crm-stale-deals__list span {
@@ -906,18 +981,21 @@ button:focus-visible {
 
 .crm-stale-deals__list strong {
   flex: none;
-  color: var(--crm-cyan, var(--color-primary));
+  color: var(--crm-cyan);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 9px;
 }
 
+/* ==========================================================================
+   Pipeline Kanban (con barra de progreso)
+   ========================================================================== */
 .crm-board-shell {
   margin-bottom: 18px;
   padding: 1px;
-  border: 1px solid var(--crm-board-border, var(--border-subtle));
+  border: 1px solid var(--crm-board-border);
   border-radius: 15px;
-  background: var(--crm-board-bg, var(--bg-canvas));
-  box-shadow: var(--shadow-card, 0 18px 40px rgba(0,0,0,.06));
+  background: var(--crm-board-bg);
+  box-shadow: var(--shadow-card);
 }
 
 .crm-board-scroll {
@@ -932,25 +1010,47 @@ button:focus-visible {
   min-width: 0;
   min-height: 338px;
   padding: 10px 9px 8px;
-  border: 1px solid var(--crm-stage-border, var(--border-subtle));
+  border: 1px solid var(--crm-stage-border);
   border-radius: 11px;
-  background: var(--crm-stage-bg, var(--bg-surface));
+  background: var(--crm-stage-bg);
+  position: relative; /* Para la barra de progreso */
 }
 
 .crm-stage:hover {
   border-color: color-mix(in srgb, var(--stage-color), var(--border-strong) 40%);
 }
 
+/* Barra de progreso en el header de cada etapa */
 .crm-stage__header {
   padding: 2px 4px 10px;
-  border-bottom: 1px solid var(--crm-border-soft, var(--border-subtle));
+  border-bottom: 1px solid var(--crm-border-soft);
+  position: relative;
+}
+
+.crm-stage__progress {
+  height: 4px;
+  background: rgba(0, 86, 179, 0.1);
+  border-radius: 2px;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.crm-stage__progress::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 4px;
+  background: var(--color-action);
+  border-radius: 2px;
+  width: 60%; /* Ajustar dinámicamente según el % de avance */
 }
 
 .crm-stage__title {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: var(--crm-text-primary, var(--text-primary));
+  color: var(--crm-text-primary);
   font-size: 11px;
   font-weight: 750;
 }
@@ -980,7 +1080,7 @@ button:focus-visible {
 .crm-stage__total {
   display: block;
   margin-top: 5px;
-  color: var(--crm-text-muted, var(--text-muted));
+  color: var(--crm-text-muted);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 10px;
 }
@@ -992,20 +1092,23 @@ button:focus-visible {
   overflow-y: auto;
 }
 
+/* ==========================================================================
+   Tarjetas de Oportunidades (Deals)
+   ========================================================================== */
 .crm-deal-card {
   margin-bottom: 7px;
   padding: 9px 9px 8px;
-  border: 1px solid var(--crm-card-border, var(--border-subtle));
+  border: 1px solid var(--crm-card-border);
   border-radius: 8px;
-  background: var(--crm-card-bg, var(--bg-card));
+  background: var(--crm-card-bg);
   cursor: grab;
-  transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease;
+  transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
 }
 
 .crm-deal-card:hover {
-  border-color: var(--crm-border-strong, var(--border-strong));
+  border-color: var(--crm-border-strong);
   transform: translateY(-1px);
-  box-shadow: var(--shadow-elevated, 0 8px 18px rgba(0, 0, 0, .08));
+  box-shadow: var(--shadow-elevated);
 }
 
 .crm-deal-card:active {
@@ -1016,17 +1119,17 @@ button:focus-visible {
   display: flex;
   justify-content: space-between;
   gap: 4px;
-  color: var(--crm-text-muted, var(--text-muted));
+  color: var(--crm-text-muted);
   font-size: 9px;
 }
 
 .crm-deal-card__top svg {
-  color: var(--crm-text-muted, var(--text-muted));
+  color: var(--crm-text-muted);
 }
 
 .crm-deal-card h3 {
   margin: 6px 0 10px;
-  color: var(--crm-text-primary, var(--text-primary));
+  color: var(--crm-text-primary);
   font-size: 11px;
   line-height: 1.25;
   font-weight: 650;
@@ -1040,11 +1143,11 @@ button:focus-visible {
   align-items: center;
   justify-content: space-between;
   padding-top: 7px;
-  border-top: 1px solid var(--crm-border-soft, var(--border-subtle));
+  border-top: 1px solid var(--crm-border-soft);
 }
 
 .crm-deal-card__footer strong {
-  color: var(--crm-text-secondary, var(--text-secondary));
+  color: var(--crm-text-secondary);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 10px;
   font-weight: 650;
@@ -1059,7 +1162,7 @@ button:focus-visible {
 .crm-deal-card__person img {
   width: 19px;
   height: 19px;
-  border: 1px solid var(--crm-border, var(--border-subtle));
+  border: 1px solid var(--crm-border);
   border-radius: 50%;
   object-fit: cover;
 }
@@ -1068,7 +1171,7 @@ button:focus-visible {
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  color: var(--color-success, #10b981);
+  color: var(--color-success);
   font-size: 8px;
   font-weight: 700;
 }
@@ -1080,105 +1183,37 @@ button:focus-visible {
   align-items: center;
   justify-content: center;
   gap: 5px;
-  border: 1px dashed var(--crm-border, var(--border-subtle));
+  border: 1px dashed var(--crm-border);
   border-radius: 7px;
   background: transparent;
-  color: var(--crm-text-muted, var(--text-muted));
+  color: var(--crm-text-muted);
   font-size: 10px;
   font-weight: 650;
   cursor: pointer;
-  transition: .18s ease;
+  transition: 0.18s ease;
 }
 
 .crm-new-deal:hover {
-  border-color: var(--crm-cyan, var(--color-primary));
-  color: var(--crm-cyan, var(--color-primary));
-  background: var(--crm-cyan-glow, rgba(0, 86, 179, 0.06));
+  border-color: var(--crm-cyan);
+  color: var(--crm-cyan);
+  background: var(--crm-cyan-glow);
 }
 
-.crm-kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--crm-grid-gap, 12px);
-  margin-bottom: 18px;
-}
-
-.crm-kpi-card {
-  min-width: 0;
-  padding: 14px 15px 13px;
-  border: 1px solid var(--crm-kpi-border, var(--border-subtle));
-  border-radius: 11px;
-  background: var(--crm-kpi-bg, var(--bg-card));
-  box-shadow: var(--shadow-card, 0 10px 25px rgba(0, 0, 0, .06));
-}
-
-.crm-kpi-card--accent {
-  border-color: var(--crm-kpi-accent-border, var(--border-default));
-  background: var(--crm-kpi-accent-bg, var(--bg-card));
-}
-
-.crm-kpi-card__head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  color: var(--crm-text-muted, var(--text-muted));
-  font-size: 10px;
-  font-weight: 650;
-}
-
-.crm-kpi-icon {
-  width: 29px;
-  height: 29px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--crm-cyan-border, var(--border-subtle));
-  border-radius: 8px;
-  color: var(--crm-cyan, var(--color-primary));
-  background: var(--crm-cyan-glow, rgba(0, 86, 179, 0.08));
-}
-
-.crm-kpi-card strong {
-  display: block;
-  margin-top: 12px;
-  color: var(--crm-text-primary, var(--text-primary));
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 22px;
-  letter-spacing: -.06em;
-}
-
-.crm-kpi-card--accent strong {
-  color: var(--crm-cyan, var(--color-primary));
-}
-
-.crm-kpi-card small {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  margin-top: 4px;
-  color: var(--color-success, #10b981);
-  font-size: 9px;
-  font-weight: 700;
-}
-
-.crm-kpi-card small em {
-  color: var(--crm-text-muted, var(--text-muted));
-  font-style: normal;
-  font-weight: 500;
-}
-
+/* ==========================================================================
+   Gráficos y Paneles de Analítica
+   ========================================================================== */
 .crm-analytics-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.7fr) minmax(270px, 1fr);
-  gap: var(--crm-grid-gap, 12px);
+  gap: var(--crm-grid-gap);
 }
 
 .crm-panel {
   min-width: 0;
   padding: 17px 18px 14px;
-  border: 1px solid var(--crm-panel-border, var(--border-subtle));
+  border: 1px solid var(--crm-panel-border);
   border-radius: 12px;
-  background: var(--crm-panel-bg, var(--bg-card));
+  background: var(--crm-panel-bg);
 }
 
 .crm-panel__header {
@@ -1192,18 +1227,18 @@ button:focus-visible {
   display: flex;
   align-items: center;
   gap: 7px;
-  color: var(--crm-text-primary, var(--text-primary));
+  color: var(--crm-text-primary);
   font-size: 12px;
   font-weight: 750;
 }
 
 .crm-panel__title > svg {
-  color: var(--crm-cyan, var(--color-primary));
+  color: var(--crm-cyan);
 }
 
 .crm-panel__header p {
   margin: 5px 0 0 23px;
-  color: var(--crm-text-muted, var(--text-muted));
+  color: var(--crm-text-muted);
   font-size: 10px;
 }
 
@@ -1211,8 +1246,8 @@ button:focus-visible {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--color-primary, #0056B3);
-  box-shadow: 0 0 9px var(--crm-cyan-glow, rgba(0, 86, 179, 0.2));
+  background: var(--color-primary);
+  box-shadow: 0 0 9px var(--crm-cyan-glow);
 }
 
 .crm-period {
@@ -1221,10 +1256,10 @@ button:focus-visible {
   gap: 4px;
   margin-left: 8px;
   padding: 5px 7px;
-  border: 1px solid var(--crm-border, var(--border-subtle));
+  border: 1px solid var(--crm-border);
   border-radius: 5px;
-  background: var(--crm-surface-2, var(--bg-surface));
-  color: var(--crm-text-muted, var(--text-muted));
+  background: var(--crm-surface-2);
+  color: var(--crm-text-muted);
   font-size: 9px;
   font-weight: 600;
   cursor: pointer;
@@ -1237,26 +1272,39 @@ button:focus-visible {
 .crm-panel__total span,
 .crm-panel__total small {
   display: block;
-  color: var(--crm-text-muted, var(--text-muted));
+  color: var(--crm-text-muted);
   font-size: 9px;
 }
 
 .crm-panel__total strong {
   display: block;
   margin: 3px 0 2px;
-  color: var(--crm-cyan, var(--color-primary));
+  color: var(--crm-cyan);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 15px;
 }
 
 .crm-panel__total small {
-  color: var(--color-success, #10b981);
+  color: var(--color-success);
   font-size: 9px;
 }
 
 .crm-revenue-chart {
   height: 190px;
   margin-top: 13px;
+  position: relative; /* Para la línea de meta */
+}
+
+/* Línea de meta en el gráfico de ingresos */
+.crm-revenue-chart::after {
+  content: "";
+  position: absolute;
+  top: 30%; /* Ajustar según el valor de la meta */
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--color-success);
+  opacity: 0.7;
 }
 
 .crm-sources-content {
@@ -1283,13 +1331,13 @@ button:focus-visible {
 }
 
 .crm-donut strong {
-  color: var(--crm-text-primary, var(--text-primary));
+  color: var(--crm-text-primary);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 21px;
 }
 
 .crm-donut span {
-  color: var(--crm-text-muted, var(--text-muted));
+  color: var(--crm-text-muted);
   font-size: 9px;
 }
 
@@ -1303,7 +1351,7 @@ button:focus-visible {
   justify-content: space-between;
   gap: 8px;
   margin: 10px 0;
-  color: var(--crm-text-secondary, var(--text-secondary));
+  color: var(--crm-text-secondary);
   font-size: 10px;
 }
 
@@ -1320,40 +1368,27 @@ button:focus-visible {
 }
 
 .crm-source-list strong {
-  color: var(--crm-text-primary, var(--text-primary));
+  color: var(--crm-text-primary);
   font-size: 10px;
 }
 
 .crm-source-list em {
-  color: var(--crm-text-muted, var(--text-muted));
+  color: var(--crm-text-muted);
   font-style: normal;
   font-weight: 500;
 }
 
-.crm-report-link {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 6px;
-  width: 100%;
-  padding-top: 12px;
-  border: 0;
-  border-top: 1px solid var(--crm-border-soft, var(--border-subtle));
-  background: transparent;
-  color: var(--crm-cyan, var(--color-primary));
-  font-size: 10px;
-  font-weight: 650;
-  cursor: pointer;
-}
-
+/* ==========================================================================
+   Asistente de IA (Chat)
+   ========================================================================== */
 .crm-assistant {
   width: 345px;
   flex: 0 0 345px;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  border-left: 1px solid var(--crm-assistant-border, var(--border-subtle));
-  background: var(--crm-assistant-bg, var(--bg-surface));
+  border-left: 1px solid var(--crm-assistant-border);
+  background: var(--crm-assistant-bg);
 }
 
 .crm-assistant__header {
@@ -1361,7 +1396,7 @@ button:focus-visible {
   align-items: center;
   justify-content: space-between;
   padding: 16px 17px 14px;
-  border-bottom: 1px solid var(--crm-border-soft, var(--border-subtle));
+  border-bottom: 1px solid var(--crm-border-soft);
 }
 
 .crm-assistant__identity {
@@ -1377,11 +1412,11 @@ button:focus-visible {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--crm-cyan-border, rgba(0, 86, 179, 0.4));
+  border: 1px solid var(--crm-cyan-border);
   border-radius: 10px;
-  color: var(--crm-cyan, var(--color-primary));
-  background: var(--crm-cyan-glow, rgba(0, 86, 179, 0.12));
-  box-shadow: 0 0 18px var(--crm-cyan-glow, rgba(0, 86, 179, 0.12));
+  color: var(--crm-cyan);
+  background: var(--crm-cyan-glow);
+  box-shadow: 0 0 18px var(--crm-cyan-glow);
 }
 
 .crm-assistant__avatar span {
@@ -1390,9 +1425,9 @@ button:focus-visible {
   bottom: -2px;
   width: 8px;
   height: 8px;
-  border: 2px solid var(--bg-surface, #ffffff);
+  border: 2px solid var(--clientum-surface-card, #ffffff);
   border-radius: 50%;
-  background: var(--color-success, #10b981);
+  background: var(--color-success);
 }
 
 .crm-assistant__identity strong,
@@ -1401,13 +1436,13 @@ button:focus-visible {
 }
 
 .crm-assistant__identity strong {
-  color: var(--crm-text-primary, var(--text-primary));
+  color: var(--crm-text-primary);
   font-size: 12px;
 }
 
 .crm-assistant__identity small {
   margin-top: 3px;
-  color: var(--color-success, #10b981);
+  color: var(--color-success);
   font-size: 9px;
   font-weight: 650;
 }
@@ -1427,14 +1462,14 @@ button:focus-visible {
   border: 0;
   border-radius: 7px;
   background: transparent;
-  color: var(--crm-text-muted, var(--text-muted));
+  color: var(--crm-text-muted);
   cursor: pointer;
 }
 
 .crm-assistant__tools button:hover,
 .crm-assistant__composer button:hover {
-  color: var(--crm-text-primary, var(--text-primary));
-  background: var(--crm-action-hover-bg, var(--bg-card-hover));
+  color: var(--crm-text-primary);
+  background: var(--crm-action-hover-bg);
 }
 
 .crm-assistant__intro {
@@ -1442,12 +1477,12 @@ button:focus-visible {
   align-items: center;
   gap: 6px;
   margin: 13px 16px 3px;
-  color: var(--crm-text-muted, var(--text-muted));
+  color: var(--crm-text-muted);
   font-size: 9px;
 }
 
 .crm-assistant__intro svg {
-  color: var(--crm-cyan, var(--color-primary));
+  color: var(--crm-cyan);
 }
 
 .crm-assistant__messages {
@@ -1461,10 +1496,10 @@ button:focus-visible {
   width: fit-content;
   margin: 5px auto 13px;
   padding: 4px 10px;
-  border: 1px solid var(--crm-border, var(--border-subtle));
+  border: 1px solid var(--crm-border);
   border-radius: 999px;
-  color: var(--crm-text-muted, var(--text-muted));
-  background: var(--crm-surface-2, var(--bg-surface));
+  color: var(--crm-text-muted);
+  background: var(--crm-surface-2);
   font-size: 9px;
 }
 
@@ -1481,17 +1516,17 @@ button:focus-visible {
 .crm-message__bubble {
   max-width: 90%;
   padding: 10px 11px 8px;
-  border: 1px solid var(--crm-border, var(--border-subtle));
+  border: 1px solid var(--crm-border);
   border-radius: 11px 11px 11px 3px;
-  background: var(--crm-surface-2, var(--bg-surface));
-  color: var(--crm-text-primary, var(--text-primary));
-  box-shadow: var(--shadow-card, 0 7px 16px rgba(0,0,0,.08));
+  background: var(--crm-surface-2);
+  color: var(--crm-text-primary);
+  box-shadow: var(--shadow-card);
 }
 
 .crm-message--user .crm-message__bubble {
-  border-color: var(--crm-cyan-border, rgba(0, 86, 179, 0.35));
+  border-color: var(--crm-cyan-border);
   border-radius: 11px 11px 3px 11px;
-  background: var(--color-primary, #0056B3);
+  background: var(--color-primary);
   color: #ffffff;
 }
 
@@ -1508,7 +1543,7 @@ button:focus-visible {
   justify-content: flex-end;
   gap: 3px;
   margin-top: 5px;
-  color: var(--crm-text-muted, var(--text-muted));
+  color: var(--crm-text-muted);
   font-size: 8px;
 }
 
@@ -1522,24 +1557,24 @@ button:focus-visible {
   gap: 4px;
   width: 45px;
   padding: 10px;
-  border: 1px solid var(--crm-border, var(--border-subtle));
+  border: 1px solid var(--crm-border);
   border-radius: 11px 11px 11px 3px;
-  background: var(--crm-surface-2, var(--bg-surface));
+  background: var(--crm-surface-2);
 }
 
 .crm-message__typing i {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: var(--crm-cyan, var(--color-primary));
+  background: var(--crm-cyan);
   animation: crm-bounce 1.2s infinite ease-in-out;
 }
 
-.crm-message__typing i:nth-child(2) { animation-delay: .15s; }
-.crm-message__typing i:nth-child(3) { animation-delay: .3s; }
+.crm-message__typing i:nth-child(2) { animation-delay: 0.15s; }
+.crm-message__typing i:nth-child(3) { animation-delay: 0.3s; }
 
 @keyframes crm-bounce {
-  0%, 60%, 100% { transform: translateY(0); opacity: .45; }
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.45; }
   30% { transform: translateY(-3px); opacity: 1; }
 }
 
@@ -1548,8 +1583,8 @@ button:focus-visible {
   align-items: center;
   gap: 5px;
   padding: 10px 12px;
-  border-top: 1px solid var(--crm-border-soft, var(--border-subtle));
-  background: var(--crm-surface, var(--bg-surface));
+  border-top: 1px solid var(--crm-border-soft);
+  background: var(--crm-surface);
 }
 
 .crm-assistant__composer input {
@@ -1557,31 +1592,32 @@ button:focus-visible {
   flex: 1;
   height: 32px;
   padding: 0 10px;
-  border: 1px solid var(--crm-border, var(--border-default));
+  border: 1px solid var(--crm-border);
   border-radius: 8px;
   outline: 0;
-  background: var(--crm-surface-2, var(--bg-input));
-  color: var(--crm-text-primary, var(--text-primary));
+  background: var(--crm-surface-2);
+  color: var(--crm-text-primary);
   font-size: 10px;
 }
 
 .crm-assistant__composer input::placeholder {
-  color: var(--crm-text-muted, var(--text-muted));
+  color: var(--crm-text-muted);
 }
 
 .crm-assistant__composer input:focus {
-  border-color: var(--color-primary, #0056B3);
-  box-shadow: 0 0 0 2px var(--crm-cyan-glow, rgba(0, 86, 179, 0.15));
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--crm-cyan-glow);
 }
 
+/* Botón de enviar (destacado) */
 .crm-send-button {
-  background: var(--color-primary, #0056B3) !important;
+  background: var(--color-primary) !important;
   color: #ffffff !important;
   border-radius: 50% !important;
 }
 
 .crm-send-button:hover {
-  background: var(--color-primary-hover, #004494) !important;
+  background: var(--color-primary-hover) !important;
 }
 
 .crm-chat-reopen {
@@ -1592,27 +1628,153 @@ button:focus-visible {
   align-items: center;
   gap: 7px;
   padding: 10px 13px;
-  border: 1px solid var(--crm-cyan-border, var(--border-default));
+  border: 1px solid var(--crm-cyan-border);
   border-radius: 9px;
-  background: var(--crm-action-bg, var(--bg-surface-elevated));
-  color: var(--crm-cyan, var(--color-primary));
+  background: var(--crm-action-bg);
+  color: var(--crm-cyan);
   font-size: 11px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: var(--shadow-elevated, 0 10px 25px rgba(0,0,0,.15));
+  box-shadow: var(--shadow-elevated);
 }
 
 .crm-chat-reopen:hover {
-  background: var(--crm-action-hover-bg, var(--bg-card-hover));
-  color: var(--crm-action-hover-text, var(--text-brand));
+  background: var(--crm-action-hover-bg);
+  color: var(--crm-action-hover-text);
+}
+
+/* Fondo del asistente (backdrop) */
+.crm-assistant-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+}
+
+/* Posicionamiento del asistente */
+.crm-assistant {
+  position: absolute;
+  inset: 0 0 0 auto;
+  z-index: 20;
+  width: min(345px, 100%);
+  flex: none;
 }
 
 /* ==========================================================================
-   Responsive Grid & Layout Adjustments
-   Optimized for Tablets (Landscape 1024px, Portrait 768px-834px) & Smaller Screens
-   Adjusts gap tokens and font-sizes for clean readability and balanced density.
+   Compatibilidad con Dashboards Antiguos (Light Mode)
+   ========================================================================== */
+html[data-theme="light"] .clientum-light-dashboard {
+  background: var(--clientum-surface, #F5F7FA) !important;
+  color: var(--clientum-ink, #212121) !important;
+  font-family: var(--font-inter) !important;
+}
+
+html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar {
+  background: #ffffff !important;
+  color: #0f172a;
+}
+
+html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar [class*="bg-slate-"] {
+  background-color: #f8fafc !important;
+}
+
+html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar [class*="bg-slate-950"],
+html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar [class*="bg-slate-900"] {
+  background-color: #ffffff !important;
+}
+
+html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar [class*="text-white"] {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar [class*="text-slate-"] {
+  color: #475569 !important;
+}
+
+html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar [class*="border-slate-"] {
+  border-color: #e2e8f0 !important;
+}
+
+html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar [class*="hover:bg-slate-"]:hover {
+  background-color: #eef1f6 !important;
+}
+
+/* ==========================================================================
+   Estilos para High Contrast (WCAG AAA)
+   ========================================================================== */
+.contrast-aaa {
+  --border-subtle: #475569 !important;
+  --border-strong: #0f172a !important;
+}
+
+.dark.contrast-aaa,
+[data-theme="dark"].contrast-aaa {
+  --border-subtle: #475569 !important;
+  --border-strong: #94a3b8 !important;
+  --crm-card-border: #475569 !important;
+  --crm-panel-border: #475569 !important;
+  --crm-kpi-border: #475569 !important;
+  --crm-board-border: #475569 !important;
+  --crm-stage-border: #475569 !important;
+  --text-secondary: #f1f5f9 !important;
+  --text-muted: #cbd5e1 !important;
+  --crm-text-secondary: #f1f5f9 !important;
+  --crm-text-muted: #cbd5e1 !important;
+}
+
+/* ==========================================================================
+   Transiciones Suaves para Cambio de Tema
+   ========================================================================== */
+.crm-dashboard,
+.crm-kpi-card,
+.crm-panel,
+.crm-deal-card,
+.crm-stage,
+.crm-assistant,
+#clientum-sidebar,
+.crm-top-navbar {
+  transition:
+    background 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* ==========================================================================
+   Estilos de Scrollbar
+   ========================================================================== */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border-subtle, #e2e8f0);
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong, #cbd5e1);
+}
+
+/* ==========================================================================
+   Responsive Design: Breakpoints para Móviles, Tablets y Desktop
    ========================================================================== */
 
+/* Desktop (1200px - 1024px) */
 @media (max-width: 1200px) {
   .crm-assistant {
     width: 300px;
@@ -1626,7 +1788,7 @@ button:focus-visible {
   }
 }
 
-/* Tablet Landscape (769px to 1024px, e.g. iPad landscape / 1024px viewports) */
+/* Tablet Landscape (1024px - 769px) */
 @media (min-width: 769px) and (max-width: 1024px) {
   .crm-kpi-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1677,7 +1839,7 @@ button:focus-visible {
   }
 }
 
-/* Tablet & Smaller Layout Breakpoint (max-width: 900px) */
+/* Tablet & Smaller Layout (900px) */
 @media (max-width: 900px) {
   .crm-dashboard__header {
     flex-direction: column;
@@ -1706,7 +1868,7 @@ button:focus-visible {
   }
 }
 
-/* Tablet Portrait (481px to 768px, e.g. iPad portrait 768px) */
+/* Tablet Portrait (768px - 481px) */
 @media (min-width: 481px) and (max-width: 768px) {
   .crm-dashboard__content {
     padding: 18px 14px 24px;
@@ -1760,7 +1922,7 @@ button:focus-visible {
   }
 }
 
-/* Mobile Screens (max-width: 480px) */
+/* Mobile (480px) */
 @media (max-width: 480px) {
   .crm-dashboard__content {
     padding: 14px 10px 20px;
@@ -1830,449 +1992,115 @@ button:focus-visible {
   }
 }
 
-/* ==========================================================================
-   Clientum Clarity — light-only dashboard compatibility layer
-   Several older dashboard views still carry dark utility classes. Keeping
-   this layer at the end lets every menu route share the same light surface
-   while those views are gradually modernized.
-   ========================================================================== */
-html[data-theme="light"] .clientum-light-dashboard {
-  background: var(--clientum-surface, #F5F7FA) !important;
-  color: var(--clientum-ink, #212121) !important;
-  font-family: var(--font-inter) !important;
-}
-
-html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar {
-  background: #ffffff !important;
-  color: #0f172a;
-}
-
-html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar [class*="bg-slate-"] {
-  background-color: #f8fafc !important;
-}
-
-html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar [class*="bg-slate-950"],
-html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar [class*="bg-slate-900"] {
-  background-color: #ffffff !important;
-}
-
-html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar [class*="text-white"] {
-  color: #0f172a !important;
-}
-
-html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar [class*="text-slate-"] {
-  color: #475569 !important;
-}
-
-html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar [class*="border-slate-"] {
-  border-color: #e2e8f0 !important;
-}
-
-html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar [class*="hover:bg-slate-"]:hover {
-  background-color: #eef1f6 !important;
-}
-
-html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar [class*="bg-blue-600"][class*="text-white"],
-html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar [class*="bg-blue-600"] [class*="text-white"],
-html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar #sidebar-quick-create-btn,
-html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar #sidebar-quick-create-btn svg {
-  color: #ffffff !important;
-}
-
-html[data-theme="light"] .clientum-light-dashboard #sidebar-brand-logo-placeholder > div {
-  background: linear-gradient(135deg, #002B5C 0%, #022046 100%) !important;
-}
-
-html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar #sidebar-copilot-card {
-  background: linear-gradient(135deg, #eef1f6 0%, #f5f3ff 100%) !important;
-  border-color: #c5cee5 !important;
-}
-
-html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar #sidebar-copilot-card [class*="text-blue-2"],
-html[data-theme="light"] .clientum-light-dashboard #clientum-sidebar #sidebar-copilot-card [class*="text-slate-"] {
-  color: #334155 !important;
-}
-
-html[data-theme="light"] .clientum-light-dashboard [class*="bg-[#0"],
-html[data-theme="light"] .clientum-light-dashboard [class*="bg-[#1"] {
-  background-color: #ffffff !important;
-}
-
-html[data-theme="light"] .clientum-light-dashboard [class*="bg-[#2"] {
-  background-color: #f8fafc !important;
-}
-
-html[data-theme="light"] .clientum-light-dashboard [class*="border-[#1"],
-html[data-theme="light"] .clientum-light-dashboard [class*="border-[#2"],
-html[data-theme="light"] .clientum-light-dashboard [class*="border-[#3"] {
-  border-color: #e2e8f0 !important;
-}
-
-html[data-theme="light"] .clientum-light-dashboard [class*="border-slate-600"],
-html[data-theme="light"] .clientum-light-dashboard [class*="border-slate-700"],
-html[data-theme="light"] .clientum-light-dashboard [class*="border-slate-800"] {
-  border-color: #cbd5e1 !important;
-}
-
-html[data-theme="light"] .clientum-light-dashboard [class*="text-white"],
-html[data-theme="light"] .clientum-light-dashboard [class*="text-slate-100"] {
-  color: #0f172a !important;
-}
-
-html[data-theme="light"] .clientum-light-dashboard [class*="text-slate-200"],
-html[data-theme="light"] .clientum-light-dashboard [class*="text-slate-300"] {
-  color: #334155 !important;
-}
-
-html[data-theme="light"] .clientum-light-dashboard [class*="text-slate-400"],
-html[data-theme="light"] .clientum-light-dashboard [class*="text-slate-500"] {
-  color: #64748b !important;
-}
-
-html[data-theme="light"] .clientum-light-dashboard [class*="bg-blue-"][class*="text-white"],
-html[data-theme="light"] .clientum-light-dashboard [class*="bg-indigo-"][class*="text-white"],
-html[data-theme="light"] .clientum-light-dashboard [class*="bg-violet-"][class*="text-white"],
-html[data-theme="light"] .clientum-light-dashboard [class*="bg-purple-"][class*="text-white"],
-html[data-theme="light"] .clientum-light-dashboard [class*="bg-emerald-"][class*="text-white"],
-html[data-theme="light"] .clientum-light-dashboard [class*="bg-cyan-"][class*="text-white"],
-html[data-theme="light"] .clientum-light-dashboard [class*="bg-rose-"][class*="text-white"],
-html[data-theme="light"] .clientum-light-dashboard [class*="bg-red-"][class*="text-white"] {
-  color: #ffffff !important;
-}
-
-html[data-theme="light"] .clientum-light-dashboard input,
-html[data-theme="light"] .clientum-light-dashboard select,
-html[data-theme="light"] .clientum-light-dashboard textarea {
-  color: #0f172a;
-}
-
-html[data-theme="light"] .clientum-light-dashboard input::placeholder,
-html[data-theme="light"] .clientum-light-dashboard textarea::placeholder {
-  color: #94a3b8;
-}
-
-/* Executive dashboard custom surfaces */
-html[data-theme="light"] .clientum-light-dashboard h1,
-html[data-theme="light"] .clientum-light-dashboard h2,
-html[data-theme="light"] .clientum-light-dashboard .crm-dashboard__header h1,
-html[data-theme="light"] .clientum-light-dashboard .crm-stage__title,
-html[data-theme="light"] .clientum-light-dashboard .crm-deal-card h3,
-html[data-theme="light"] .clientum-light-dashboard .crm-panel__title,
-html[data-theme="light"] .clientum-light-dashboard .crm-assistant__identity strong {
-  color: var(--clientum-navy, #022046) !important;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-dashboard__header p,
-html[data-theme="light"] .clientum-light-dashboard .crm-stage__total,
-html[data-theme="light"] .clientum-light-dashboard .crm-panel__header p,
-html[data-theme="light"] .clientum-light-dashboard .crm-source-list em,
-html[data-theme="light"] .clientum-light-dashboard .crm-assistant__intro {
-  color: #64748b;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-select-button,
-html[data-theme="light"] .clientum-light-dashboard .crm-icon-button,
-html[data-theme="light"] .clientum-light-dashboard .crm-ai-toggle,
-html[data-theme="light"] .clientum-light-dashboard .crm-period {
-  background: #ffffff;
-  border-color: #dbe4ef;
-  color: #334155;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-select-button:hover,
-html[data-theme="light"] .clientum-light-dashboard .crm-icon-button:hover,
-html[data-theme="light"] .clientum-light-dashboard .crm-ai-toggle:hover {
-  background: #eef1f6;
-  border-color: #a9bfe0;
-  color: #002B5C;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-dropdown,
-html[data-theme="light"] .clientum-light-dashboard .crm-attention-panel,
-html[data-theme="light"] .clientum-light-dashboard .crm-board-shell,
-html[data-theme="light"] .clientum-light-dashboard .crm-stage,
-html[data-theme="light"] .clientum-light-dashboard .crm-deal-card,
-html[data-theme="light"] .clientum-light-dashboard .crm-kpi-card,
-html[data-theme="light"] .clientum-light-dashboard .crm-panel,
-html[data-theme="light"] .clientum-light-dashboard .crm-assistant {
-  background: #ffffff;
-  border-color: #dbe4ef;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, .06);
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-stage {
-  background: #f8fafc;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-attention-panel {
-  background: linear-gradient(145deg, #ffffff, #f8fafc);
-  border-color: #dbe4ef;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-attention-panel__header h2 {
-  color: #0f172a;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-attention-panel__header p,
-html[data-theme="light"] .clientum-light-dashboard .crm-attention-item__body small,
-html[data-theme="light"] .clientum-light-dashboard .crm-stale-deals__label {
-  color: #64748b;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-report-link {
-  border-color: #c3cee0;
-  background: #eef1f6;
-  color: #0056B3;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-report-link:hover {
-  background: #dbeafe;
-  border-color: #a9bfe0;
-  color: #002B5C;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-attention-item,
-html[data-theme="light"] .clientum-light-dashboard .crm-stale-deals__list button {
-  border-color: #dbe4ef;
-  background: #f8fafc;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-attention-item:hover,
-html[data-theme="light"] .clientum-light-dashboard .crm-stale-deals__list button:hover {
-  border-color: #a9bfe0;
-  background: #ffffff;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-attention-item__body strong {
-  color: #1e293b;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-attention-item__icon {
-  border-color: #99f6e4;
-  color: #0f766e;
-  background: #ecfeff;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-attention-item__icon.is-warning {
-  border-color: #fde68a;
-  color: #b45309;
-  background: #fffbeb;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-attention-item__action button {
-  border-color: #cbd5e1;
-  color: #64748b;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-attention-item__action button:hover {
-  border-color: #34d399;
-  color: #059669;
-  background: #ecfdf5;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-attention-empty {
-  border-color: #cbd5e1;
-  color: #64748b;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-attention-more {
-  color: #0056B3;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-stale-deals {
-  border-color: #e2e8f0;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-stale-deals__list button strong {
-  color: #0f766e;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-deal-card {
-  background: linear-gradient(145deg, #ffffff, #f8fafc);
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-kpi-card {
-  background: linear-gradient(145deg, #ffffff, #f8fafc);
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-kpi-card--accent {
-  border-color: #99f6e4;
-  background: #f0fdfa;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-kpi-card--accent strong,
-html[data-theme="light"] .clientum-light-dashboard .crm-panel__total strong {
-  color: #0f766e;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-kpi-icon {
-  border-color: #c3cee0;
-  background: #eef1f6;
-  color: #022046;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-source-list > div,
-html[data-theme="light"] .clientum-light-dashboard .crm-source-list strong {
-  color: #334155;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-report-link {
-  border-color: #e2e8f0;
-  color: #0056B3;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-assistant-backdrop {
-  background: rgb(15 23 42 / .08);
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-assistant {
-  border-color: #dbe4ef;
-  background: #ffffff;
-  box-shadow: -18px 0 45px rgb(15 23 42 / .14);
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-assistant__header,
-html[data-theme="light"] .clientum-light-dashboard .crm-assistant__composer {
-  border-color: #e2e8f0;
-  background: #ffffff;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-assistant__identity strong {
-  color: #0f172a;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-assistant__tools button,
-html[data-theme="light"] .clientum-light-dashboard .crm-assistant__composer button {
-  color: #64748b;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-assistant__tools button:hover,
-html[data-theme="light"] .clientum-light-dashboard .crm-assistant__composer button:hover {
-  color: #002B5C;
-  background: #eef1f6;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-message__typing {
-  border-color: #dbe4ef;
-  background: #f8fafc;
-}
-
-html[data-theme="light"] .clientum-light-dashboard .crm-chat-reopen {
-  border-color: #c3cee0;
-  background: #022046;
-  color: #ffffff;
-  box-shadow: 0 10px 25px rgb(2 32 70 / .2);
-}
-
-.crm-assistant-backdrop {
-  position: absolute;
-  inset: 0;
-  z-index: 15;
-}
-
-.crm-assistant {
-  position: absolute;
-  inset: 0 0 0 auto;
-  z-index: 20;
-  width: min(345px, 100%);
-  flex: none;
-}
-
-@media (max-width: 900px) {
-  .crm-attention-panel__header {
-    flex-direction: column;
-    gap: 9px;
-  }
-
-  .crm-attention-list,
-  .crm-stale-deals__list {
-    grid-template-columns: 1fr;
-  }
-
-  .crm-pipeline-heading {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .crm-assistant {
-    width: min(365px, 92vw);
+/* Ocultar sidebar en móviles */
+@media (max-width: 768px) {
+  .crm-top-navbar #dashboard-header-brand {
+    display: none;
   }
 }
 
+/* Ajustes para el asistente en móviles */
 @media (max-width: 620px) {
   .crm-pipeline-heading {
     margin-top: 20px;
   }
 }
 
+/* ==========================================================================
+   CLIENTUM CLARITY THEME — CLASES Y COMPONENTES EXCLUSIVOS (BRAND V1.0)
+   ========================================================================== */
 
-@media (min-width: 768px) {
-  /* The sidebar already carries the workspace identity on desktop. */
-  .crm-top-navbar #dashboard-header-brand {
-    display: none;
-  }
-}
-
-/* High Contrast WCAG AAA Rules */
-.contrast-aaa {
-  --border-subtle: #475569 !important;
-  --border-strong: #0f172a !important;
+.clarity-promesa-card {
+  background: linear-gradient(135deg, rgba(0, 86, 179, 0.04) 0%, rgba(2, 32, 70, 0.02) 100%);
+  border: 1.5px solid #0056B3;
+  box-shadow: 0 4px 14px rgba(0, 86, 179, 0.08);
 }
 
-.dark.contrast-aaa,
-[data-theme="dark"].contrast-aaa {
-  --border-subtle: #475569 !important;
-  --border-strong: #94a3b8 !important;
-  --crm-card-border: #475569 !important;
-  --crm-panel-border: #475569 !important;
-  --crm-kpi-border: #475569 !important;
-  --crm-board-border: #475569 !important;
-  --crm-stage-border: #475569 !important;
-  --text-secondary: #f1f5f9 !important;
-  --text-muted: #cbd5e1 !important;
-  --crm-text-secondary: #f1f5f9 !important;
-  --crm-text-muted: #cbd5e1 !important;
+.clarity-badge-primary {
+  background-color: #022046;
+  color: #ffffff;
+  border: 1px solid #002B5C;
 }
 
-/* Smooth theme transitions — dashboard surfaces */
-.crm-dashboard,
-.crm-kpi-card,
-.crm-panel,
-.crm-deal-card,
-.crm-stage,
-.crm-assistant,
-#clientum-sidebar,
-.crm-top-navbar {
-  transition:
-    background 0.2s ease,
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    box-shadow 0.2s ease;
+.clarity-badge-action {
+  background-color: #0056B3;
+  color: #ffffff;
 }
 
-/* Scrollbar Utilities */
-.no-scrollbar::-webkit-scrollbar {
-  display: none !important;
-}
-.no-scrollbar {
-  -ms-overflow-style: none !important;
-  scrollbar-width: none !important;
+.clarity-badge-success {
+  background-color: rgba(76, 175, 80, 0.12);
+  color: #2E7D32;
+  border: 1px solid rgba(76, 175, 80, 0.3);
 }
 
-.custom-scrollbar::-webkit-scrollbar {
-  height: 6px;
-  width: 6px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--border-subtle, #e2e8f0);
-  border-radius: 9999px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--border-strong, #cbd5e1);
+.clarity-pillar-box {
+  background-color: #F5F7FA;
+  border: 1px solid #E2E8F0;
+  transition: all 0.2s ease-in-out;
 }
 
+.clarity-pillar-box:hover {
+  border-color: #0056B3;
+  box-shadow: 0 2px 8px rgba(0, 86, 179, 0.1);
+}
+
+/* ==========================================================================
+   EXECUTIVE PRO THEME — CLIENTUM EXECUTIVE DASHBOARD
+   ========================================================================== */
+
+[data-theme="executive"],
+.theme-executive {
+  --clientum-navy: #081021;
+  --clientum-blue: #0A1128;
+  --clientum-action: #1D4ED8;
+  --clientum-surface: #F4F6FB;
+  --clientum-surface-card: #FFFFFF;
+  --clientum-ink: #0F172A;
+  --border-subtle: #E2E8F0;
+
+  --bg-workspace: #F4F6FB;
+  --bg-navbar: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-surface: #F8FAFC;
+  
+  --color-primary: #0B132B;
+  --color-primary-hover: #1E293B;
+}
+
+.executive-card-elevated {
+  background-color: #ffffff;
+  border: 1px solid #E2E8F0;
+  border-radius: 1rem;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.executive-card-elevated:hover {
+  border-color: #CBD5E1;
+  box-shadow: 0 8px 25px -4px rgba(15, 23, 42, 0.08);
+}
+
+.executive-pill-active {
+  background-color: #0B132B;
+  color: #FFFFFF;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(11, 19, 43, 0.25);
+}
+
+.executive-alert-card {
+  background-color: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  color: #991B1B;
+}
+
+.executive-badge-success {
+  background-color: #DCFCE7;
+  color: #15803D;
+  border: 1px solid #86EFAC;
+}
+
+.executive-badge-purple {
+  background-color: #F3E8FF;
+  color: #7E22CE;
+  border: 1px solid #D8B4FE;
+}

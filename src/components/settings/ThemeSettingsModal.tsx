@@ -38,7 +38,7 @@ export const ThemeSettingsModal: React.FC<ThemeSettingsModalProps> = ({
   // Preview view switcher: 'kanban' | 'charts' | 'split'
   const [previewTab, setPreviewTab] = useState<'kanban' | 'charts' | 'split'>('kanban');
   // Temporary preview theme toggle for testing inside the modal preview container
-  const [previewTheme, setPreviewTheme] = useState<'light' | 'dark'>(resolvedTheme);
+  const [previewTheme, setPreviewTheme] = useState<ThemeMode>(resolvedTheme);
 
   // Sync state when modal opens
   useEffect(() => {

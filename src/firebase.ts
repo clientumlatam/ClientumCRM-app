@@ -78,6 +78,7 @@ export const db: Firestore = isLiveFirebaseReady
   ? (() => {
       try {
         const firestoreSettings = {
+          experimentalAutoDetectLongPolling: true,
           experimentalForceLongPolling: true,
         };
         return appletConfig.firestoreDatabaseId
@@ -139,17 +140,16 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
 }
 
 /**
- * Validate connection to Firestore on initial boot without throwing unhandled rejection.
+ * Validate connection to Firestore on initial boot without throwing unhandled rejection or 10s backend timeout error.
  */
 export async function testFirestoreConnection(): Promise<boolean> {
   if (!isLiveFirebaseReady || !db) return false;
   try {
-    await getDocFromServer(doc(db, 'test', 'connection'));
-    return true;
+    const timeout = new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 3000));
+    const checkDoc = getDoc(doc(db, 'test', 'connection')).then(() => true).catch(() => false);
+    return await Promise.race([checkDoc, timeout]);
   } catch (error: any) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.warn("Please check your Firebase configuration.");
-    }
+    console.warn("Firestore running in offline or cached persistence mode:", error?.message || error);
     return false;
   }
 }

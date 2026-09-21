@@ -42,28 +42,28 @@ export const SidebarItem: React.FC<SidebarItemProps> = React.memo(({
             onClick={() => onNavClick(item.id)}
             aria-current={isActive ? 'page' : undefined}
             title={isCollapsed ? item.label : undefined}
-            className={`flex flex-1 items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs font-semibold transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] ${
+            className={`relative flex flex-1 items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-bold transition-all duration-150 focus:outline-hidden ${
               isActive
-                ? 'bg-[var(--color-primary)] text-white shadow-xs font-bold'
-                : 'text-[var(--text-secondary)] hover:bg-[var(--bg-muted)] hover:text-[var(--text-primary)]'
+                ? 'bg-[#0f2851] text-white shadow-xs font-bold before:absolute before:-left-1.5 before:top-2.5 before:bottom-2.5 before:w-1.5 before:bg-blue-400 before:rounded-full'
+                : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100/90 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white'
             } ${isCollapsed ? 'justify-center w-10 flex-none px-0' : ''}`}
           >
             <IconComponent
               className={`h-4 w-4 shrink-0 ${
                 isActive
                   ? 'text-white'
-                  : 'text-[var(--text-muted)] group-hover:text-[var(--text-primary)]'
+                  : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-white'
               }`}
             />
           {!isCollapsed && <span className="truncate">{item.label}</span>}
 
           {!isCollapsed && item.badge && (
             <span
-              className={`ml-auto rounded px-1.5 py-0.5 text-[10px] font-bold ${
+              className={`ml-auto rounded-md px-1.5 py-0.5 text-[10px] font-bold ${
                 item.badgeColor ||
                 (isActive
                   ? 'bg-white/20 text-white'
-                  : 'bg-[var(--bg-muted)] text-[var(--text-secondary)]')
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400')
               }`}
             >
               {item.badge}
@@ -75,7 +75,11 @@ export const SidebarItem: React.FC<SidebarItemProps> = React.memo(({
           <button
             onClick={(e) => onToggleSubmenu(item.id, e)}
             aria-label={`Expandir subopciones de ${item.label}`}
-            className={`flex h-8 w-6 items-center justify-center rounded-r-lg transition-colors ${ isActive ? 'text-white/80 hover:text-white' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]' }`}
+            className={`flex h-8 w-6 items-center justify-center rounded-r-lg transition-colors cursor-pointer ${
+              isActive
+                ? 'text-white/80 hover:text-white'
+                : 'text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+            }`}
           >
             <ChevronRight
               className={`h-3.5 w-3.5 transition-transform ${ isExpanded ? 'rotate-90' : '' }`}
@@ -86,7 +90,7 @@ export const SidebarItem: React.FC<SidebarItemProps> = React.memo(({
 
       {/* Subitems anidados */}
       {hasSub && isExpanded && !isCollapsed && (
-        <div className="ml-5 space-y-0.5 border-l-2 pl-2 border-[var(--border-subtle)] dark:border-[#1c2d47]">
+        <div className="ml-5 space-y-0.5 border-l-2 pl-2 border-slate-200 dark:border-[#1c2d47]">
           {item.subItems!.map((sub) => {
             const subActive = activeTab === sub.id;
             const SubIcon = sub.icon;
@@ -95,9 +99,13 @@ export const SidebarItem: React.FC<SidebarItemProps> = React.memo(({
                 key={sub.id}
                 onClick={() => onNavClick(sub.id)}
                 aria-current={subActive ? 'page' : undefined}
-                className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] ${ subActive ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] font-bold' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-muted)]' }`}
+                className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all ${
+                  subActive
+                    ? 'bg-blue-50 dark:bg-blue-900/40 text-[#0f2851] dark:text-blue-300 font-bold'
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                }`}
               >
-                <SubIcon className="h-3.5 w-3.5 shrink-0 text-[var(--text-muted)]" />
+                <SubIcon className={`h-3.5 w-3.5 shrink-0 ${subActive ? 'text-[#0f2851] dark:text-blue-300' : 'text-slate-400'}`} />
                 <span className="truncate">{sub.label}</span>
               </button>
             );

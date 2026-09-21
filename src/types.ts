@@ -1,4 +1,4 @@
-export type ThemeMode = 'dark' | 'light' | 'system';
+export type ThemeMode = 'dark' | 'light' | 'system' | 'clarity' | 'executive';
 export type ContrastMode = 'normal' | 'aaa';
 export type Language = 'en' | 'es' | 'pt';
 

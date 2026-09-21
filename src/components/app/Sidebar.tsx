@@ -46,6 +46,8 @@ import {
   ShieldCheck,
   Shield,
   Zap,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 import { useCRM } from '../../context/CRMContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -190,35 +192,43 @@ export const Sidebar: React.FC = React.memo(() => {
 
         {/* Encabezado del Sistema */}
         <div className="flex h-16 shrink-0 items-center justify-between border-b px-4 border-[var(--sidebar-border)] bg-[var(--sidebar-bg)]">
-          <button
-            onClick={() => handleNavClick('dashboard')}
-            className="flex items-center gap-3 text-left focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-md p-1 overflow-hidden group cursor-pointer"
-            aria-label="Ir al Resumen Ejecutivo"
-          >
-            {isCollapsed ? (
-              <ClientumLogo
-                variant="isotipo"
-                size="md"
-                showClearance={true}
-                alt="Clientum OS"
-              />
-            ) : (
-              <ClientumLogo
-                variant="horizontal"
-                size="md"
-                badge="CRM"
-                subtitle="Enterprise Suite v4.2"
-                alt="Clientum CRM"
-                onDark={true}
-              />
+          <div className="flex items-center gap-2 overflow-hidden">
+            <button
+              onClick={() => handleNavClick('dashboard')}
+              className="flex items-center gap-2 text-left focus:outline-hidden rounded-md p-1 group cursor-pointer"
+              aria-label="Ir al Resumen Ejecutivo"
+            >
+              {isCollapsed ? (
+                <ClientumLogo
+                  variant="isotipo"
+                  size="md"
+                  showClearance={true}
+                  alt="Clientum OS"
+                />
+              ) : (
+                <ClientumLogo
+                  variant="horizontal"
+                  size="md"
+                  badge="CRM"
+                  subtitle="Enterprise Suite v4.2"
+                  alt="Clientum CRM"
+                  onDark={resolvedTheme === 'dark'}
+                />
+              )}
+            </button>
+            {!isCollapsed && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/60 text-[10px] font-bold shrink-0 ml-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Live
+              </span>
             )}
-          </button>
+          </div>
 
           {!isCollapsed && (
             <button
               onClick={() => openNewRecordModal('opportunity')}
               aria-label="Creación Rápida"
-              className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-dark)] transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] shrink-0 shadow-sm"
+              className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-dark)] transition-all focus:outline-hidden shrink-0 shadow-xs cursor-pointer"
               title="Creación Rápida"
             >
               <Plus className="h-4 w-4" />
@@ -254,15 +264,18 @@ export const Sidebar: React.FC = React.memo(() => {
         </div>
 
         {/* Lista Jerárquica de Secciones */}
-        <div className="flex-1 space-y-4 overflow-y-auto p-3 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-[#1c2d47]">
-          {filteredNavSections.map((section) => {
+        <div className="flex-1 space-y-3 overflow-y-auto p-3 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-[#1c2d47]">
+          {filteredNavSections.map((section, idx) => {
             const isSectionCollapsed = collapsedSections[section.label];
             return (
               <div key={section.id} className="space-y-1">
+                {idx > 0 && !isCollapsed && (
+                  <div className="my-2 border-t border-slate-200/80 dark:border-slate-800/80" />
+                )}
                 {!isCollapsed && (
                   <button
                     type="button"
-                    className="flex w-full items-center justify-between px-2 py-1 text-[11px] font-bold tracking-wider uppercase text-[var(--text-muted)] hover:text-[var(--text-secondary)] dark:text-[var(--text-secondary,#475569)] dark:text-slate-300 dark:hover:text-white focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+                    className="flex w-full items-center justify-between px-2.5 py-1 text-[10px] font-extrabold tracking-widest uppercase text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 focus:outline-hidden rounded cursor-pointer"
                     onClick={() =>
                       setCollapsedSections((prev) => ({
                         ...prev,
@@ -272,7 +285,7 @@ export const Sidebar: React.FC = React.memo(() => {
                     aria-expanded={!isSectionCollapsed}
                   >
                     <span className="flex items-center gap-1.5">
-                      <span className={`w-1.5 h-1.5 rounded-full inline-block bg-[var(--color-primary)] opacity-60`} />
+                      <span className="w-1.5 h-1.5 rounded-full inline-block bg-[#0f2851] dark:bg-blue-400 opacity-80" />
                       <span>{section.label}</span>
                     </span>
                     <ChevronDown
@@ -293,18 +306,24 @@ export const Sidebar: React.FC = React.memo(() => {
 
                 {(!isSectionCollapsed || isCollapsed) && (
                   <nav className="space-y-0.5" aria-label={`Submenú ${section.label}`}>
-                    {section.items.map((item) => (
-                      <SidebarItem
-                        key={item.id}
-                        item={item}
-                        isActive={activeTab === item.id}
-                        isExpanded={Boolean(expandedMenus[item.id])}
-                        isCollapsed={isCollapsed}
-                        activeTab={activeTab}
-                        onNavClick={handleNavClick}
-                        onToggleSubmenu={toggleSubmenu}
-                      />
-                    ))}
+                    {section.items.map((item) => {
+                      const isItemActive =
+                        activeTab === item.id ||
+                        Boolean(item.subItems && item.subItems.some((sub) => sub.id === activeTab));
+
+                      return (
+                        <SidebarItem
+                          key={item.id}
+                          item={item}
+                          isActive={isItemActive}
+                          isExpanded={Boolean(expandedMenus[item.id])}
+                          isCollapsed={isCollapsed}
+                          activeTab={activeTab}
+                          onNavClick={handleNavClick}
+                          onToggleSubmenu={toggleSubmenu}
+                        />
+                      );
+                    })}
                   </nav>
                 )}
               </div>
@@ -313,7 +332,32 @@ export const Sidebar: React.FC = React.memo(() => {
         </div>
 
         {/* Perfil & Controles de Usuario */}
-        <div className={`flex flex-col border-t border-[var(--border-subtle)]/80 dark:border-[#1c2d47] bg-slate-50 dark:bg-slate-900/10 ${isCollapsed ? 'items-center py-4 px-2' : 'p-3'}`}>
+        <div className={`flex flex-col border-t border-[var(--border-subtle)]/80 dark:border-[#1c2d47] bg-slate-50 dark:bg-slate-900/10 ${isCollapsed ? 'items-center py-3 px-2' : 'p-3'}`}>
+          {/* Botón de Colapsar Menú */}
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 mb-2.5 text-xs font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/80 transition-all cursor-pointer ${
+              isCollapsed ? 'justify-center px-0' : 'justify-between'
+            }`}
+            title={isCollapsed ? "Expandir menú" : "Colapsar menú"}
+          >
+            <span className="flex items-center gap-2 truncate">
+              {isCollapsed ? (
+                <PanelLeftOpen className="h-4 w-4 text-[#0f2851] dark:text-blue-400 shrink-0" />
+              ) : (
+                <>
+                  <PanelLeftClose className="h-4 w-4 text-slate-500 dark:text-slate-400 shrink-0" />
+                  <span className="truncate">Colapsar menú</span>
+                </>
+              )}
+            </span>
+            {!isCollapsed && (
+              <span className="text-[10px] font-mono text-slate-400 bg-slate-200/70 dark:bg-slate-800 px-1.5 py-0.5 rounded shrink-0">
+                ⌘B
+              </span>
+            )}
+          </button>
+
           <button
             onClick={() => setIsProfileModalOpen(true)}
             className={`flex items-center gap-2 truncate text-left group hover:opacity-90 transition-all cursor-pointer ${isCollapsed ? 'justify-center w-full' : 'w-full mb-3'}`}

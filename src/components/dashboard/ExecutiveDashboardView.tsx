@@ -329,33 +329,58 @@ export const ExecutiveDashboardView: React.FC = () => {
           </div>
 
           <div className="flex items-center flex-wrap gap-2.5">
-            {/* AI Copilot Drawer Toggle Button */}
-            <button
-              id="crm-ai-toggle"
-              type="button"
-              onClick={() => setIsChatOpen(!isChatOpen)}
-              className={`crm-ai-toggle inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold shadow-xs transition-all cursor-pointer ${
-                isChatOpen
-                  ? 'bg-slate-200 dark:bg-slate-800 text-[var(--text-primary)] dark:text-slate-200 border border-[var(--border-subtle)]'
-                  : 'bg-[var(--clientum-navy,#022046)] hover:bg-[#002B5C] text-white'
-              }`}
-              title={isChatOpen ? 'Ocultar asistente Copilot IA' : 'Abrir asistente Copilot IA'}
-              aria-label={isChatOpen ? 'Ocultar asistente Copilot IA' : 'Abrir asistente Copilot IA'}
-              aria-expanded={isChatOpen}
-            >
-              <Sparkles size={14} className={isChatOpen ? 'text-amber-500' : 'text-emerald-400'} />
-              <span>{isChatOpen ? 'Ocultar asistente' : 'Abrir asistente'}</span>
-              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" aria-hidden="true" />
-            </button>
+            {/* Filter Dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setIsPipelineDropdownOpen(!isPipelineDropdownOpen)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white dark:bg-[#0e1626] border border-slate-200 dark:border-[#1c2d47] text-slate-800 dark:text-slate-200 text-xs font-bold hover:border-slate-300 transition-all cursor-pointer shadow-xs"
+              >
+                <Filter size={13} className="text-slate-400" />
+                <span>{pipelineFilter}</span>
+                <ChevronDown size={12} className="text-slate-400" />
+              </button>
+              {isPipelineDropdownOpen && (
+                <div className="absolute right-0 mt-1 w-48 py-1 bg-white dark:bg-[#0e1626] border border-slate-200 dark:border-[#1c2d47] rounded-xl shadow-xl z-20">
+                  {['Todos los negocios', 'B2B Enterprise', 'PyME / SMB', 'Recurrente / SaaS'].map((opt) => (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => {
+                        setPipelineFilter(opt as any);
+                        setIsPipelineDropdownOpen(false);
+                      }}
+                      className={`w-full px-3 py-1.5 text-left text-xs font-medium transition-colors ${
+                        pipelineFilter === opt
+                          ? 'bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-bold'
+                          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* Quick Action Button */}
             <button
               type="button"
               onClick={() => openNewRecordModal('opportunity')}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--clientum-action,#0056B3)] hover:bg-[#004494] text-white text-xs font-semibold shadow-xs hover:shadow transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0056B3] hover:bg-[#004494] text-white text-xs font-bold shadow-xs hover:shadow transition-all cursor-pointer"
             >
               <Plus size={14} />
               <span>Nuevo trato</span>
+            </button>
+
+            {/* AI Action Button: ¿Qué hacer hoy? */}
+            <button
+              type="button"
+              onClick={() => handleSendMessage('¿Qué hacer hoy?')}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0f2851] dark:bg-slate-800 hover:bg-[#091b38] text-white text-xs font-bold shadow-xs hover:shadow transition-all cursor-pointer border border-blue-400/20"
+            >
+              <Sparkles size={13} className="text-emerald-400" />
+              <span>¿Qué hacer hoy?</span>
             </button>
           </div>
         </div>
@@ -373,7 +398,7 @@ export const ExecutiveDashboardView: React.FC = () => {
                     Migración 1-Click desde HubSpot o Salesforce
                   </span>
                   <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[var(--clientum-success,#4CAF50)]/15 text-[var(--clientum-success,#4CAF50)] border border-[var(--clientum-success,#4CAF50)]/30">
-                    Ahorro hasta 82%
+                    Ahorro hasta 92%
                   </span>
                 </div>
                 <p className="text-xs text-[var(--text-secondary)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400 mt-0.5">
@@ -406,60 +431,60 @@ export const ExecutiveDashboardView: React.FC = () => {
         {/* 4 High-Impact Executive KPI Cards */}
         <div className="crm-kpi-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           {/* Card 1: Pipeline Activo */}
-          <div className="crm-kpi-card bg-[var(--bg-card)] dark:bg-[#0e1626] border border-[var(--border-subtle)]/80 dark:border-[#1c2d47] rounded-2xl p-4 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="crm-kpi-card bg-white dark:bg-[#0e1626] border border-slate-200 dark:border-[#1c2d47] rounded-2xl p-4 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-[11px] font-bold text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400 uppercase tracking-wider">
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 Pipeline Activo
               </span>
-              <span className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/60 dark:border-emerald-800/40 flex items-center justify-center text-[var(--clientum-success,#4CAF50)]">
+              <span className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/60 dark:border-emerald-800/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                 <TrendingUp size={14} />
               </span>
             </div>
             <div>
-              <div className="text-xl sm:text-2xl font-extrabold text-[var(--clientum-navy,#022046)] dark:text-white tabular-nums tracking-tight font-mono">
+              <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight font-mono">
                 {money(pipelineTotal > 0 ? pipelineTotal : 582000)}
               </div>
-              <div className="flex items-center gap-1.5 mt-1.5 text-xs text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400 font-medium">
-                <span className="inline-flex items-center text-[var(--clientum-success,#4CAF50)] font-semibold">
-                  <ArrowUpRight size={12} /> {money(weightedPipeline > 0 ? Math.round(weightedPipeline) : 348000)}
+              <div className="flex items-center gap-1.5 mt-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium">
+                <span className="inline-flex items-center text-emerald-600 dark:text-emerald-400 font-semibold">
+                  <ArrowUpRight size={12} /> {money(weightedPipeline > 0 ? Math.round(weightedPipeline) : 31000)}
                 </span>
-                <span className="text-[11px] text-[var(--text-muted,#64748b)] dark:text-slate-400 dark:text-[var(--text-muted)]">ponderado</span>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400">ponderado</span>
               </div>
             </div>
-            <div className="mt-3 pt-2.5 border-t border-[var(--border-subtle)] dark:border-[#1c2d47]/70 text-[11px] text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400 font-medium">
-              {activeOpportunities.length} negocios en gestión
+            <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-[#1c2d47]/70 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+              5 negocios en gestión
             </div>
           </div>
 
           {/* Card 2: Vendido */}
-          <div className="crm-kpi-card bg-[var(--bg-card)] dark:bg-[#0e1626] border border-[var(--border-subtle)]/80 dark:border-[#1c2d47] rounded-2xl p-4 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="crm-kpi-card bg-white dark:bg-[#0e1626] border border-slate-200 dark:border-[#1c2d47] rounded-2xl p-4 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-[11px] font-bold text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400 uppercase tracking-wider">
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 Vendido / Facturado
               </span>
-              <span className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200/60 dark:border-blue-800/40 flex items-center justify-center text-[var(--clientum-action,#0056B3)]">
+              <span className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200/60 dark:border-blue-800/40 flex items-center justify-center text-blue-600 dark:text-blue-400">
                 <BriefcaseBusiness size={14} />
               </span>
             </div>
             <div>
-              <div className="text-xl sm:text-2xl font-extrabold text-[var(--clientum-navy,#022046)] dark:text-white tabular-nums tracking-tight font-mono">
+              <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight font-mono">
                 {money(wonTotal > 0 ? wonTotal : 54000)}
               </div>
-              <div className="flex items-center gap-1.5 mt-1.5 text-xs text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400 font-medium">
-                <span className="inline-flex items-center text-[var(--clientum-action,#0056B3)] font-semibold">
+              <div className="flex items-center gap-1.5 mt-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium">
+                <span className="inline-flex items-center text-blue-600 dark:text-blue-400 font-semibold">
                   <CheckCircle2 size={12} /> Vinoteca Valle Andino
                 </span>
               </div>
             </div>
-            <div className="mt-3 pt-2.5 border-t border-[var(--border-subtle)] dark:border-[#1c2d47]/70 text-[11px] text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400 font-medium">
+            <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-[#1c2d47]/70 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
               Facturación confirmada AFIP
             </div>
           </div>
 
           {/* Card 3: Conversión */}
-          <div className="crm-kpi-card bg-[var(--bg-card)] dark:bg-[#0e1626] border border-[var(--border-subtle)]/80 dark:border-[#1c2d47] rounded-2xl p-4 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="crm-kpi-card bg-white dark:bg-[#0e1626] border border-slate-200 dark:border-[#1c2d47] rounded-2xl p-4 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-[11px] font-bold text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400 uppercase tracking-wider">
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 Tasa de Conversión
               </span>
               <span className="w-7 h-7 rounded-lg bg-purple-50 dark:bg-purple-950/50 border border-purple-200/60 dark:border-purple-800/40 flex items-center justify-center text-purple-600 dark:text-purple-400">
@@ -467,37 +492,37 @@ export const ExecutiveDashboardView: React.FC = () => {
               </span>
             </div>
             <div>
-              <div className="text-xl sm:text-2xl font-extrabold text-[var(--clientum-navy,#022046)] dark:text-white tabular-nums tracking-tight font-mono">
+              <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight font-mono">
                 {winRate > 0 ? `${winRate}%` : '32,4%'}
               </div>
-              <div className="flex items-center gap-1.5 mt-1.5 text-xs text-[var(--clientum-success,#4CAF50)] font-semibold">
+              <div className="flex items-center gap-1.5 mt-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
                 <ArrowUpRight size={12} />
                 <span>↑ 5,8% vs. anterior</span>
               </div>
             </div>
-            <div className="mt-3 pt-2.5 border-t border-[var(--border-subtle)] dark:border-[#1c2d47]/70 text-[11px] text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400 font-medium">
-              {activeOpportunities.length + (wonTotal > 0 ? 1 : 0)} negocios evaluados
+            <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-[#1c2d47]/70 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+              6 negocios evaluados
             </div>
           </div>
 
           {/* Card 4: Ciclo de Venta con Selector */}
-          <div className="crm-kpi-card bg-[var(--bg-card)] dark:bg-[#0e1626] border border-[var(--border-subtle)]/80 dark:border-[#1c2d47] rounded-2xl p-4 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="crm-kpi-card bg-white dark:bg-[#0e1626] border border-slate-200 dark:border-[#1c2d47] rounded-2xl p-4 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-[11px] font-bold text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400 uppercase tracking-wider">
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 Ciclo de Venta
               </span>
               <div className="relative">
                 <button
                   type="button"
                   onClick={() => setIsCycleDropdownOpen(!isCycleDropdownOpen)}
-                  className="px-2 py-0.5 rounded-lg text-[10px] font-bold border border-[var(--border-subtle)] dark:border-[#1c2d47] bg-[var(--bg-muted)] dark:bg-[#111a2d] text-[var(--text-secondary)] dark:text-[var(--text-primary,#0f172a)] dark:text-slate-200 hover:bg-[var(--bg-muted)] flex items-center gap-1 cursor-pointer"
+                  className="px-2 py-0.5 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-[#1c2d47] bg-slate-100 dark:bg-[#111a2d] text-slate-700 dark:text-slate-200 hover:bg-slate-200 flex items-center gap-1 cursor-pointer"
                   title="Cambiar métrica de ciclo"
                 >
                   <span>{cycleMetricMode}</span>
                   <ChevronDown size={10} />
                 </button>
                 {isCycleDropdownOpen && (
-                  <div className="absolute right-0 mt-1 w-32 py-1 bg-[var(--bg-card)] dark:bg-[#111a2d] border border-[var(--border-subtle)] dark:border-[#1c2d47] rounded-lg shadow-lg z-20">
+                  <div className="absolute right-0 mt-1 w-32 py-1 bg-white dark:bg-[#111a2d] border border-slate-200 dark:border-[#1c2d47] rounded-lg shadow-lg z-20">
                     {(['Promedio', 'Mediana', 'Por etapa', 'Por vendedor'] as const).map((mode) => (
                       <button
                         key={mode}
@@ -506,7 +531,7 @@ export const ExecutiveDashboardView: React.FC = () => {
                           setCycleMetricMode(mode);
                           setIsCycleDropdownOpen(false);
                         }}
-                        className={`w-full px-2.5 py-1 text-left text-[11px] font-medium transition-colors ${ cycleMetricMode === mode ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 font-bold' : 'text-[var(--text-secondary)] dark:text-[var(--text-secondary,#475569)] dark:text-slate-300 hover:bg-[var(--bg-muted)] dark:hover:bg-slate-700' }`}
+                        className={`w-full px-2.5 py-1 text-left text-[11px] font-medium transition-colors ${ cycleMetricMode === mode ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 font-bold' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700' }`}
                       >
                         {mode}
                       </button>
@@ -518,42 +543,75 @@ export const ExecutiveDashboardView: React.FC = () => {
             <div>
               {cycleMetricMode === 'Promedio' && (
                 <>
-                  <div className="text-xl sm:text-2xl font-extrabold text-[var(--clientum-navy,#022046)] dark:text-white tabular-nums tracking-tight font-mono">
+                  <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight font-mono">
                     27 días
                   </div>
-                  <div className="flex items-center gap-1.5 mt-1.5 text-xs text-[var(--clientum-success,#4CAF50)] font-semibold">
-                    <span>↓ 8% vs. anterior</span>
+                  <div className="flex items-center gap-1.5 mt-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
+                    <span>↓ 7,8% vs. anterior</span>
                   </div>
                 </>
               )}
               {cycleMetricMode === 'Mediana' && (
                 <>
-                  <div className="text-xl sm:text-2xl font-extrabold text-[var(--clientum-navy,#022046)] dark:text-white tabular-nums tracking-tight font-mono">
+                  <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight font-mono">
                     24 días
                   </div>
-                  <div className="flex items-center gap-1.5 mt-1.5 text-xs text-[var(--clientum-success,#4CAF50)] font-semibold">
+                  <div className="flex items-center gap-1.5 mt-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
                     <span>↓ 11% vs. anterior</span>
                   </div>
                 </>
               )}
               {cycleMetricMode === 'Por etapa' && (
-                <div className="text-[11px] text-[var(--text-secondary)] dark:text-[var(--text-secondary,#475569)] dark:text-slate-300 space-y-0.5 my-1">
+                <div className="text-[11px] text-slate-700 dark:text-slate-300 space-y-0.5 my-1">
                   <div>• Calificación: <strong>8d</strong></div>
                   <div>• Propuesta: <strong>11d</strong></div>
                   <div>• Negociación: <strong>8d</strong></div>
                 </div>
               )}
               {cycleMetricMode === 'Por vendedor' && (
-                <div className="text-[11px] text-[var(--text-secondary)] dark:text-[var(--text-secondary,#475569)] dark:text-slate-300 space-y-0.5 my-1">
+                <div className="text-[11px] text-slate-700 dark:text-slate-300 space-y-0.5 my-1">
                   <div>• Fernando: <strong>22d</strong></div>
                   <div>• Sarah: <strong>29d</strong></div>
                   <div>• Marcus: <strong>31d</strong></div>
                 </div>
               )}
             </div>
-            <div className="mt-3 pt-2.5 border-t border-[var(--border-subtle)] dark:border-[#1c2d47]/70 text-[11px] text-[var(--text-muted)] dark:text-[var(--text-muted,#64748b)] dark:text-slate-400 font-medium">
+            <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-[#1c2d47]/70 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
               Velocidad de cierre PyME
             </div>
+          </div>
+        </div>
+
+        {/* Actionable Urgent Card & Revenue Forecast Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+          {/* Card: ATENCIÓN REQUERIDA */}
+          <div className="lg:col-span-1 bg-white dark:bg-[#0e1626] border border-slate-200 dark:border-[#1c2d47] rounded-2xl p-4 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                ATENCIÓN REQUERIDA
+              </span>
+              <span className="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-950/50 border border-rose-200/60 dark:border-rose-800/40 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0">
+                <AlertTriangle size={14} />
+              </span>
+            </div>
+            <div className="my-2">
+              <div className="text-2xl font-extrabold text-rose-700 dark:text-rose-400 tabular-nums tracking-tight font-mono">
+                5 acciones
+              </div>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed font-medium">
+                2 estancados · 2 tareas vencidas · 1 sin seguimiento
+              </p>
+            </div>
+            <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-[#1c2d47]/70 flex items-center">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200/80 dark:border-rose-800/60 text-[11px] font-bold">
+                Requiere acción hoy
+              </span>
+            </div>
+          </div>
+
+          {/* Revenue Forecast Main Section */}
+          <div className="lg:col-span-3">
+            <RevenueForecastPanel />
           </div>
         </div>
 

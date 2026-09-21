@@ -32,7 +32,7 @@ const getInitialTheme = (defaultFallback?: ThemeMode): ThemeMode => {
   if (typeof window !== 'undefined') {
     try {
       const saved = localStorage.getItem(THEME_STORAGE_KEY) || localStorage.getItem('theme');
-      if (saved === 'dark' || saved === 'light' || saved === 'system') {
+      if (saved === 'dark' || saved === 'light' || saved === 'system' || saved === 'clarity' || saved === 'executive') {
         return saved as ThemeMode;
       }
     } catch {
@@ -73,7 +73,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode; defaultTheme?:
   });
 
   // Calculate resolved theme based on current mode and system OS preference
-  const resolvedTheme: 'light' | 'dark' = theme === 'system' ? systemTheme : theme;
+  const resolvedTheme: 'light' | 'dark' =
+    theme === 'dark' ? 'dark' : theme === 'system' ? systemTheme : 'light';
 
   // 1. System OS Theme Listener
   useEffect(() => {
@@ -101,10 +102,21 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode; defaultTheme?:
     if (typeof document === 'undefined') return;
 
     const root = document.documentElement;
-    root.setAttribute('data-theme', resolvedTheme);
+    root.setAttribute('data-theme', theme);
     root.setAttribute('data-mode', resolvedTheme);
     root.setAttribute('data-theme-setting', theme);
     root.setAttribute('data-contrast', contrast);
+
+    if (theme === 'clarity') {
+      root.classList.add('theme-clarity');
+      root.classList.remove('theme-executive');
+    } else if (theme === 'executive') {
+      root.classList.add('theme-executive');
+      root.classList.remove('theme-clarity');
+    } else {
+      root.classList.remove('theme-clarity');
+      root.classList.remove('theme-executive');
+    }
 
     if (resolvedTheme === 'dark') {
       root.classList.add('dark');

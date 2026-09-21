@@ -299,6 +299,48 @@ export const CrmTopHeader: React.FC<CrmTopHeaderProps> = ({
                   <ExternalLink className="w-3 h-3 ml-auto text-[var(--text-muted)]" />
                 </button>
 
+                <div className="flex flex-col gap-1.5 px-2.5 py-2 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80">
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2 text-xs font-bold text-slate-900 dark:text-white">
+                      {isDark ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5 text-blue-500" />}
+                      <span>Tema de Interfaz</span>
+                    </span>
+                    <span className="text-[10px] font-mono text-slate-500 uppercase">
+                      {theme}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-1 p-0.5 rounded-lg bg-slate-200/80 dark:bg-slate-900 border border-slate-300/80 dark:border-slate-700">
+                    <button
+                      onClick={() => setTheme('executive')}
+                      className={`px-1.5 py-1 rounded text-[9px] font-extrabold transition-all cursor-pointer truncate ${theme === 'executive' ? 'bg-[#0B132B] text-white shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}
+                      title="Tema Executive Pro"
+                    >
+                      Executive
+                    </button>
+                    <button
+                      onClick={() => setTheme('clarity')}
+                      className={`px-1.5 py-1 rounded text-[9px] font-extrabold transition-all cursor-pointer truncate ${theme === 'clarity' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}
+                      title="Tema Clientum Clarity"
+                    >
+                      Clarity
+                    </button>
+                    <button
+                      onClick={() => setTheme('light')}
+                      className={`px-1.5 py-1 rounded text-[9px] font-extrabold transition-all cursor-pointer truncate ${theme === 'light' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}
+                      title="Modo Claro"
+                    >
+                      Claro
+                    </button>
+                    <button
+                      onClick={() => setTheme('dark')}
+                      className={`px-1.5 py-1 rounded text-[9px] font-extrabold transition-all cursor-pointer truncate ${theme === 'dark' ? 'bg-slate-700 text-white shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}
+                      title="Modo Oscuro"
+                    >
+                      Oscuro
+                    </button>
+                  </div>
+                </div>
+
                 <div className="flex items-center justify-between px-2.5 py-2 rounded-lg hover:bg-slate-800 text-[var(--text-secondary,#475569)] dark:text-slate-300">
                   <span className="flex items-center gap-2">
                     <Globe className="w-3.5 h-3.5 text-[var(--text-muted,#64748b)] dark:text-slate-400" />
