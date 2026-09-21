@@ -329,6 +329,8 @@ interface CRMContextType {
     }
   ) => string;
   cancelAsyncJob: (id: string) => void;
+  focusMode: boolean;
+  setFocusMode: (mode: boolean) => void;
 }
 
 const CRMContext = createContext<CRMContextType | undefined>(undefined);
@@ -886,6 +888,20 @@ export const CRMProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [activeTab, setActiveTab] = useState<ActiveTab>('opportunities');
   const [viewMode, setViewMode] = useState<OpportunityViewMode>('kanban');
   const [selectedRecord, setSelectedRecord] = useState<{ type: 'opportunity' | 'company' | 'person' | 'task'; id: string } | null>(null);
+  const [focusMode, setFocusModeState] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('clientum_focus_mode') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const setFocusMode = useCallback((mode: boolean) => {
+    setFocusModeState(mode);
+    try {
+      localStorage.setItem('clientum_focus_mode', String(mode));
+    } catch {}
+  }, []);
 
   const initialFilter: FilterState = {
     search: '',
@@ -3988,6 +4004,8 @@ export const CRMProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       asyncJobs,
       startAsyncJob,
       cancelAsyncJob,
+      focusMode,
+      setFocusMode,
     }),
     [
       opportunities,
@@ -4391,6 +4409,8 @@ export const CRMProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       isOnline,
       isSyncPending,
       offlinePriorityQueue,
+      focusMode,
+      setFocusMode,
     ]
   );
 
@@ -4463,6 +4483,8 @@ export const CRMProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       asyncJobs,
       startAsyncJob,
       cancelAsyncJob,
+      focusMode,
+      setFocusMode,
     }),
     [
       activeTab,
@@ -4532,6 +4554,8 @@ export const CRMProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       asyncJobs,
       startAsyncJob,
       cancelAsyncJob,
+      focusMode,
+      setFocusMode,
     ]
   );
 

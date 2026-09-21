@@ -325,9 +325,12 @@ const MainContent: React.FC = () => {
   );
 };
 
-export const PrivateEnvironment: React.FC = () => (
-  <div className="clientum-light-dashboard flex h-[100dvh] min-h-screen w-screen overflow-hidden bg-[var(--bg-canvas)] text-[var(--text-primary)] font-['Inter',sans-serif]">
-    <Sidebar />
-    <MainContent />
-  </div>
-);
+export const PrivateEnvironment: React.FC = () => {
+  const { focusMode } = useCRM();
+  return (
+    <div className={`clientum-light-dashboard flex h-[100dvh] min-h-screen w-screen overflow-hidden bg-[var(--bg-canvas)] text-[var(--text-primary)] font-['Inter',sans-serif] ${focusMode ? 'focus-mode-active' : ''}`}>
+      {!focusMode && <Sidebar />}
+      <MainContent />
+    </div>
+  );
+};

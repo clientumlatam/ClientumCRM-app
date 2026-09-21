@@ -22,6 +22,8 @@ import {
   ChevronDown,
   ShieldCheck,
   Check,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { useCRM } from '../../context/CRMContext';
 import { Language } from '../../types';
@@ -64,6 +66,8 @@ export const CrmTopHeader: React.FC<CrmTopHeaderProps> = ({
     tasks,
     notifications,
     asyncJobs,
+    focusMode,
+    setFocusMode,
   } = useCRM();
 
   // Helper to determine theme for the toggle icon
@@ -123,18 +127,18 @@ export const CrmTopHeader: React.FC<CrmTopHeaderProps> = ({
         <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-xs font-semibold text-[var(--text-secondary)]">
           <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)] animate-pulse" />
           <span className="capitalize">
-            {activeTab === 'dashboard' ? 'Resumen Ejecutivo' :
-             activeTab === 'userDashboard' ? 'Mi Panel Personal' :
-             activeTab === 'opportunities' ? 'Pipeline & Negocios' :
-             activeTab === 'people' ? 'Contactos' :
-             activeTab === 'companies' ? 'Empresas & Cuentas' :
-             activeTab === 'tasks' ? 'Tareas & Agenda' :
-             activeTab === 'whatsapp' ? 'WhatsApp Multiagente' :
-             activeTab === 'erp' ? 'ERP & Facturación AFIP' :
-             activeTab === 'analytics' ? 'Métricas & BI' :
-             activeTab === 'workflows' ? 'Automatizaciones' :
-             activeTab === 'customObjects' ? 'Campos & Objetos' :
-             activeTab === 'settings' ? 'Roles & Permisos' :
+            {activeTab === 'dashboard' ? 'Panel Directivo: Resumen Ejecutivo' :
+             activeTab === 'userDashboard' ? 'Panel Directivo: Mi Panel Personal' :
+             activeTab === 'opportunities' ? 'Embudo de Ventas: Pipeline Kanban' :
+             activeTab === 'people' ? 'Clientes & Leads: Directorio de Prospectos' :
+             activeTab === 'companies' ? 'Cuentas Corporativas: Clientes' :
+             activeTab === 'tasks' ? 'Agenda Comercial: Seguimientos' :
+             activeTab === 'whatsapp' ? 'Bandeja Multicanal: WhatsApp WACE Hub' :
+             activeTab === 'erp' ? 'Ajustes: Facturación AFIP' :
+             activeTab === 'analytics' ? 'BI & Reportes: Proyecciones' :
+             activeTab === 'workflows' ? 'Automatizaciones IA: Workflows' :
+             activeTab === 'customObjects' ? 'Clientes & Leads: Campos Personalizados B2B' :
+             activeTab === 'settings' ? 'Ajustes de Sistema: Configuración' :
              activeTab}
           </span>
         </div>
@@ -223,6 +227,20 @@ export const CrmTopHeader: React.FC<CrmTopHeaderProps> = ({
             onClose={() => setIsRemindersOpen(false)}
           />
         </div>
+
+        {/* Focus Mode Toggle Button */}
+        <button
+          onClick={() => setFocusMode(!focusMode)}
+          className={`p-1.5 rounded-lg border transition-all cursor-pointer flex items-center gap-1.5 text-xs font-semibold ${
+            focusMode
+              ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] border-[var(--color-primary)]/30'
+              : 'bg-[var(--bg-surface)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-card)]'
+          }`}
+          title={focusMode ? "Desactivar Modo Enfocado" : "Activar Modo Enfocado (Ocultar distractores)"}
+        >
+          {focusMode ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+          <span className="hidden sm:inline">{focusMode ? "Enfocado" : "Modo Enfocado"}</span>
+        </button>
 
         {/* Theme Toggle Button */}
         <button

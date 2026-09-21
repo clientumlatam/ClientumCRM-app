@@ -9,7 +9,7 @@ import { AutomationsManagerModal } from '../workflows/AutomationsManagerModal';
 import { TeamLeaderboardModal } from '../analytics/TeamLeaderboardModal';
 
 export const Navbar: React.FC = () => {
-  const { activeTab } = useCRM();
+  const { activeTab, focusMode } = useCRM();
 
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [isVoiceNoteOpen, setIsVoiceNoteOpen] = useState(false);
@@ -30,8 +30,8 @@ export const Navbar: React.FC = () => {
         hasModuleCredentials={hasModuleCredentials}
       />
 
-      {/* 2. Top Sub-Header Navigation Bar */}
-      <CrmSubHeader />
+      {/* 2. Top Sub-Header Navigation Bar - Hidden in Focus Mode for maximum visual breathing space */}
+      {!focusMode && <CrmSubHeader />}
 
       {/* Integrated Action Modals */}
       <ModuleCredentialsModal

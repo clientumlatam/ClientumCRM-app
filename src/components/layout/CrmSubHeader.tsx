@@ -25,15 +25,15 @@ export const CrmSubHeader: React.FC = () => {
   const { activeTab, setActiveTab } = useCRM();
 
   const subHeaderNavItems: SubHeaderItem[] = [
-    { id: 'dashboard', label: 'Dashboard Directivo', icon: LayoutDashboard },
-    { id: 'opportunities', label: 'Pipeline', icon: Briefcase },
-    { id: 'whatsapp', label: 'WACE Hub', icon: MessageSquare, badge: 'IA' },
-    { id: 'agenteOS', label: 'AgenteOS', icon: Bot, badge: 'Roles' },
-    { id: 'propuestas', label: 'Brochures', icon: FileCheck },
+    { id: 'dashboard', label: 'Panel Directivo', icon: LayoutDashboard },
+    { id: 'opportunities', label: 'Pipeline Kanban', icon: Briefcase },
+    { id: 'whatsapp', label: 'WhatsApp WACE', icon: MessageSquare, badge: 'IA' },
+    { id: 'agenteOS', label: 'AgenteOS (IA)', icon: Bot, badge: 'Roles' },
+    { id: 'propuestas', label: 'Propuestas PDF', icon: FileCheck },
     { id: 'industryLanding', label: 'Web Capture', icon: Globe },
     { id: 'operations', label: 'Operaciones', icon: Compass },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-    { id: 'settings', label: 'Configuración', icon: Settings },
+    { id: 'analytics', label: 'BI Analytics', icon: BarChart3 },
+    { id: 'settings', label: 'Ajustes de Sistema', icon: Settings },
   ];
 
   return (
