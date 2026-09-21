@@ -131,7 +131,7 @@ export const RevenueForecastPanel: React.FC = () => {
 
   return (
     <div
-      className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5 shadow-xs transition-colors space-y-5"
+      className="crm-chart-panel space-y-5"
       id="revenue-forecast-panel"
     >
       {/* Header */}
@@ -184,12 +184,12 @@ export const RevenueForecastPanel: React.FC = () => {
       {/* 3 Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
         {/* Ponderado */}
-        <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0e1626] shadow-2xs">
+        <div className="crm-kpi-stat-card">
           <div className="flex items-center justify-between text-xs text-slate-700 dark:text-slate-300 font-extrabold mb-1">
             <span>Proyectado Ponderado Q4</span>
             <ArrowUpRight size={14} className="text-emerald-500" />
           </div>
-          <div className="text-2xl font-extrabold text-slate-900 dark:text-white font-mono tracking-tight">
+          <div className="crm-metric-number">
             $ {forecastData.totalQuarterWeighted > 0 ? forecastData.totalQuarterWeighted.toLocaleString('es-AR') : '351.000'}
           </div>
           <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
@@ -198,12 +198,12 @@ export const RevenueForecastPanel: React.FC = () => {
         </div>
 
         {/* Comprometido */}
-        <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0e1626] shadow-2xs">
+        <div className="crm-kpi-stat-card">
           <div className="flex items-center justify-between text-xs text-emerald-700 dark:text-emerald-400 font-extrabold mb-1">
             <span>Cierre Seguro / Comprometido</span>
             <ShieldCheck size={14} className="text-emerald-500" />
           </div>
-          <div className="text-2xl font-extrabold text-slate-900 dark:text-white font-mono tracking-tight">
+          <div className="crm-metric-number">
             $ {forecastData.totalQuarterCommitted > 0 ? forecastData.totalQuarterCommitted.toLocaleString('es-AR') : '234.000'}
           </div>
           <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
@@ -212,12 +212,12 @@ export const RevenueForecastPanel: React.FC = () => {
         </div>
 
         {/* Mejor Caso */}
-        <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0e1626] shadow-2xs">
+        <div className="crm-kpi-stat-card">
           <div className="flex items-center justify-between text-xs text-slate-700 dark:text-slate-300 font-extrabold mb-1">
             <span>Pipeline Total (Best Case)</span>
             <Layers size={14} className="text-slate-400" />
           </div>
-          <div className="text-2xl font-extrabold text-slate-900 dark:text-white font-mono tracking-tight">
+          <div className="crm-metric-number">
             $ {forecastData.totalQuarterBestCase > 0 ? forecastData.totalQuarterBestCase.toLocaleString('es-AR') : '636.000'}
           </div>
           <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">

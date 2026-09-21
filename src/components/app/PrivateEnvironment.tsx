@@ -1,7 +1,13 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useCRM } from '../../context/CRMContext';
 import { Sidebar } from './Sidebar';
-import { Navbar } from '../layout/Navbar';
+import { CrmTopHeader } from '../layout/CrmTopHeader';
+import { CrmSubHeader } from '../layout/CrmSubHeader';
+import { ModuleCredentialsModal } from '../settings/ModuleCredentialsModal';
+import { VoiceNoteModal } from '../activities/VoiceNoteModal';
+import { AutomationsManagerModal } from '../workflows/AutomationsManagerModal';
+import { TeamLeaderboardModal } from '../analytics/TeamLeaderboardModal';
+import { moduleNeedsUserCredentials } from '../../data/moduleCredentials';
 import { RecordDrawer } from '../common/RecordDrawer';
 import { CommandPalette } from '../common/CommandPalette';
 import { NewRecordModal } from '../common/NewRecordModal';
@@ -199,11 +205,20 @@ const MainContent: React.FC = () => {
     selectedCheckoutPlan,
     isAICopilotSettingsOpen,
     setIsAICopilotSettingsOpen,
+    focusMode,
   } = useCRM();
 
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [isSimulatorOpen, setIsSimulatorOpen] = useState(false);
   const [isAuditOpen, setIsAuditOpen] = useState(false);
+  
+  const [isConfigOpen, setIsConfigOpen] = useState(false);
+  const [isVoiceNoteOpen, setIsVoiceNoteOpen] = useState(false);
+  const [isAutomationsOpen, setIsAutomationsOpen] = useState(false);
+  const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
+
+  const configModuleId = activeTab === 'mapsProspecting' ? 'googleMaps' : activeTab;
+  const hasModuleCredentials = moduleNeedsUserCredentials(configModuleId);
 
   // Hook for automatic periodic storage cleanup (localStorage & IndexedDB)
   useStorageCleanup();
@@ -223,7 +238,16 @@ const MainContent: React.FC = () => {
           <span className="text-[11px] opacity-90 uppercase tracking-wider font-bold shrink-0">Clientum Cloud Sync</span>
         </div>
       )}
-      <Navbar />
+      <div id="clientum-top-navbar" className="flex flex-col w-full shrink-0 z-30">
+        <CrmTopHeader
+          onOpenConfig={() => setIsConfigOpen(true)}
+          onOpenVoiceNote={() => setIsVoiceNoteOpen(true)}
+          onOpenAutomations={() => setIsAutomationsOpen(true)}
+          onOpenLeaderboard={() => setIsLeaderboardOpen(true)}
+          hasModuleCredentials={hasModuleCredentials}
+        />
+        {!focusMode && <CrmSubHeader />}
+      </div>
       <TrialBanner />
 
       <main className="crm-main-content flex-1 flex flex-col min-h-0 overflow-hidden relative">
@@ -310,6 +334,24 @@ const MainContent: React.FC = () => {
         initialDefaults={composeEmailDefaults}
       />
       <UserProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} />
+      
+      <ModuleCredentialsModal
+        moduleId={isConfigOpen ? configModuleId : null}
+        onClose={() => setIsConfigOpen(false)}
+      />
+      <VoiceNoteModal
+        isOpen={isVoiceNoteOpen}
+        onClose={() => setIsVoiceNoteOpen(false)}
+      />
+      <AutomationsManagerModal
+        isOpen={isAutomationsOpen}
+        onClose={() => setIsAutomationsOpen(false)}
+      />
+      <TeamLeaderboardModal
+        isOpen={isLeaderboardOpen}
+        onClose={() => setIsLeaderboardOpen(false)}
+      />
+
       <QuoteWizardModal isOpen={isWizardOpen} onClose={() => setIsWizardOpen(false)} />
       <WhatsAppSimulatorModal isOpen={isSimulatorOpen} onClose={() => setIsSimulatorOpen(false)} />
       <ExpressAuditModal isOpen={isAuditOpen} onClose={() => setIsAuditOpen(false)} />

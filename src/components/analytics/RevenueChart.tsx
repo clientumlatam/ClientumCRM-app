@@ -32,7 +32,7 @@ export const RevenueChart: React.FC = () => {
     .reduce((acc, o) => acc + o.amount, 134000);
 
   return (
-    <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5 shadow-sm transition-colors">
+    <div className="crm-chart-panel">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-500/10 text-blue-500">

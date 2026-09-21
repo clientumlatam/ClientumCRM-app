@@ -28,7 +28,7 @@ import {
 import { useCRM } from '../../context/CRMContext';
 import { Language } from '../../types';
 import { ClientumLogo } from '../common/ClientumLogo';
-import { ConnectivityIndicator } from '../common/ConnectivityIndicator';
+import { ConnectivityStatus } from '../common/ConnectivityStatus';
 import { FollowupRemindersDropdown } from '../common/FollowupRemindersDropdown';
 import { NotificationCenter } from '../notifications/NotificationCenter';
 import { ThemeSwitcher } from './ThemeSwitcher';
@@ -121,7 +121,7 @@ export const CrmTopHeader: React.FC<CrmTopHeaderProps> = ({
         </div>
 
         {/* Connectivity Indicator Component */}
-        <ConnectivityIndicator />
+        <ConnectivityStatus />
 
         {/* Active Tab Breadcrumb Badge */}
         <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-xs font-semibold text-[var(--text-secondary)]">

@@ -334,7 +334,7 @@ export const ExecutiveDashboardView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsPipelineDropdownOpen(!isPipelineDropdownOpen)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white dark:bg-[#0e1626] border border-slate-200 dark:border-[#1c2d47] text-slate-800 dark:text-slate-200 text-xs font-bold hover:border-slate-300 transition-all cursor-pointer shadow-xs"
+                className="crm-button-select"
               >
                 <Filter size={13} className="text-slate-400" />
                 <span>{pipelineFilter}</span>
@@ -419,7 +419,7 @@ export const ExecutiveDashboardView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowCompetitorBanner(false)}
-                className="p-1.5 rounded-lg text-[var(--text-muted,#64748b)] dark:text-slate-400 hover:text-[var(--text-secondary)] dark:hover:text-[var(--text-primary,#0f172a)] dark:hover:text-slate-200 transition-colors cursor-pointer"
+                className="crm-button-ghost"
                 title="Cerrar aviso"
               >
                 <X size={14} />
@@ -431,9 +431,9 @@ export const ExecutiveDashboardView: React.FC = () => {
         {/* 4 High-Impact Executive KPI Cards */}
         <div className="crm-kpi-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           {/* Card 1: Pipeline Activo */}
-          <div className="crm-kpi-card bg-white dark:bg-[#0e1626] border border-slate-200 dark:border-[#1c2d47] rounded-2xl p-4 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="crm-kpi-stat-card">
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <span className="crm-label-eyebrow">
                 Pipeline Activo
               </span>
               <span className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/60 dark:border-emerald-800/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
@@ -441,7 +441,7 @@ export const ExecutiveDashboardView: React.FC = () => {
               </span>
             </div>
             <div>
-              <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight font-mono">
+              <div className="crm-metric-number">
                 {money(pipelineTotal > 0 ? pipelineTotal : 582000)}
               </div>
               <div className="flex items-center gap-1.5 mt-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium">
@@ -457,9 +457,9 @@ export const ExecutiveDashboardView: React.FC = () => {
           </div>
 
           {/* Card 2: Vendido */}
-          <div className="crm-kpi-card bg-white dark:bg-[#0e1626] border border-slate-200 dark:border-[#1c2d47] rounded-2xl p-4 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="crm-kpi-stat-card">
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <span className="crm-label-eyebrow">
                 Vendido / Facturado
               </span>
               <span className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200/60 dark:border-blue-800/40 flex items-center justify-center text-blue-600 dark:text-blue-400">
@@ -467,7 +467,7 @@ export const ExecutiveDashboardView: React.FC = () => {
               </span>
             </div>
             <div>
-              <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight font-mono">
+              <div className="crm-metric-number">
                 {money(wonTotal > 0 ? wonTotal : 54000)}
               </div>
               <div className="flex items-center gap-1.5 mt-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium">
@@ -482,9 +482,9 @@ export const ExecutiveDashboardView: React.FC = () => {
           </div>
 
           {/* Card 3: Conversión */}
-          <div className="crm-kpi-card bg-white dark:bg-[#0e1626] border border-slate-200 dark:border-[#1c2d47] rounded-2xl p-4 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="crm-kpi-stat-card">
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <span className="crm-label-eyebrow">
                 Tasa de Conversión
               </span>
               <span className="w-7 h-7 rounded-lg bg-purple-50 dark:bg-purple-950/50 border border-purple-200/60 dark:border-purple-800/40 flex items-center justify-center text-purple-600 dark:text-purple-400">
@@ -492,7 +492,7 @@ export const ExecutiveDashboardView: React.FC = () => {
               </span>
             </div>
             <div>
-              <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight font-mono">
+              <div className="crm-metric-number">
                 {winRate > 0 ? `${winRate}%` : '32,4%'}
               </div>
               <div className="flex items-center gap-1.5 mt-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
@@ -506,9 +506,9 @@ export const ExecutiveDashboardView: React.FC = () => {
           </div>
 
           {/* Card 4: Ciclo de Venta con Selector */}
-          <div className="crm-kpi-card bg-white dark:bg-[#0e1626] border border-slate-200 dark:border-[#1c2d47] rounded-2xl p-4 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="crm-kpi-stat-card">
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <span className="crm-label-eyebrow">
                 Ciclo de Venta
               </span>
               <div className="relative">
@@ -543,7 +543,7 @@ export const ExecutiveDashboardView: React.FC = () => {
             <div>
               {cycleMetricMode === 'Promedio' && (
                 <>
-                  <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight font-mono">
+                  <div className="crm-metric-number">
                     27 días
                   </div>
                   <div className="flex items-center gap-1.5 mt-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
@@ -553,7 +553,7 @@ export const ExecutiveDashboardView: React.FC = () => {
               )}
               {cycleMetricMode === 'Mediana' && (
                 <>
-                  <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight font-mono">
+                  <div className="crm-metric-number">
                     24 días
                   </div>
                   <div className="flex items-center gap-1.5 mt-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
@@ -585,9 +585,9 @@ export const ExecutiveDashboardView: React.FC = () => {
         {/* Actionable Urgent Card & Revenue Forecast Section */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
           {/* Card: ATENCIÓN REQUERIDA */}
-          <div className="lg:col-span-1 bg-white dark:bg-[#0e1626] border border-slate-200 dark:border-[#1c2d47] rounded-2xl p-4 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="lg:col-span-1 crm-kpi-stat-card">
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <span className="crm-label-eyebrow">
                 ATENCIÓN REQUERIDA
               </span>
               <span className="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-950/50 border border-rose-200/60 dark:border-rose-800/40 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0">
@@ -603,7 +603,7 @@ export const ExecutiveDashboardView: React.FC = () => {
               </p>
             </div>
             <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-[#1c2d47]/70 flex items-center">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200/80 dark:border-rose-800/60 text-[11px] font-bold">
+              <span className="crm-badge-pill bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-200/80 dark:border-rose-800/60">
                 Requiere acción hoy
               </span>
             </div>
@@ -622,8 +622,8 @@ export const ExecutiveDashboardView: React.FC = () => {
           </div>
 
           {/* Distribución por Origen / Fuentes */}
-          <div className="crm-panel bg-[var(--bg-card)] dark:bg-[#0e1626] border border-[var(--border-subtle)]/80 dark:border-[#1c2d47] rounded-2xl p-5 shadow-xs flex flex-col justify-between">
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-[var(--border-subtle)] dark:border-[#1c2d47]">
+          <div className="crm-panel-container p-5 flex flex-col justify-between">
+            <div className="crm-section-header">
               <div>
                 <h3 className="text-sm font-bold text-[var(--text-primary)] dark:text-white">
                   Distribución por Fuentes
@@ -693,8 +693,8 @@ export const ExecutiveDashboardView: React.FC = () => {
         {/* Actionable Priorities Panel (Atención Prioritaria) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {/* Tareas Críticas y Próximas */}
-          <div className="bg-[var(--bg-card)] dark:bg-[#0e1626] border border-[var(--border-subtle)]/80 dark:border-[#1c2d47] rounded-2xl p-5 shadow-xs">
-            <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-[var(--border-subtle)] dark:border-[#1c2d47]">
+          <div className="crm-panel-container p-5">
+            <div className="crm-section-header">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/50 border border-amber-200/60 dark:border-amber-800/40 flex items-center justify-center text-amber-600 dark:text-amber-400">
                   <CalendarDays size={16} />
@@ -786,8 +786,8 @@ export const ExecutiveDashboardView: React.FC = () => {
           </div>
 
           {/* Negocios en Riesgo (Deal Rotting) */}
-          <div className="bg-[var(--bg-card)] dark:bg-[#0e1626] border border-[var(--border-subtle)]/80 dark:border-[#1c2d47] rounded-2xl p-5 shadow-xs">
-            <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-[var(--border-subtle)] dark:border-[#1c2d47]">
+          <div className="crm-panel-container p-5">
+            <div className="crm-section-header">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/50 border border-rose-200/60 dark:border-rose-800/40 flex items-center justify-center text-rose-600 dark:text-rose-400">
                   <ShieldAlert size={16} />

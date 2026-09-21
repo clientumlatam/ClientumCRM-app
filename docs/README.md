@@ -10,6 +10,9 @@ Bienvenido al centro de documentación técnica de **ClientumOS**. A continuaci�
 6. [06 · Inteligencia Artificial, Copilot y Modelos Gemini](./06-ia-y-asistentes.md)
 7. [07 · Variables de Entorno y Despliegue en Producción](./07-variables-de-entorno-y-despliegue.md)
 8. [08 · Roadmap y Guías de Mantenimiento](./08-roadmap-y-mantenimiento.md)
+9. [09 · Guía de Onboarding para Desarrolladores](./09-guia-de-onboarding.md)
+10. [10 · Guía de Contribución](./10-guia-de-contribucion.md)
+11. [11 · Referencia de la API REST](./11-referencia-api.md)
 
 ---
 *ClientumOS — Menos tareas manuales. Más control. Más crecimiento.*

@@ -366,6 +366,77 @@ button:focus-visible {
 }
 
 /* ==========================================================================
+   Dashboard & UI Utility Classes (Consolidated Components)
+   ========================================================================== */
+
+@layer components {
+  /* Main Container Panels */
+  .crm-panel-container {
+    @apply bg-white dark:bg-[#0e1626] border border-slate-200 dark:border-[#1c2d47] rounded-2xl shadow-xs transition-all;
+  }
+
+  /* Interaction Buttons (Filters, Selects) */
+  .crm-button-select {
+    @apply inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white dark:bg-[#0e1626] border border-slate-200 dark:border-[#1c2d47] text-slate-800 dark:text-slate-200 text-xs font-bold hover:border-slate-300 dark:hover:border-slate-600 transition-all cursor-pointer shadow-xs;
+  }
+
+  /* Secondary Icon Buttons */
+  .crm-button-ghost {
+    @apply p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer;
+  }
+
+  /* KPI Card specialized version */
+  .crm-kpi-stat-card {
+    @apply bg-white dark:bg-[#0e1626] border border-slate-200 dark:border-[#1c2d47] rounded-2xl p-4 shadow-xs hover:shadow-md transition-all flex flex-col justify-between;
+  }
+
+  /* KPI Metrics (Numbers) */
+  .crm-metric-number {
+    @apply text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight font-mono;
+  }
+
+  /* KPI Label (Eyebrows) */
+  .crm-label-eyebrow {
+    @apply text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider;
+  }
+
+  /* Status Badges */
+  .crm-badge-pill {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold border transition-all;
+  }
+
+  /* Section Title Group */
+  .crm-section-header {
+    @apply flex items-center justify-between pb-3.5 mb-3.5 border-b border-slate-100 dark:border-[#1c2d47];
+  }
+
+  /* Kanban Deal Cards */
+  .crm-kanban-card {
+    @apply rounded-lg bg-[var(--bg-card)] hover:bg-[var(--bg-muted)] border border-[var(--border-subtle)] hover:border-blue-300 shadow-xs hover:shadow-md cursor-grab active:cursor-grabbing transition-all relative;
+  }
+
+  /* Small Action Icon Buttons */
+  .crm-icon-action-btn {
+    @apply p-1 rounded transition-colors cursor-pointer text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800;
+  }
+
+  /* Revenue/Chart Panels */
+  .crm-chart-panel {
+    @apply rounded-2xl border border-slate-200 dark:border-[#1c2d47] bg-white dark:bg-[#0e1626] p-5 shadow-xs transition-colors;
+  }
+
+  /* Module Pills (Acceso rápido) */
+  .crm-module-pill {
+    @apply inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-50/40 dark:hover:bg-slate-700 transition-all cursor-pointer shadow-2xs;
+  }
+
+  /* Status Tags */
+  .crm-status-tag {
+    @apply flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-lg border transition-all;
+  }
+}
+
+/* ==========================================================================
    Estilos para el Sidebar de Clientum
    ========================================================================== */
 #clientum-sidebar {

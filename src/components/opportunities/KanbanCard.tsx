@@ -39,7 +39,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = React.memo(({
       draggable
       onDragStart={(e) => onDragStart(e, opp.id)}
       onClick={() => onSelectRecord(opp.id)}
-      className={`${compactCards ? 'p-2.5' : 'p-3'} rounded-lg bg-[var(--bg-card)] hover:bg-[var(--bg-muted)] border border-[var(--border-subtle)] hover:border-blue-300 shadow-xs hover:shadow-md cursor-grab active:cursor-grabbing transition-all group relative`}
+      className={`${compactCards ? 'p-2.5' : 'p-3'} crm-kanban-card group`}
     >
       {/* Deal Name & Amount */}
       <div className="flex items-start justify-between gap-2 mb-1.5">
@@ -149,7 +149,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = React.memo(({
               e.stopPropagation();
               onWhatsAppClick(opp);
             }}
-            className="p-1 rounded hover:bg-emerald-50 text-[var(--text-muted,#64748b)] dark:text-slate-400 hover:text-emerald-600 transition-colors cursor-pointer"
+            className="crm-icon-action-btn hover:bg-emerald-50 hover:text-emerald-600"
             title="Enviar WhatsApp al contacto del negocio"
           >
             <MessageCircle className="w-3 h-3 text-emerald-500" />
@@ -160,7 +160,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = React.memo(({
               e.stopPropagation();
               onAICopilotClick(opp);
             }}
-            className="p-1 rounded hover:bg-blue-50 text-[var(--text-muted,#64748b)] dark:text-slate-400 hover:text-blue-600 transition-colors cursor-pointer"
+            className="crm-icon-action-btn hover:bg-blue-50 hover:text-blue-600"
             title="Generar análisis de IA"
           >
             <Sparkles className="w-3 h-3" />
