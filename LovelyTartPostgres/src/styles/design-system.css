@@ -1,0 +1,357 @@
+/*
+ * Clientum Design System
+ * Canonical tokens and cross-surface normalization.
+ * The public site and the private workspace intentionally share this layer.
+ */
+
+:root,
+[data-theme="light"],
+[data-theme="clarity"],
+[data-theme="executive"],
+.theme-clarity,
+.theme-executive {
+  --ds-brand-navy: #022046;
+  --ds-brand-corporate: #002b5c;
+  --ds-brand-action: #0056b3;
+  --ds-brand-action-hover: #004494;
+  --ds-state-success: #4caf50;
+  --ds-state-warning: #f59e0b;
+  --ds-state-danger: #ef4444;
+  --ds-canvas: #f5f7fa;
+  --ds-surface: #ffffff;
+  --ds-surface-raised: #ffffff;
+  --ds-surface-subtle: #f1f5f9;
+  --ds-text: #212121;
+  --ds-text-secondary: #475569;
+  --ds-text-muted: #64748b;
+  --ds-border-subtle: #e2e8f0;
+  --ds-border: #cbd5e1;
+  --ds-border-strong: #94a3b8;
+  --ds-radius-sm: 6px;
+  --ds-radius-md: 8px;
+  --ds-radius-lg: 12px;
+  --ds-radius-xl: 16px;
+  --ds-radius-full: 9999px;
+  --ds-shadow-card: 0 1px 2px rgb(0 0 0 / 0.05);
+  --ds-shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --ds-shadow-popover: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --ds-font-sans: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  --ds-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  --ds-focus-ring: 0 0 0 3px rgb(0 86 179 / 0.28);
+
+  /* Keep legacy variables and the canonical contract in lockstep. */
+  --clientum-navy: var(--ds-brand-navy);
+  --clientum-blue: var(--ds-brand-corporate);
+  --clientum-action: var(--ds-brand-action);
+  --clientum-action-hover: var(--ds-brand-action-hover);
+  --clientum-surface: var(--ds-canvas);
+  --clientum-surface-card: var(--ds-surface);
+  --clientum-surface-elevated: var(--ds-surface-raised);
+  --clientum-surface-border: var(--ds-border-subtle);
+  --clientum-ink: var(--ds-text);
+  --clientum-ink-secondary: var(--ds-text-secondary);
+  --clientum-ink-muted: var(--ds-text-muted);
+  --bg-canvas: var(--ds-canvas);
+  --bg-workspace: var(--ds-canvas);
+  --bg-surface: var(--ds-surface);
+  --bg-surface-elevated: var(--ds-surface-raised);
+  --bg-card: var(--ds-surface);
+  --bg-navbar: var(--ds-surface);
+  --text-primary: var(--ds-text);
+  --text-secondary: var(--ds-text-secondary);
+  --text-muted: var(--ds-text-muted);
+  --border-subtle: var(--ds-border-subtle);
+  --border-default: var(--ds-border);
+  --border-strong: var(--ds-border-strong);
+  --color-primary: var(--ds-brand-navy);
+  --color-primary-hover: var(--ds-brand-corporate);
+  --color-action: var(--ds-brand-action);
+  --color-action-hover: var(--ds-brand-action-hover);
+  --color-success: var(--ds-state-success);
+  --space-grid-gap: 16px;
+  --crm-container-padding: 24px;
+  --crm-section-gap: 24px;
+}
+
+[data-theme="dark"],
+[data-mode="dark"],
+.dark {
+  color-scheme: dark;
+  --ds-canvas: #040711;
+  --ds-surface: #0d1527;
+  --ds-surface-raised: #111a2d;
+  --ds-surface-subtle: #0e1626;
+  --ds-text: #f1f5f9;
+  --ds-text-secondary: #cbd5e1;
+  --ds-text-muted: #94a3b8;
+  --ds-border-subtle: #141f33;
+  --ds-border: #20324e;
+  --ds-border-strong: #2d436a;
+  --ds-shadow-card: 0 1px 2px rgb(0 0 0 / 0.3);
+  --ds-shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --ds-shadow-popover: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+}
+
+html {
+  background: var(--ds-canvas);
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  background: var(--ds-canvas);
+  color: var(--ds-text);
+  font-family: var(--ds-font-sans);
+  line-height: 1.5;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+a,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--ds-focus-ring);
+}
+
+/* Reusable classes for new and legacy screens. */
+.clientum-btn-primary,
+.clientum-btn-corporate,
+.clientum-btn-secondary,
+.clientum-button-primary,
+.clientum-button-secondary {
+  border-radius: var(--ds-radius-md);
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    color 140ms ease,
+    transform 140ms ease;
+}
+
+.clientum-btn-primary,
+.clientum-button-primary {
+  background: var(--ds-brand-action);
+  box-shadow: 0 4px 12px -2px rgb(0 86 179 / 0.25);
+}
+
+.clientum-btn-primary:hover,
+.clientum-button-primary:hover {
+  background: var(--ds-brand-action-hover);
+  box-shadow: 0 6px 16px -2px rgb(0 86 179 / 0.35);
+}
+
+.clientum-btn-secondary,
+.clientum-button-secondary {
+  border-color: var(--ds-border);
+  background: var(--ds-surface);
+  color: var(--ds-text-secondary);
+}
+
+.clientum-btn-secondary:hover,
+.clientum-button-secondary:hover {
+  border-color: var(--ds-brand-action);
+  color: var(--ds-brand-action);
+}
+
+.clientum-card,
+.clientum-kpi-card {
+  border-color: var(--ds-border-subtle);
+  border-radius: var(--ds-radius-xl);
+  background: var(--ds-surface);
+  box-shadow: var(--ds-shadow-card);
+}
+
+.clientum-card:hover,
+.clientum-kpi-card:hover {
+  border-color: var(--ds-border);
+  box-shadow: var(--ds-shadow-elevated);
+}
+
+/* Public site shell. */
+#clientum-public-environment {
+  min-height: 100dvh;
+  background: var(--ds-canvas);
+  color: var(--ds-text);
+}
+
+#clientum-public-unified-header {
+  color: var(--ds-text);
+}
+
+#public-top-header-bar {
+  background: var(--ds-surface-subtle) !important;
+  border-color: var(--ds-border-subtle) !important;
+  color: var(--ds-text-secondary) !important;
+}
+
+#clientum-public-unified-header > nav,
+#clientum-public-unified-header nav[class*="bg-[var(--bg-surface)]"] {
+  background: color-mix(in srgb, var(--ds-surface) 94%, transparent) !important;
+  border-color: var(--ds-border-subtle) !important;
+  box-shadow: var(--ds-shadow-card) !important;
+  backdrop-filter: blur(14px);
+}
+
+#clientum-public-unified-header #brand-logo-placeholder {
+  border-color: var(--ds-border) !important;
+  border-radius: var(--ds-radius-lg);
+  background: var(--ds-surface) !important;
+  box-shadow: var(--ds-shadow-card);
+}
+
+#clientum-public-unified-header button[class*="rounded-xl"],
+#clientum-public-unified-header button[class*="rounded-full"] {
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
+}
+
+#clientum-public-unified-header button[class*="bg-[#0056B3]"],
+#clientum-public-unified-header button[class*="bg-blue-600"] {
+  background: var(--ds-brand-action) !important;
+}
+
+#clientum-public-unified-header button[class*="bg-[#0056B3]"]:hover,
+#clientum-public-unified-header button[class*="bg-blue-600"]:hover {
+  background: var(--ds-brand-action-hover) !important;
+}
+
+#clientum-public-unified-header [class*="absolute"][class*="top-full"] {
+  border-color: var(--ds-border-subtle) !important;
+  border-radius: var(--ds-radius-xl) !important;
+  background: var(--ds-surface) !important;
+  box-shadow: var(--ds-shadow-popover) !important;
+}
+
+#clientum-public-unified-header kbd {
+  border-color: var(--ds-border-subtle);
+  background: var(--ds-surface-subtle);
+  color: var(--ds-text-muted);
+}
+
+#clientum-public-environment main [class*="border-slate-200"]:not(button),
+#clientum-public-environment main [class*="border-gray-200"]:not(button),
+#clientum-public-environment main [class*="border-[var(--border-subtle)]"]:not(button) {
+  border-color: var(--ds-border-subtle) !important;
+}
+
+#clientum-public-environment main [class*="bg-white"]:not(button),
+#clientum-public-environment main [class*="bg-slate-50"]:not(button) {
+  background-color: var(--ds-surface) !important;
+}
+
+#clientum-public-environment main [class*="shadow-2xl"],
+#clientum-public-environment main [class*="shadow-xl"] {
+  box-shadow: var(--ds-shadow-popover) !important;
+}
+
+#clientum-public-environment main input,
+#clientum-public-environment main select,
+#clientum-public-environment main textarea {
+  border-color: var(--ds-border) !important;
+  border-radius: var(--ds-radius-md);
+  background: var(--ds-surface) !important;
+  color: var(--ds-text);
+}
+
+/* Private workspace shell. */
+#clientum-private-environment {
+  background: var(--ds-canvas) !important;
+  color: var(--ds-text) !important;
+  font-family: var(--ds-font-sans);
+}
+
+#clientum-unified-sidebar {
+  width: 264px;
+  flex: 0 0 264px;
+  background: var(--sidebar-bg, var(--ds-surface)) !important;
+  border-color: var(--ds-border-subtle) !important;
+  color: var(--ds-text);
+}
+
+#clientum-unified-sidebar input {
+  border-color: var(--ds-border-subtle) !important;
+  border-radius: var(--ds-radius-md);
+  background: var(--ds-surface-subtle) !important;
+  color: var(--ds-text);
+}
+
+#clientum-unified-sidebar > div:first-of-type,
+#clientum-unified-sidebar > div:last-of-type {
+  border-color: var(--ds-border-subtle) !important;
+}
+
+#clientum-unified-sidebar button {
+  border-radius: var(--ds-radius-md);
+}
+
+#clientum-top-header {
+  min-height: 56px;
+  background: var(--ds-surface) !important;
+  border-color: var(--ds-border-subtle) !important;
+  box-shadow: var(--ds-shadow-card) !important;
+}
+
+#crm-sub-header-navigation {
+  min-height: 40px;
+  background: var(--ds-surface-subtle) !important;
+  border-color: var(--ds-border-subtle) !important;
+  box-shadow: none !important;
+}
+
+#crm-main-viewport {
+  background: var(--ds-canvas);
+  color: var(--ds-text);
+}
+
+#crm-main-viewport [class*="border-slate-200"]:not(button),
+#crm-main-viewport [class*="border-gray-200"]:not(button),
+#crm-main-viewport [class*="border-[var(--border-subtle)]"]:not(button) {
+  border-color: var(--ds-border-subtle) !important;
+}
+
+#crm-main-viewport [class*="bg-white"]:not(button),
+#crm-main-viewport [class*="bg-slate-50"]:not(button) {
+  background-color: var(--ds-surface) !important;
+}
+
+#crm-main-viewport [class*="shadow-2xl"],
+#crm-main-viewport [class*="shadow-xl"] {
+  box-shadow: var(--ds-shadow-popover) !important;
+}
+
+#crm-main-viewport .crm-panel,
+#crm-main-viewport .crm-kpi-card,
+#crm-main-viewport .crm-board-shell,
+#crm-main-viewport .crm-attention-panel {
+  border-radius: var(--ds-radius-lg);
+}
+
+@media (max-width: 1023px) {
+  #clientum-unified-sidebar {
+    width: min(88vw, 320px);
+    flex-basis: min(88vw, 320px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

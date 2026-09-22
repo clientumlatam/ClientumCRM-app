@@ -1,0 +1,224 @@
+/* ==========================================================================
+   CLIENTUM CRM - SHARED UI COMPONENTS MODULE
+   Archivo: src/styles/clientum-ui.css
+   Reusable UI components shared across the Public Site & Private Dashboard
+   Strictly aligned with Clientum Brand Guidelines (v1.0 - Sept 2026)
+   ========================================================================== */
+
+@layer components {
+  /* --------------------------------------------------------------------------
+     1. Primary & Action Buttons
+     -------------------------------------------------------------------------- */
+  .clientum-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.75rem;
+    background-color: var(--color-action, #0056B3);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1rem;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px -2px rgba(0, 86, 179, 0.25);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid transparent;
+  }
+
+  .clientum-btn-primary:hover {
+    background-color: #004494;
+    box-shadow: 0 6px 16px -2px rgba(0, 86, 179, 0.35);
+  }
+
+  .clientum-btn-primary:active {
+    transform: scale(0.98);
+  }
+
+  .clientum-btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* --------------------------------------------------------------------------
+     2. Corporate & Secondary Buttons
+     -------------------------------------------------------------------------- */
+  .clientum-btn-corporate {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.75rem;
+    background-color: var(--clientum-navy, #022046);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .clientum-btn-corporate:hover {
+    background-color: var(--clientum-blue, #002B5C);
+  }
+
+  .clientum-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    background-color: var(--clientum-surface-card, #ffffff);
+    color: var(--clientum-ink, #212121);
+    border: 1px solid var(--border-default, #cbd5e1);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .clientum-btn-secondary:hover {
+    background-color: var(--crm-surface-2, #f1f5f9);
+    border-color: var(--border-strong, #94a3b8);
+  }
+
+  /* --------------------------------------------------------------------------
+     3. Shared Elevated Card
+     -------------------------------------------------------------------------- */
+  .clientum-card {
+    background-color: var(--clientum-surface-card, #ffffff);
+    border: 1px solid var(--border-subtle, #e2e8f0);
+    border-radius: 1rem;
+    padding: 1rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .clientum-card:hover {
+    border-color: var(--border-default, #cbd5e1);
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
+  }
+
+  /* --------------------------------------------------------------------------
+     4. KPI Metric Cards (Dashboard & Public Showcase Synchronized)
+     -------------------------------------------------------------------------- */
+  .clientum-kpi-card {
+    background-color: var(--clientum-surface-card, #ffffff);
+    border: 1px solid var(--border-subtle, #e2e8f0);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease;
+  }
+
+  .clientum-kpi-card:hover {
+    box-shadow: 0 4px 14px -2px rgba(15, 23, 42, 0.06);
+    border-color: var(--border-default, #cbd5e1);
+  }
+
+  .clientum-metric-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    letter-spacing: -0.03em;
+    color: var(--clientum-ink, #212121);
+  }
+
+  .clientum-eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--clientum-ink-muted, #64748b);
+  }
+
+  /* --------------------------------------------------------------------------
+     5. Reusable Pills & Filter Badges
+     -------------------------------------------------------------------------- */
+  .clientum-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.3125rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background-color: var(--crm-surface-2, #f1f5f9);
+    border: 1px solid var(--border-subtle, #e2e8f0);
+    color: var(--clientum-ink-secondary, #475569);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .clientum-pill:hover {
+    border-color: var(--border-strong, #94a3b8);
+    color: var(--clientum-ink, #212121);
+  }
+
+  .clientum-pill-active {
+    background-color: var(--color-action, #0056B3);
+    border-color: var(--color-action, #0056B3);
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(0, 86, 179, 0.25);
+  }
+
+  /* --------------------------------------------------------------------------
+     6. Status Badges
+     -------------------------------------------------------------------------- */
+  .clientum-badge-success {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.1875rem 0.5rem;
+    border-radius: 0.375rem;
+    background-color: rgba(76, 175, 80, 0.12);
+    color: #2e7d32;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+    font-size: 0.6875rem;
+    font-weight: 700;
+  }
+
+  .clientum-badge-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.1875rem 0.5rem;
+    border-radius: 0.375rem;
+    background-color: rgba(0, 86, 179, 0.1);
+    color: var(--color-action, #0056B3);
+    border: 1px solid rgba(0, 86, 179, 0.25);
+    font-size: 0.6875rem;
+    font-weight: 700;
+  }
+
+  /* --------------------------------------------------------------------------
+     7. Form Controls
+     -------------------------------------------------------------------------- */
+  .clientum-input {
+    width: 100%;
+    padding: 0.5rem 0.875rem;
+    border-radius: 0.75rem;
+    background-color: var(--clientum-surface-card, #ffffff);
+    border: 1px solid var(--border-default, #cbd5e1);
+    color: var(--clientum-ink, #212121);
+    font-size: 0.75rem;
+    transition: all 0.15s ease;
+  }
+
+  .clientum-input:focus {
+    outline: none;
+    border-color: var(--color-action, #0056B3);
+    box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.15);
+  }
+}
