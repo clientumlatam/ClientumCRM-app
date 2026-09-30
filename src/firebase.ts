@@ -86,7 +86,6 @@ export const db: Firestore = isLiveFirebaseReady
       try {
         const firestoreSettings = {
           experimentalAutoDetectLongPolling: true,
-          experimentalForceLongPolling: true,
         };
         return firebaseDatabaseId
           ? initializeFirestore(app as FirebaseApp, firestoreSettings, firebaseDatabaseId)
@@ -147,16 +146,18 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
 }
 
 /**
- * Validate connection to Firestore on initial boot without throwing unhandled rejection or 10s backend timeout error.
+ * Validate connection to Firestore on initial boot without throwing unhandled rejection.
  */
 export async function testFirestoreConnection(): Promise<boolean> {
-  if (!isLiveFirebaseReady || !db || !auth.currentUser) return false;
+  if (!isLiveFirebaseReady || !db) return false;
   try {
-    const timeout = new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 3000));
-    const checkDoc = getDoc(doc(db, 'users', auth.currentUser.uid)).then(() => true).catch(() => false);
-    return await Promise.race([checkDoc, timeout]);
+    const testDocRef = doc(db, 'test', 'connection');
+    await getDocFromServer(testDocRef);
+    return true;
   } catch (error: any) {
-    console.warn("Firestore running in offline or cached persistence mode:", error?.message || error);
+    if (error instanceof Error && (error.message.includes('the client is offline') || error.message.includes('unavailable'))) {
+      console.warn("Firestore running in offline or cached persistence mode:", error.message);
+    }
     return false;
   }
 }
@@ -214,6 +215,7 @@ googleProvider.addScope('profile');
  */
 export async function syncUserProfileToFirestore(user: { uid: string; email?: string | null; displayName?: string | null; photoURL?: string | null; providerId?: string }): Promise<void> {
   if (!user?.uid || !isAuthorizedForUser(user.uid)) return;
+  const path = `users/${user.uid}`;
   try {
     const userRef = doc(db, 'users', user.uid);
     await setDoc(userRef, {
@@ -225,8 +227,12 @@ export async function syncUserProfileToFirestore(user: { uid: string; email?: st
       lastLoginAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }, { merge: true });
-  } catch (err) {
-    console.warn('Could not sync user profile to Firestore:', err);
+  } catch (err: any) {
+    if (err?.code === 'permission-denied') {
+      handleFirestoreError(err, OperationType.WRITE, path);
+    } else {
+      console.warn('Could not sync user profile to Firestore:', err);
+    }
   }
 }
 
@@ -243,14 +249,19 @@ export async function syncWorkspaceToFirestore(userId: string, data: {
   [key: string]: any;
 }): Promise<void> {
   if (!userId || !isAuthorizedForUser(userId)) return;
+  const path = `users/${userId}/workspace/crm`;
   try {
     const workspaceRef = doc(db, 'users', userId, 'workspace', 'crm');
     await setDoc(workspaceRef, {
       ...data,
       updatedAt: new Date().toISOString(),
     }, { merge: true });
-  } catch (err) {
-    console.warn('Could not sync workspace snapshot to Firestore:', err);
+  } catch (err: any) {
+    if (err?.code === 'permission-denied') {
+      handleFirestoreError(err, OperationType.WRITE, path);
+    } else {
+      console.warn('Could not sync workspace snapshot to Firestore:', err);
+    }
   }
 }
 
@@ -265,6 +276,7 @@ export async function fetchWorkspaceFromFirestore(userId: string): Promise<{
   activities?: any[];
 } | null> {
   if (!userId || !isAuthorizedForUser(userId)) return null;
+  const path = `users/${userId}/workspace/crm`;
   try {
     const workspaceRef = doc(db, 'users', userId, 'workspace', 'crm');
     const snap = await getDoc(workspaceRef);
@@ -272,8 +284,12 @@ export async function fetchWorkspaceFromFirestore(userId: string): Promise<{
       return snap.data() as any;
     }
     return null;
-  } catch (err) {
-    console.warn('Could not fetch workspace snapshot from Firestore:', err);
+  } catch (err: any) {
+    if (err?.code === 'permission-denied') {
+      handleFirestoreError(err, OperationType.GET, path);
+    } else {
+      console.warn('Could not fetch workspace snapshot from Firestore:', err);
+    }
     return null;
   }
 }
@@ -292,6 +308,7 @@ export function subscribeToUserSubcollection<T = any>(
   if (!userId || !isAuthorizedForUser(userId)) {
     return () => {};
   }
+  const path = `users/${userId}/${subcollectionName}`;
   try {
     const colRef = collection(db, 'users', userId, subcollectionName);
     const unsubscribe = onSnapshot(
@@ -303,13 +320,24 @@ export function subscribeToUserSubcollection<T = any>(
         })) as T[];
         onData(items);
       },
-      (err) => {
+      (err: any) => {
+        if (err?.code === 'permission-denied') {
+          try {
+            handleFirestoreError(err, OperationType.GET, path);
+          } catch (wrapped) {
+            onError?.(wrapped instanceof Error ? wrapped : new Error(String(wrapped)));
+            return;
+          }
+        }
         console.warn(`Realtime subscription error on ${subcollectionName}:`, err);
         onError?.(err);
       }
     );
     return unsubscribe;
-  } catch (err) {
+  } catch (err: any) {
+    if (err?.code === 'permission-denied') {
+      handleFirestoreError(err, OperationType.GET, path);
+    }
     console.warn(`Failed to attach listener for ${subcollectionName}:`, err);
     return () => {};
   }
@@ -325,12 +353,17 @@ export async function saveUserSubcollectionRecord(
   data: any
 ): Promise<void> {
   if (!userId || !id || !isAuthorizedForUser(userId)) return;
+  const path = `users/${userId}/${subcollectionName}/${id}`;
   try {
     const docRef = doc(db, 'users', userId, subcollectionName, id);
     const cleanData = JSON.parse(JSON.stringify(data));
     await setDoc(docRef, { ...cleanData, updatedAt: new Date().toISOString() }, { merge: true });
-  } catch (err) {
-    console.warn(`Failed to save record to ${subcollectionName}/${id}:`, err);
+  } catch (err: any) {
+    if (err?.code === 'permission-denied') {
+      handleFirestoreError(err, OperationType.WRITE, path);
+    } else {
+      console.warn(`Failed to save record to ${subcollectionName}/${id}:`, err);
+    }
   }
 }
 
@@ -343,11 +376,16 @@ export async function deleteUserSubcollectionRecord(
   id: string
 ): Promise<void> {
   if (!userId || !id || !isAuthorizedForUser(userId)) return;
+  const path = `users/${userId}/${subcollectionName}/${id}`;
   try {
     const docRef = doc(db, 'users', userId, subcollectionName, id);
     await deleteDoc(docRef);
-  } catch (err) {
-    console.warn(`Failed to delete record from ${subcollectionName}/${id}:`, err);
+  } catch (err: any) {
+    if (err?.code === 'permission-denied') {
+      handleFirestoreError(err, OperationType.DELETE, path);
+    } else {
+      console.warn(`Failed to delete record from ${subcollectionName}/${id}:`, err);
+    }
   }
 }
 
@@ -379,6 +417,7 @@ export async function seedUserSubcollectionsIfEmpty(
       const items = initialData[sub];
       if (!items || items.length === 0) continue;
 
+      const path = `users/${userId}/${sub}`;
       const colRef = collection(db, 'users', userId, sub);
       const snap = await getDocs(colRef);
       if (snap.empty) {
@@ -396,8 +435,12 @@ export async function seedUserSubcollectionsIfEmpty(
       }
     }
     return seededAny;
-  } catch (err) {
-    console.warn('Could not seed subcollections:', err);
+  } catch (err: any) {
+    if (err?.code === 'permission-denied') {
+      handleFirestoreError(err, OperationType.WRITE, `users/${userId}`);
+    } else {
+      console.warn('Could not seed subcollections:', err);
+    }
     return false;
   }
 }

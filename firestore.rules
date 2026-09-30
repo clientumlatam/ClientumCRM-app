@@ -8,6 +8,11 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    // Diagnostic connection verification
+    match /test/{docId} {
+      allow read: if true;
+    }
+
     // Each authenticated user has exclusive access to their own profile and CRM data.
     match /users/{userId} {
       allow read, write: if isOwner(userId);

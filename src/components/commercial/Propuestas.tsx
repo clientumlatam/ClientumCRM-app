@@ -121,6 +121,19 @@ export const Propuestas: React.FC = () => {
         { id: '3', description: 'Agente IA Autónomo para calificar prospectos y agendar demos', quantity: 1, unitPrice: 240000, discount: 0, ivaRate: 21 },
         { id: '4', description: 'Portal del Cliente Marca Blanca para consulta de comprobantes', quantity: 1, unitPrice: 160000, discount: 0, ivaRate: 21 }
       ]);
+    } else if (templateName === 'koalas') {
+      setClientName('Koalas Indumentaria & Diseño');
+      setClientEmail('ventas@koalas.com.ar');
+      setClientPhone('+54 9 11 5521-8840');
+      setProposalTitle('Propuesta Técnico-Comercial: E-commerce, Logística Geocercada & CRM Koalas');
+      setPaymentTerms('50% anticipo al inicio del proyecto, 50% contra entrega y capacitación del equipo.');
+      setItems([
+        { id: 'k-1', description: 'Desarrollo de Tienda Online E-commerce con Sincronización de Stock en Tiempo Real', quantity: 1, unitPrice: 380000, discount: 10, ivaRate: 21 },
+        { id: 'k-2', description: 'Módulo de Logística Geocercada (Radios sin cargo, cálculo dinámico Andreani/Moova y CP)', quantity: 1, unitPrice: 190000, discount: 0, ivaRate: 21 },
+        { id: 'k-3', description: 'Bot Conversacional WhatsApp IA (Catálogo 24/7 + Derivación a Asesor Humano)', quantity: 1, unitPrice: 220000, discount: 5, ivaRate: 21 },
+        { id: 'k-4', description: 'Módulo de Depósito & Picking con Lectura de Código de Barras y Etiquetas Térmicas', quantity: 1, unitPrice: 160000, discount: 0, ivaRate: 21 },
+        { id: 'k-5', description: 'Automatización Fiscal AFIP/ARCA WSFE con emisión y envío de Factura A y B con CAE', quantity: 1, unitPrice: 140000, discount: 10, ivaRate: 21 }
+      ]);
     }
     showToast(`Plantilla "${templateName}" aplicada correctamente`, 'success');
   };
@@ -172,6 +185,16 @@ export const Propuestas: React.FC = () => {
     }
   };
 
+  const handleDownloadKoalasOfficialPDF = () => {
+    const link = document.createElement('a');
+    link.href = '/propuesta-tecnica-comercial-koalas.pdf';
+    link.download = 'Propuesta-Tecnico-Comercial-Koalas.pdf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('Descargando PDF oficial de Propuesta Koalas...', 'success');
+  };
+
   const handleShareWhatsApp = () => {
     const cleanPhone = clientPhone.replace(/\D/g, '');
     const message = `*${proposalTitle}*\nEstimado/a ${clientName},\nAdjuntamos el resumen de la propuesta técnico-comercial preparada para su empresa.\n\n*Total de la inversión:* $ ${Math.round(grandTotal).toLocaleString('es-AR')} (IVA incluido).\n*Términos de pago:* ${paymentTerms}\n*Validez hasta:* ${validUntil}\n\nQuedamos a disposición para coordinar el inicio. Saludos cordiales,\n*Equipo Comercial Clientum Latam*`;
@@ -218,6 +241,15 @@ export const Propuestas: React.FC = () => {
           </button>
 
           <button
+            onClick={handleDownloadKoalasOfficialPDF}
+            className="px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-lg shadow-indigo-600/20"
+            title="Descargar documento PDF completo de la propuesta para Koalas"
+          >
+            <Download className="w-4 h-4 text-cyan-200" />
+            <span>PDF Koalas</span>
+          </button>
+
+          <button
             onClick={handlePrintPDF}
             className="px-3.5 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-lg shadow-cyan-500/20"
           >
@@ -242,6 +274,13 @@ export const Propuestas: React.FC = () => {
                 <span className="text-[11px] text-[var(--text-muted,#64748b)] dark:text-slate-400">Haz clic para cargar ítems estándar</span>
               </div>
               <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => applyTemplate('koalas')}
+                  className="px-2.5 py-1.5 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-600 dark:text-indigo-300 text-[11px] font-bold transition-colors cursor-pointer flex items-center gap-1"
+                >
+                  🐨 Ventas Koalas (E-Commerce + Logística)
+                </button>
                 <button
                   type="button"
                   onClick={() => applyTemplate('crm_basico')}
