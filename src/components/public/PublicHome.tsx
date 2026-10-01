@@ -26,7 +26,9 @@ import {
   Award,
   HelpCircle,
   FolderGit2,
-  CheckSquare
+  CheckSquare,
+  ShoppingBag,
+  Store,
 } from 'lucide-react';
 import { CLIENTUM_BROCHURE_METRICS, CLIENTUM_PILLARS, CLIENTUM_SOLUTIONS } from '../../data/clientumCatalog';
 import { useCRM } from '../../context/CRMContext';
@@ -605,6 +607,45 @@ export const PublicHome: React.FC<PublicHomeProps> = ({
         onOpenSimulator={onOpenSimulator}
       />
 
+      {/* 6.1 E-COMMERCE & LOGISTICS GEOCERCADA SHOWCASE */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="p-8 sm:p-10 rounded-3xl bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white shadow-xl border border-blue-500/30 flex flex-col lg:flex-row items-center justify-between gap-8">
+          <div className="space-y-4 max-w-2xl">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30">
+              <ShoppingBag className="w-3.5 h-3.5 text-blue-400" />
+              <span>Tienda Online & Logística Geocercada</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+              E-Commerce, Stock en Tiempo Real & Fletes por Distancia
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              Plataforma de ventas online con sincronización de inventario instantánea, radios de entrega sin cargo por kilómetro o código postal, cálculo de fletes con operadores (Andreani, OCA) y analítica de conversión en tiempo real con gráficos Recharts.
+            </p>
+            <div className="flex flex-wrap gap-2 pt-2">
+              <span className="px-3 py-1 rounded-lg bg-white/10 text-xs font-semibold border border-white/15">0% Comisiones por Venta</span>
+              <span className="px-3 py-1 rounded-lg bg-white/10 text-xs font-semibold border border-white/15">Facturación AFIP WSFE Automática</span>
+              <span className="px-3 py-1 rounded-lg bg-white/10 text-xs font-semibold border border-white/15">Bot WhatsApp IA Gemini 24/7</span>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+            <button
+              onClick={() => onNavigate('/tienda')}
+              className="px-6 py-3.5 rounded-full bg-blue-500 hover:bg-blue-400 text-slate-950 font-bold text-xs shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
+            >
+              <Store className="w-4 h-4" />
+              <span>Explorar Tienda Demo</span>
+            </button>
+            <button
+              onClick={onOpenWizard}
+              className="px-6 py-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
+            >
+              <span>Solicitar Propuesta Comercial</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* 6.1 INTERACTIVE ROI & FINANCIAL SAVINGS CALCULATOR */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white border border-[#e2e8f0] dark:border-slate-800 shadow-xl space-y-8 relative overflow-hidden">
@@ -779,6 +820,48 @@ export const PublicHome: React.FC<PublicHomeProps> = ({
 
       {/* 8. REAL TEAMS IN ACTION ACROSS ARGENTINA */}
       <RealTeamsSection onNavigate={onNavigate} onOpenWizard={onOpenWizard} />
+
+      {/* TIENDANUBE & EVOLUCIÓN E-COMMERCE SHOWCASE */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-blue-950 text-white relative overflow-hidden shadow-2xl">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="relative z-10 max-w-3xl space-y-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold border border-blue-400/30">
+              <Store className="w-3.5 h-3.5" />
+              <span>Evolución Tiendanube & E-Commerce Integrado</span>
+            </div>
+            <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
+              Crea tu Tienda Online Profesional y Sincronízala con el CRM & ERP
+            </h2>
+            <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+              Al igual que las plataformas líderes de comercio electrónico en Latinoamérica, Clientum ofrece tiendas virtuales de alto rendimiento con sincronización de stock en tiempo real (0 segundos), cálculo automático de costos logísticos por código postal, pasarelas de pago (Mercado Pago / Transferencia con descuento) y facturación electrónica AFIP integrada.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+              <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-1">
+                <div className="text-xl font-bold font-mono text-emerald-400">0 Segundos</div>
+                <div className="text-xs text-slate-300">Descuento de stock instantáneo al confirmar compra online.</div>
+              </div>
+              <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-1">
+                <div className="text-xl font-bold font-mono text-cyan-400">AFIP WSFE Nivo</div>
+                <div className="text-xs text-slate-300">Generación automática de Facturas A, B y C con CAE fiscal.</div>
+              </div>
+              <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-1">
+                <div className="text-xl font-bold font-mono text-amber-400">WhatsApp + IA</div>
+                <div className="text-xs text-slate-300">Chatbot inteligente para calificar leads y rescatar carritos.</div>
+              </div>
+            </div>
+            <div className="pt-4 flex items-center gap-3">
+              <button
+                onClick={() => onNavigate('/producto')}
+                className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm transition-colors shadow-lg cursor-pointer flex items-center gap-2"
+              >
+                <span>Ver Módulos de E-Commerce</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* 8.1 REAL CLIENT CASE STUDIES & TESTIMONIALS */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

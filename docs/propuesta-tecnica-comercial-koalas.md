@@ -351,7 +351,28 @@ El servicio incluye un compromiso de disponibilidad y tiempos de respuesta estip
 
 ---
 
-## 21. Acta de Validación y Conformidad
+## 22. Comparativa Estratégica: Tiendanube Estándar vs. Tiendanube Evolución vs. ClientumOS
+
+Muchos comercios de alto volumen evalúan o ya utilizan **Tiendanube** en su versión tradicional o en su esquema corporativo **Tiendanube Evolución**. A continuación se detalla el análisis comparativo entre estas opciones y la plataforma unificada **ClientumOS**:
+
+| Criterio / Módulo | Tiendanube Estándar | Tiendanube Evolución (Enterprise) | ClientumOS + E-Commerce Integrado |
+| :--- | :--- | :--- | :--- |
+| **Costo Fijo Mensual** | Plan básico económico. | **Abono fijo elevado** (Escala Corporativa). | **Abono PyME unificado** sin cargos por usuario adicional. |
+| **Comisión por Venta** | 0.5% a 2.0% por transacción. | Reducida o bonificada según volumen. | **0% Comisiones por venta.** 100% de margen para Koalas. |
+| **CRM Comercial Kanban** | No posee. Requiere apps externas. | No posee. Requiere integrar Salesforce / Hubspot. | **CRM Nativo Incluido** con embudo Kanban y seguimiento de vendedores. |
+| **Agente WhatsApp IA (Gemini)** | No posee. Paga por conversación. | Requiere conectar BSP externo (Zenvia/Sirena). | **Agente IA Gemini nativo** con catálogo y atención 24/7. |
+| **Facturación AFIP (CAE WSFE)** | Requiere app externa (Facturante). | Requiere integración ERP/Contable extra. | **Emisión automática WSFE con CAE** integrada sin costos extra. |
+| **Depósito & Picking por QR/Escáner** | Gestión básica de stock. | Gestión de multi-sucursal avanzada. | **Warehouse ERP completo** con ubicación de pasillo y etiquetas térmicas. |
+
+### 22.1. Modalidad de Conexión si Koalas decide contratar o mantener Tiendanube Evolución
+Si Koalas prefiere mantener la fachada web en **Tiendanube Evolución** por branding, checkout personalizado o infraestructura existente:
+* **ClientumOS se conecta vía API REST & Webhooks bidireccionales con Tiendanube Evolución:**
+  * **Tiendanube Evolución** funciona como el escaparate público y carrito de compras.
+  * **ClientumOS** opera como el **cerebro operativo central**: recibe el pedido en tiempo real, descuenta el stock en el depósito, emite la Factura AFIP con CAE, registra al cliente en el CRM y dispara las notificaciones automáticas por WhatsApp con link de seguimiento.
+
+---
+
+## 23. Acta de Validación y Conformidad
 
 La presente propuesta técnico-comercial tiene una validez de **15 días corridos** a partir de su emisión.
 
@@ -368,6 +389,7 @@ Fecha: _____ / _____ / 2026                     Fecha: _____ / _____ / 2026
 ---
 
 *Documento técnico integral preparado para la implementación de Ventas Koalas — Plataforma Clientum.*
+
 
 
 

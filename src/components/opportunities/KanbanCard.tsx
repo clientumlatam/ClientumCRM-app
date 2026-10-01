@@ -1,18 +1,22 @@
-import React from 'react';
-import { Building2, Calendar, Flame, Mail, MessageCircle, Phone, Sparkles, User } from 'lucide-react';
-import { Opportunity, Person } from '../../types';
+import React, { useState } from 'react';
+import { Building2, Calendar, Flame, Mail, MessageCircle, Phone, Sparkles, User, ChevronRight, GripVertical } from 'lucide-react';
+import { Opportunity, Person, StageId } from '../../types';
+import { STAGES } from '../../data/initialData';
 
 export interface KanbanCardProps {
   opp: Opportunity;
   compactCards: boolean;
   showCardTags: boolean;
   showCardDates: boolean;
+  isDragging?: boolean;
   getPriorityColor: (p: string) => string;
   getContact: (opp: Opportunity) => Person | undefined;
   onDragStart: (e: React.DragEvent, id: string) => void;
+  onDragEnd?: (e: React.DragEvent) => void;
   onSelectRecord: (id: string) => void;
   onWhatsAppClick: (opp: Opportunity) => void;
   onAICopilotClick: (opp: Opportunity) => void;
+  onMoveStage?: (id: string, stageId: StageId) => void;
 }
 
 export const KanbanCard: React.FC<KanbanCardProps> = React.memo(({
@@ -20,13 +24,17 @@ export const KanbanCard: React.FC<KanbanCardProps> = React.memo(({
   compactCards,
   showCardTags,
   showCardDates,
+  isDragging = false,
   getPriorityColor,
   getContact,
   onDragStart,
+  onDragEnd,
   onSelectRecord,
   onWhatsAppClick,
   onAICopilotClick,
+  onMoveStage,
 }) => {
+  const [showStageMenu, setShowStageMenu] = useState(false);
   const nowMs = Date.now();
   const lastUpdateMs = new Date(opp.updatedAt || opp.createdAt).getTime();
   const daysStagnant = Math.max(1, Math.floor((nowMs - lastUpdateMs) / (1000 * 60 * 60 * 24)));
@@ -37,10 +45,67 @@ export const KanbanCard: React.FC<KanbanCardProps> = React.memo(({
     <div
       id={`deal-card-${opp.id}`}
       draggable
-      onDragStart={(e) => onDragStart(e, opp.id)}
+      onDragStart={(e) => {
+        e.dataTransfer.setData('text/plain', opp.id);
+        e.dataTransfer.effectAllowed = 'move';
+        onDragStart(e, opp.id);
+      }}
+      onDragEnd={(e) => {
+        if (onDragEnd) onDragEnd(e);
+      }}
       onClick={() => onSelectRecord(opp.id)}
-      className={`${compactCards ? 'p-2.5' : 'p-3'} crm-kanban-card group`}
+      className={`${compactCards ? 'p-2.5' : 'p-3'} crm-kanban-card group relative transition-all duration-150 ${
+        isDragging
+          ? 'opacity-40 border-2 border-dashed border-blue-500 scale-95 shadow-inner cursor-grabbing bg-blue-50/20'
+          : 'hover:shadow-md cursor-grab active:cursor-grabbing'
+      }`}
     >
+      {/* Drag Handle & Quick Stage Selector Header */}
+      <div className="flex items-center justify-between gap-1.5 mb-1 text-[10px] text-[var(--text-muted)]">
+        <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+          <GripVertical className="w-3 h-3 text-[var(--text-muted)] cursor-grab" />
+          <span className="font-mono text-[9px] uppercase tracking-wider">Trato</span>
+        </div>
+
+        {/* Quick Stage Move Dropdown Button */}
+        {onMoveStage && (
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setShowStageMenu(!showStageMenu)}
+              className="px-1.5 py-0.5 rounded bg-[var(--bg-muted)] hover:bg-[var(--bg-card-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)] font-medium flex items-center gap-0.5 transition-colors cursor-pointer"
+              title="Cambiar etapa rápidamente"
+            >
+              <span>Mover</span>
+              <ChevronRight className="w-2.5 h-2.5" />
+            </button>
+
+            {showStageMenu && (
+              <div className="absolute right-0 top-full mt-1 w-36 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-lg shadow-xl py-1 z-30 animate-in fade-in zoom-in-95 duration-100">
+                <div className="px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-[var(--text-muted)] border-b border-[var(--border-subtle)] mb-1">
+                  Mover a etapa:
+                </div>
+                {STAGES.map((s) => (
+                  <button
+                    key={s.id}
+                    onClick={() => {
+                      setShowStageMenu(false);
+                      onMoveStage(opp.id, s.id as StageId);
+                    }}
+                    disabled={opp.stage === s.id}
+                    className={`w-full text-left px-2.5 py-1 text-[11px] font-medium flex items-center gap-1.5 hover:bg-[var(--bg-muted)] cursor-pointer transition-colors ${
+                      opp.stage === s.id ? 'opacity-40 bg-[var(--bg-muted)]' : 'text-[var(--text-primary)]'
+                    }`}
+                  >
+                    <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
+                    <span className="truncate">{s.name}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Deal Name & Amount */}
       <div className="flex items-start justify-between gap-2 mb-1.5">
         <h4 className="text-xs font-bold text-[var(--text-primary)] group-hover:text-blue-600 transition-colors line-clamp-2">

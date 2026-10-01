@@ -18,10 +18,11 @@ import { ERPAccountingOverviewWidget } from './ERPAccountingOverviewWidget';
 import { WebmailActivityWidget } from './WebmailActivityWidget';
 import { MailAnalyticsPanel } from '../mail/MailAnalyticsPanel';
 import { ReportsAnalyticsView } from './ReportsAnalyticsView';
+import { PipelineCycleAnalyticsView } from './PipelineCycleAnalyticsView';
 
 export const AnalyticsView: React.FC = () => {
   const { opportunities, companies, people, users, t } = useCRM();
-  const [activeSubTab, setActiveSubTab] = useState<'reports' | 'operations'>('reports');
+  const [activeSubTab, setActiveSubTab] = useState<'reports' | 'conversionCycle' | 'operations'>('reports');
 
   // Metrics calculations
   const totalDeals = opportunities.length;
@@ -72,6 +73,19 @@ export const AnalyticsView: React.FC = () => {
 
           <button
             type="button"
+            id="subtab-conversion-cycle-btn"
+            onClick={() => setActiveSubTab('conversionCycle')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${ activeSubTab === 'conversionCycle' ? 'bg-[var(--bg-canvas,#f8fafc)] dark:bg-[#0056B3] text-white shadow-xs' : 'text-[var(--text-secondary)] dark:text-[var(--text-secondary,#475569)] dark:text-slate-300 hover:bg-[var(--bg-muted)] dark:hover:bg-slate-800' }`}
+          >
+            <TrendingUp className="w-3.5 h-3.5" />
+            <span>Conversión & Ciclo de Ventas</span>
+            <span className={`text-[10px] px-1.5 py-0.2 rounded font-bold ${activeSubTab === 'conversionCycle' ? 'bg-[var(--bg-card)]/20 text-white' : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400'}`}>
+              BI Recharts
+            </span>
+          </button>
+
+          <button
+            type="button"
             id="subtab-operations-analytics-btn"
             onClick={() => setActiveSubTab('operations')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${ activeSubTab === 'operations' ? 'bg-[var(--bg-canvas,#f8fafc)] dark:bg-[#0056B3] text-white shadow-xs' : 'text-[var(--text-secondary)] dark:text-[var(--text-secondary,#475569)] dark:text-slate-300 hover:bg-[var(--bg-muted)] dark:hover:bg-slate-800' }`}
@@ -91,6 +105,8 @@ export const AnalyticsView: React.FC = () => {
       {/* Main View Mode Render */}
       {activeSubTab === 'reports' ? (
         <ReportsAnalyticsView />
+      ) : activeSubTab === 'conversionCycle' ? (
+        <PipelineCycleAnalyticsView />
       ) : (
         <div id="clientum-operations-analytics-view" className="p-4 sm:p-6 space-y-5">
           {/* Header */}

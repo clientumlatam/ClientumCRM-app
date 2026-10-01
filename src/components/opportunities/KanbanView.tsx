@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   Plus,
   Building2,
@@ -28,6 +28,7 @@ import {
   FileCheck,
   Mic,
   Download,
+  BarChart3,
 } from 'lucide-react';
 import { useCRM } from '../../context/CRMContext';
 import { STAGES } from '../../data/initialData';
@@ -39,6 +40,7 @@ import { QuoteSignPortalModal } from '../commercial/QuoteSignPortalModal';
 import { VoiceNoteModal } from '../activities/VoiceNoteModal';
 import { exportOpportunitiesToCSV } from '../../utils/csvExporter';
 import { KanbanCard } from './KanbanCard';
+import { PipelineAnalyticsModal } from './PipelineAnalyticsModal';
 import kanbanEmptyStageImg from '../../assets/images/kanban_empty_stage_1789360569191.jpg';
 
 export const KanbanView: React.FC = () => {
@@ -55,6 +57,7 @@ export const KanbanView: React.FC = () => {
     t,
     language,
     showToast,
+    triggerConfetti,
   } = useCRM();
 
   const [draggedOppId, setDraggedOppId] = useState<string | null>(null);
@@ -64,6 +67,7 @@ export const KanbanView: React.FC = () => {
   const [voiceNoteOpp, setVoiceNoteOpp] = useState<Opportunity | null>(null);
   const [isLeadCaptureOpen, setIsLeadCaptureOpen] = useState(false);
   const [currencyMode, setCurrencyMode] = useState<'USD' | 'ARS'>('USD');
+  const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
 
   // Multi-Select Filter Sidebar States
   const [isFilterSidebarOpen, setIsFilterSidebarOpen] = useState(false);
@@ -75,17 +79,26 @@ export const KanbanView: React.FC = () => {
   const [showCardTags, setShowCardTags] = useState(true);
   const [showCardDates, setShowCardDates] = useState(true);
   const [compactCards, setCompactCards] = useState(false);
+  const [sortBy, setSortBy] = useState<'value-desc' | 'value-asc' | 'created-desc' | 'created-asc' | 'updated-desc'>('value-desc');
+  const [swimlaneBy, setSwimlaneBy] = useState<'none' | 'priority' | 'source'>('none');
 
-  // Extract unique owners from opportunities dataset
-  const uniqueOwners: string[] = Array.from(new Set(opportunities.map((o) => o.assignedTo))).filter(Boolean) as string[];
-  const priorityOptions = ['Critical', 'High', 'Medium', 'Low'];
-
-  // Calculate active filter count
-  const activeFiltersCount =
-    selectedOwners.length +
-    selectedPriorities.length +
-    (minAmount !== '' ? 1 : 0) +
-    (maxAmount !== '' ? 1 : 0);
+  const sortDeals = useCallback((deals: Opportunity[]) => {
+    return [...deals].sort((a, b) => {
+      switch (sortBy) {
+        case 'value-asc':
+          return a.amount - b.amount;
+        case 'value-desc':
+          return b.amount - a.amount;
+        case 'created-asc':
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        case 'created-desc':
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        case 'updated-desc':
+        default:
+          return new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime();
+      }
+    });
+  }, [sortBy]);
 
   // Filter opportunities
   const filteredOpportunities = opportunities.filter((opp) => {
@@ -134,6 +147,42 @@ export const KanbanView: React.FC = () => {
     return true;
   });
 
+  // Extract unique owners from opportunities dataset
+  const uniqueOwners: string[] = Array.from(new Set(opportunities.map((o) => o.assignedTo))).filter(Boolean) as string[];
+  const priorityOptions = ['Critical', 'High', 'Medium', 'Low'];
+
+  // Calculate active filter count
+  const activeFiltersCount =
+    selectedOwners.length +
+    selectedPriorities.length +
+    (minAmount !== '' ? 1 : 0) +
+    (maxAmount !== '' ? 1 : 0);
+
+  const swimlaneGroups = useMemo(() => {
+    if (swimlaneBy === 'priority') {
+      return ['Critical', 'High', 'Medium', 'Low'].map((p) => ({
+        key: p,
+        label: `Prioridad: ${p}`,
+        deals: filteredOpportunities.filter((o) => o.priority === p),
+      })).filter((g) => g.deals.length > 0 || ['Critical', 'High'].includes(g.key));
+    }
+    if (swimlaneBy === 'source') {
+      const tagsSet = new Set<string>();
+      filteredOpportunities.forEach((o) => {
+        if (o.tags && o.tags.length > 0) tagsSet.add(o.tags[0]);
+        else tagsSet.add('General');
+      });
+      const sources = Array.from(tagsSet);
+      if (sources.length === 0) sources.push('General');
+      return sources.map((src) => ({
+        key: src,
+        label: `Fuente / Tag: ${src}`,
+        deals: filteredOpportunities.filter((o) => (src === 'General' ? (!o.tags || o.tags.length === 0) : o.tags?.includes(src))),
+      })).filter((g) => g.deals.length > 0);
+    }
+    return [{ key: 'all', label: 'Todos', deals: filteredOpportunities }];
+  }, [filteredOpportunities, swimlaneBy]);
+
   const toggleOwner = (owner: string) => {
     setSelectedOwners((prev) =>
       prev.includes(owner) ? prev.filter((o) => o !== owner) : [...prev, owner]
@@ -174,27 +223,60 @@ export const KanbanView: React.FC = () => {
     });
   }, [language, openAICopilot]);
 
+  const handleMoveStageDirect = useCallback((id: string, stageId: StageId) => {
+    const opp = opportunities.find((o) => o.id === id);
+    if (!opp || opp.stage === stageId) return;
+
+    const targetStage = STAGES.find((s) => s.id === stageId);
+    const targetName = targetStage?.name || stageId;
+
+    moveOpportunityStage(id, stageId);
+
+    if (stageId === 'won') {
+      if (triggerConfetti) triggerConfetti();
+      showToast(`¡Trato ganado! 🎉 "${opp.name}" por $${opp.amount.toLocaleString()}`, 'success');
+    } else if (stageId === 'lost') {
+      showToast(`Trato "${opp.name}" marcado como perdido`, 'info');
+    } else {
+      showToast(`Trato "${opp.name}" movido a ${targetName}`, 'success');
+    }
+  }, [opportunities, moveOpportunityStage, triggerConfetti, showToast]);
+
   const handleDragStart = useCallback((e: React.DragEvent, id: string) => {
     e.dataTransfer.setData('text/plain', id);
+    e.dataTransfer.effectAllowed = 'move';
     setDraggedOppId(id);
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    setDraggedOppId(null);
+    setDragOverStage(null);
   }, []);
 
   const handleDragOver = (e: React.DragEvent, stageId: StageId) => {
     e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
     if (dragOverStage !== stageId) {
       setDragOverStage(stageId);
     }
   };
 
-  const handleDragLeave = () => {
-    setDragOverStage(null);
+  const handleDragEnter = (e: React.DragEvent, stageId: StageId) => {
+    e.preventDefault();
+    setDragOverStage(stageId);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setDragOverStage(null);
+    }
   };
 
   const handleDrop = (e: React.DragEvent, stageId: StageId) => {
     e.preventDefault();
     const id = e.dataTransfer.getData('text/plain') || draggedOppId;
     if (id) {
-      moveOpportunityStage(id, stageId);
+      handleMoveStageDirect(id, stageId);
     }
     setDraggedOppId(null);
     setDragOverStage(null);
@@ -268,6 +350,16 @@ export const KanbanView: React.FC = () => {
           </button>
 
           <button
+            id="kanban-analytics-btn"
+            onClick={() => setIsAnalyticsOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 shadow-2xs transition-all cursor-pointer"
+            title="Ver analítica Recharts de conversión y ciclo de ventas"
+          >
+            <BarChart3 className="w-3.5 h-3.5 text-blue-600" />
+            <span className="hidden md:inline">Analítica Recharts</span>
+          </button>
+
+          <button
             id="kanban-export-csv-btn"
             onClick={() => exportOpportunitiesToCSV(filteredOpportunities, 'ClientumCRM_Pipeline_Kanban')}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-700 border border-emerald-200 shadow-2xs transition-all cursor-pointer"
@@ -325,6 +417,36 @@ export const KanbanView: React.FC = () => {
                     )}
                   </button>
                 ))}
+
+                <div className="pt-2 mt-2 border-t border-[var(--border-subtle)] space-y-2.5">
+                  <div>
+                    <label className="text-[10px] font-bold text-[var(--text-muted)] block mb-1">Ordenar tratos por:</label>
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value as any)}
+                      className="w-full bg-[var(--bg-muted)] border border-[var(--border-subtle)] rounded-lg px-2 py-1.5 text-xs font-semibold text-[var(--text-primary)] focus:outline-none cursor-pointer"
+                    >
+                      <option value="value-desc">Valor: Mayor a Menor ($)</option>
+                      <option value="value-asc">Valor: Menor a Mayor ($)</option>
+                      <option value="created-desc">Creación: Más recientes</option>
+                      <option value="created-asc">Creación: Más antiguos</option>
+                      <option value="updated-desc">Última Interacción (Recientes)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-bold text-[var(--text-muted)] block mb-1">Swimlanes Horizontales:</label>
+                    <select
+                      value={swimlaneBy}
+                      onChange={(e) => setSwimlaneBy(e.target.value as any)}
+                      className="w-full bg-[var(--bg-muted)] border border-[var(--border-subtle)] rounded-lg px-2 py-1.5 text-xs font-semibold text-[var(--text-primary)] focus:outline-none cursor-pointer"
+                    >
+                      <option value="none">Sin Swimlanes (Estándar)</option>
+                      <option value="priority">Agrupar por Prioridad</option>
+                      <option value="source">Agrupar por Fuente / Tag</option>
+                    </select>
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -392,104 +514,222 @@ export const KanbanView: React.FC = () => {
 
       <div className="flex-1 flex overflow-hidden relative">
         {/* Kanban Board Column Canvas */}
-        <div id="clientum-kanban-board" className="flex-1 overflow-x-auto p-4 flex gap-3.5 select-none h-full items-start custom-scrollbar">
-          {STAGES.map((stage) => {
-            const stageOpps = filteredOpportunities.filter((o) => o.stage === stage.id);
-            const stageTotal = stageOpps.reduce((acc, curr) => acc + curr.amount, 0);
-            const isTarget = dragOverStage === stage.id;
+        <div id="clientum-kanban-board" className="flex-1 overflow-auto p-4 flex flex-col gap-6 select-none h-full custom-scrollbar">
+          {swimlaneBy === 'none' ? (
+            <div className="flex gap-3.5 items-start h-full">
+              {STAGES.map((stage) => {
+                const stageOpps = sortDeals(filteredOpportunities.filter((o) => o.stage === stage.id));
+                const stageTotal = stageOpps.reduce((acc, curr) => acc + curr.amount, 0);
+                const isTarget = dragOverStage === stage.id;
 
-            return (
-              <div
-                key={stage.id}
-                id={`kanban-column-${stage.id}`}
-                onDragOver={(e) => handleDragOver(e, stage.id)}
-                onDragLeave={handleDragLeave}
-                onDrop={(e) => handleDrop(e, stage.id)}
-                className={`w-72 shrink-0 flex flex-col max-h-full rounded-xl bg-[var(--bg-muted)]/90 border transition-all duration-150 ${ isTarget ? 'border-blue-500 bg-blue-50/50 shadow-md shadow-blue-500/10' : 'border-[var(--border-subtle)]' }`}
-              >
-                {/* Column Header */}
-                <div className="p-3 border-b border-[var(--border-subtle)]/80 flex items-center justify-between">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <div
-                      className="w-2.5 h-2.5 rounded-full shrink-0"
-                      style={{ backgroundColor: stage.color }}
-                    />
-                    <span className="font-bold text-xs text-[var(--text-primary)] truncate">
-                      {t(`stage_${stage.id}` as any) || stage.name}
-                    </span>
-                    <span className="text-[10px] font-mono font-semibold px-1.5 py-0.2 rounded bg-[var(--bg-card)] text-[var(--text-secondary)] border border-[var(--border-subtle)]">
-                      {stageOpps.length}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-bold font-mono text-[var(--text-secondary)]">
-                      ${Math.round(stageTotal / 1000)}k
-                    </span>
-                    <button
-                      id={`column-add-deal-${stage.id}`}
-                      onClick={() => openNewRecordModal('opportunity')}
-                      className="w-5 h-5 rounded flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-muted)] transition-colors cursor-pointer"
-                      title={`${t('newOpportunity')} (${t(`stage_${stage.id}` as any) || stage.name})`}
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Column Cards Container */}
-                <div className="p-2 space-y-2.5 overflow-y-auto flex-1 min-h-[140px] custom-scrollbar">
-                  {stageOpps.length === 0 ? (
-                    <div className="py-6 px-3 border border-dashed border-[var(--border-default)] rounded-xl bg-[var(--bg-card)]/60 flex flex-col items-center justify-center text-center">
-                      <div className="w-16 h-16 mb-2.5 rounded-lg overflow-hidden border border-[var(--border-subtle)] shadow-2xs bg-[var(--bg-muted)] flex items-center justify-center shrink-0">
-                        <img
-                          src={kanbanEmptyStageImg}
-                          alt="Etapa sin negocios"
-                          referrerPolicy="no-referrer"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <p className="text-[11px] font-bold text-[var(--text-secondary)] mb-0.5">
-                        {t('noDealsInStage')}
-                      </p>
-                      <p className="text-[10px] text-[var(--text-muted,#64748b)] dark:text-slate-400 max-w-[180px]">
-                        Arrastra un trato o crea uno nuevo en esta etapa.
-                      </p>
-                    </div>
-                  ) : (
-                    stageOpps.map((opp) => (
-                      <KanbanCard
-                        key={opp.id}
-                        opp={opp}
-                        compactCards={compactCards}
-                        showCardTags={showCardTags}
-                        showCardDates={showCardDates}
-                        getPriorityColor={getPriorityColor}
-                        getContact={getContact}
-                        onDragStart={handleDragStart}
-                        onSelectRecord={handleSelectRecord}
-                        onWhatsAppClick={handleWhatsAppClick}
-                        onAICopilotClick={handleAICopilotClick}
-                      />
-                    ))
-                  )}
-                </div>
-
-                {/* Column Footer Quick Add */}
-                <div className="p-2 border-t border-[var(--border-subtle)]/80">
-                  <button
-                    id={`column-quick-add-btn-${stage.id}`}
-                    onClick={() => openNewRecordModal('opportunity')}
-                    className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-md text-[var(--text-secondary)] hover:text-blue-600 hover:bg-[var(--bg-card)] text-xs font-semibold transition-colors cursor-pointer"
+                return (
+                  <div
+                    key={stage.id}
+                    id={`kanban-column-${stage.id}`}
+                    onDragEnter={(e) => handleDragEnter(e, stage.id)}
+                    onDragOver={(e) => handleDragOver(e, stage.id)}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, stage.id)}
+                    className={`w-72 shrink-0 flex flex-col max-h-full rounded-xl bg-[var(--bg-muted)]/90 border transition-all duration-150 ${
+                      isTarget
+                        ? 'border-blue-500 bg-blue-500/10 shadow-lg ring-2 ring-blue-500/30 scale-[1.01]'
+                        : 'border-[var(--border-subtle)]'
+                    }`}
                   >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>{t('createFirstDeal')}</span>
-                  </button>
+                    {/* Column Header */}
+                    <div className="p-3 border-b border-[var(--border-subtle)]/80 flex items-center justify-between">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div
+                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          style={{ backgroundColor: stage.color }}
+                        />
+                        <span className="font-bold text-xs text-[var(--text-primary)] truncate">
+                          {t(`stage_${stage.id}` as any) || stage.name}
+                        </span>
+                        <span className="text-[10px] font-mono font-semibold px-1.5 py-0.2 rounded bg-[var(--bg-card)] text-[var(--text-secondary)] border border-[var(--border-subtle)]">
+                          {stageOpps.length}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-bold font-mono text-[var(--text-secondary)]">
+                          ${Math.round(stageTotal / 1000)}k
+                        </span>
+                        <button
+                          id={`column-add-deal-${stage.id}`}
+                          onClick={() => openNewRecordModal('opportunity')}
+                          className="w-5 h-5 rounded flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-muted)] transition-colors cursor-pointer"
+                          title={`${t('newOpportunity')} (${t(`stage_${stage.id}` as any) || stage.name})`}
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Column Cards Container */}
+                    <div className="p-2 space-y-2.5 overflow-y-auto flex-1 min-h-[140px] custom-scrollbar">
+                      {isTarget && (
+                        <div className="p-2.5 rounded-lg border-2 border-dashed border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold text-xs flex items-center justify-center gap-1.5 animate-pulse shadow-sm mb-1">
+                          <Sparkles className="w-4 h-4 text-blue-500" />
+                          <span>Soltar trato para mover a {stage.name}</span>
+                        </div>
+                      )}
+
+                      {stageOpps.length === 0 && !isTarget ? (
+                        <div className="py-6 px-3 border border-dashed border-[var(--border-default)] rounded-xl bg-[var(--bg-card)]/60 flex flex-col items-center justify-center text-center">
+                          <div className="w-16 h-16 mb-2.5 rounded-lg overflow-hidden border border-[var(--border-subtle)] shadow-2xs bg-[var(--bg-muted)] flex items-center justify-center shrink-0">
+                            <img
+                              src={kanbanEmptyStageImg}
+                              alt="Etapa sin negocios"
+                              referrerPolicy="no-referrer"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <p className="text-[11px] font-bold text-[var(--text-secondary)] mb-0.5">
+                            {t('noDealsInStage')}
+                          </p>
+                          <p className="text-[10px] text-[var(--text-muted,#64748b)] dark:text-slate-400 max-w-[180px]">
+                            Arrastra un trato o crea uno nuevo en esta etapa.
+                          </p>
+                        </div>
+                      ) : (
+                        stageOpps.map((opp) => (
+                          <KanbanCard
+                            key={opp.id}
+                            opp={opp}
+                            compactCards={compactCards}
+                            showCardTags={showCardTags}
+                            showCardDates={showCardDates}
+                            isDragging={draggedOppId === opp.id}
+                            getPriorityColor={getPriorityColor}
+                            getContact={getContact}
+                            onDragStart={handleDragStart}
+                            onDragEnd={handleDragEnd}
+                            onSelectRecord={handleSelectRecord}
+                            onWhatsAppClick={handleWhatsAppClick}
+                            onAICopilotClick={handleAICopilotClick}
+                            onMoveStage={handleMoveStageDirect}
+                          />
+                        ))
+                      )}
+                    </div>
+
+                    {/* Column Footer Quick Add */}
+                    <div className="p-2 border-t border-[var(--border-subtle)]/80">
+                      <button
+                        id={`column-quick-add-btn-${stage.id}`}
+                        onClick={() => openNewRecordModal('opportunity')}
+                        className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-md text-[var(--text-secondary)] hover:text-blue-600 hover:bg-[var(--bg-card)] text-xs font-semibold transition-colors cursor-pointer"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>{t('createFirstDeal')}</span>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            swimlaneGroups.map((group) => (
+              <div key={group.key} className="space-y-3">
+                <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-xs w-fit">
+                  <span className="w-3 h-3 rounded-full bg-blue-600"></span>
+                  <span className="font-bold text-xs text-[var(--text-primary)]">{group.label}</span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[var(--bg-muted)] text-[var(--text-secondary)] border border-[var(--border-subtle)]">
+                    {group.deals.length} tratos
+                  </span>
+                </div>
+                <div className="flex gap-3.5 items-start overflow-x-auto pb-2">
+                  {STAGES.map((stage) => {
+                    const stageOpps = sortDeals(group.deals.filter((o) => o.stage === stage.id));
+                    const stageTotal = stageOpps.reduce((acc, curr) => acc + curr.amount, 0);
+                    const isTarget = dragOverStage === stage.id;
+
+                    return (
+                      <div
+                        key={stage.id}
+                        id={`kanban-column-${group.key}-${stage.id}`}
+                        onDragEnter={(e) => handleDragEnter(e, stage.id)}
+                        onDragOver={(e) => handleDragOver(e, stage.id)}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, stage.id)}
+                        className={`w-72 shrink-0 flex flex-col max-h-[500px] rounded-xl bg-[var(--bg-muted)]/90 border transition-all duration-150 ${
+                          isTarget
+                            ? 'border-blue-500 bg-blue-500/10 shadow-lg ring-2 ring-blue-500/30 scale-[1.01]'
+                            : 'border-[var(--border-subtle)]'
+                        }`}
+                      >
+                        {/* Column Header */}
+                        <div className="p-3 border-b border-[var(--border-subtle)]/80 flex items-center justify-between">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div
+                              className="w-2.5 h-2.5 rounded-full shrink-0"
+                              style={{ backgroundColor: stage.color }}
+                            />
+                            <span className="font-bold text-xs text-[var(--text-primary)] truncate">
+                              {t(`stage_${stage.id}` as any) || stage.name}
+                            </span>
+                            <span className="text-[10px] font-mono font-semibold px-1.5 py-0.2 rounded bg-[var(--bg-card)] text-[var(--text-secondary)] border border-[var(--border-subtle)]">
+                              {stageOpps.length}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-bold font-mono text-[var(--text-secondary)]">
+                              ${Math.round(stageTotal / 1000)}k
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Column Cards Container */}
+                        <div className="p-2 space-y-2.5 overflow-y-auto flex-1 min-h-[120px] custom-scrollbar">
+                          {isTarget && (
+                            <div className="p-2.5 rounded-lg border-2 border-dashed border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold text-xs flex items-center justify-center gap-1.5 animate-pulse shadow-sm mb-1">
+                              <Sparkles className="w-4 h-4 text-blue-500" />
+                              <span>Soltar trato</span>
+                            </div>
+                          )}
+
+                          {stageOpps.length === 0 && !isTarget ? (
+                            <div className="py-4 px-3 border border-dashed border-[var(--border-default)] rounded-xl bg-[var(--bg-card)]/60 flex flex-col items-center justify-center text-center">
+                              <p className="text-[10px] text-[var(--text-muted)]">Sin tratos en este carril</p>
+                            </div>
+                          ) : (
+                            stageOpps.map((opp) => (
+                              <KanbanCard
+                                key={opp.id}
+                                opp={opp}
+                                compactCards={compactCards}
+                                showCardTags={showCardTags}
+                                showCardDates={showCardDates}
+                                isDragging={draggedOppId === opp.id}
+                                getPriorityColor={getPriorityColor}
+                                getContact={getContact}
+                                onDragStart={handleDragStart}
+                                onDragEnd={handleDragEnd}
+                                onSelectRecord={handleSelectRecord}
+                                onWhatsAppClick={handleWhatsAppClick}
+                                onAICopilotClick={handleAICopilotClick}
+                                onMoveStage={handleMoveStageDirect}
+                              />
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-            );
-          })}
+            ))
+          )}
         </div>
+
+        {/* Pipeline Analytics Modal */}
+        <PipelineAnalyticsModal
+          isOpen={isAnalyticsOpen}
+          onClose={() => setIsAnalyticsOpen(false)}
+          opportunities={opportunities}
+        />
 
         {/* MULTI-SELECT FILTER SIDEBAR */}
         {isFilterSidebarOpen && (

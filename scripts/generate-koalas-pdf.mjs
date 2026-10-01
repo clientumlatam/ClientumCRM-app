@@ -259,6 +259,15 @@ async function generateKoalasPdf() {
         'Semana 3: Entrenamiento del Chatbot IA, botones de WhatsApp, SEO local y pruebas de compra punta a punta.',
         'Semana 4: Capacitación al personal de ventas/depósito, activación de Google Ads por radio y Go-Live oficial.'
       ]
+    },
+    {
+      num: '18',
+      title: 'Diferenciales Clave y Sincronización vs. Tiendanube',
+      bullets: [
+        '0% Comisiones por Venta: ClientumOS no cobra comisiones por transacción (a diferencia del 0.5% al 2.0% de Tiendanube). El 100% del margen queda para Koalas.',
+        'Ecosistema Unificado sin Costos Ocultos: CRM comercial, Bot WhatsApp IA Gemini, Facturación AFIP WSFE con CAE y Depósito/Picking integrados sin pagar plugins externos.',
+        'Modalidad Híbrida / Sincronización: Si Koalas prefiere mantener Tiendanube como vitrina, ClientumOS se conecta por API/Webhooks actuando como el cerebro operativo central.'
+      ]
     }
   ];
 
