@@ -3,6 +3,7 @@ import { getAnalytics, isSupported, Analytics } from 'firebase/analytics';
 import {
   getAuth,
   GoogleAuthProvider,
+  GithubAuthProvider,
   FacebookAuthProvider,
   OAuthProvider,
   signInWithPopup,
@@ -30,6 +31,7 @@ import {
   onSnapshot,
   deleteDoc,
   writeBatch,
+  setLogLevel,
 } from 'firebase/firestore';
 import appletConfig from '../firebase-applet-config.json';
 
@@ -84,8 +86,12 @@ export const auth: Auth = isLiveFirebaseReady
 export const db: Firestore = isLiveFirebaseReady
   ? (() => {
       try {
+        setLogLevel('error');
+      } catch {}
+      try {
         const firestoreSettings = {
           experimentalAutoDetectLongPolling: true,
+          experimentalForceLongPolling: true,
         };
         return firebaseDatabaseId
           ? initializeFirestore(app as FirebaseApp, firestoreSettings, firebaseDatabaseId)
@@ -97,6 +103,19 @@ export const db: Firestore = isLiveFirebaseReady
       }
     })()
   : (null as unknown as Firestore);
+
+// Connection check on boot with graceful offline fallback
+if (isLiveFirebaseReady && db) {
+  setTimeout(() => {
+    try {
+      getDocFromServer(doc(db, '_connection_test', 'status')).catch(() => {
+        // Silently operate in offline / cached mode when Firestore backend is unreachable
+      });
+    } catch {
+      // Silently catch
+    }
+  }, 1000);
+}
 
 export enum OperationType {
   CREATE = 'create',
@@ -209,6 +228,9 @@ googleProvider.setCustomParameters({ prompt: 'select_account' });
 // Add standard user info scopes only by default to avoid "Google hasn't verified this app" warning
 googleProvider.addScope('email');
 googleProvider.addScope('profile');
+
+export const githubProvider = new GithubAuthProvider();
+githubProvider.addScope('user:email');
 
 /**
  * Helper to sync user profile into Firestore
@@ -521,6 +543,62 @@ export async function signInWithGoogle(): Promise<AuthResult> {
       displayName: 'Google Workspace Client',
       photoURL: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
       providerId: 'google.com',
+    },
+  };
+}
+
+/**
+ * Sign in with GitHub Popup
+ */
+export async function signInWithGithub(): Promise<AuthResult> {
+  try {
+    if (isLiveFirebaseReady) {
+      const cred = await signInWithPopup(auth, githubProvider);
+      const credential = GithubAuthProvider.credentialFromResult(cred);
+      const token = credential?.accessToken;
+      return {
+        success: true,
+        user: {
+          uid: cred.user.uid,
+          email: cred.user.email,
+          displayName: cred.user.displayName || 'GitHub User',
+          photoURL: cred.user.photoURL,
+          providerId: 'github.com',
+        },
+        token: token || undefined,
+      };
+    }
+  } catch (err: any) {
+    console.warn('Live GitHub Sign-in error:', err);
+    if (err.code === 'auth/popup-closed-by-user') {
+      return { success: false, error: 'Inicio de sesión cancelado por el usuario.' };
+    }
+    if (err.code === 'auth/popup-blocked') {
+      return { success: false, error: 'El navegador bloqueó la ventana emergente de inicio de sesión. Permite las ventanas emergentes (popups) para continuar.' };
+    }
+    if (err.code === 'auth/operation-not-allowed') {
+      return { success: false, error: 'GitHub Sign-in no está habilitado en Firebase Console > Authentication > Método de acceso.' };
+    }
+    if (err.code === 'auth/unauthorized-domain') {
+      return { success: false, error: 'Este dominio no está autorizado en tu consola de Firebase.' };
+    }
+    if (isLiveFirebaseReady) {
+      return { success: false, error: err.message || 'No se pudo iniciar sesión con GitHub.' };
+    }
+  }
+
+  if (!isDemoAuthFallbackEnabled) {
+    return { success: false, error: 'La autenticación de Firebase no está configurada.' };
+  }
+
+  return {
+    success: true,
+    user: {
+      uid: 'github-usr-' + Date.now(),
+      email: 'clientum.developer@github.com',
+      displayName: 'GitHub Developer',
+      photoURL: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+      providerId: 'github.com',
     },
   };
 }

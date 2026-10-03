@@ -185,6 +185,18 @@ export const sidebarConfig: NavSection[] = [
         ],
       },
       {
+        id: 'apiDocs',
+        label: 'Desarrolladores & API',
+        icon: Code2,
+        badge: 'v1.4',
+        badgeColor: 'bg-blue-500/20 text-blue-600 dark:text-blue-400',
+        subItems: [
+          { id: 'apiDocs', label: 'Documentación API REST', icon: Code2 },
+          { id: 'integrationSettings', label: 'Integraciones API Hub', icon: Zap },
+          { id: 'auditLogs', label: 'Webhooks & Auditoría SOC2', icon: FileCheck },
+        ],
+      },
+      {
         id: 'settings',
         label: 'Ajustes de Sistema',
         icon: Settings,

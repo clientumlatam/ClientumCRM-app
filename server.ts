@@ -1217,15 +1217,7 @@ async function refreshPlatformSubscriptionStatus(
   return status;
 }
 
-app.post(["/api/billing/mercadopago/webhook", "/api/webhooks/mercadopago"], async (req, res) => {
-  res.sendStatus(200);
-  try {
-    const result = await handleIncomingMercadoPagoWebhook(req, credentialDatabase);
-    console.log("[MercadoPago Webhook] Handled result:", result);
-  } catch (error: any) {
-    console.error("Platform Mercado Pago webhook error:", error?.message || error);
-  }
-});
+app.post(["/api/billing/mercadopago/webhook", "/api/webhooks/mercadopago"], handleMercadoPagoWebhook);
 
 app.get("/api/billing/status", async (req, res) => {
   const userId = await getRequestUserId(req);

@@ -87,6 +87,8 @@ export const Sidebar: React.FC = React.memo(() => {
     agenteOS: true,
     operations: true,
     customObjects: true,
+    apiDocs: true,
+    settings: true,
   });
 
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
