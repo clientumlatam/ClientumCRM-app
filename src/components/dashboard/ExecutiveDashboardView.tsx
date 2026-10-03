@@ -26,6 +26,7 @@ import {
   WalletCards,
   X,
   ArrowLeftRight,
+  Code2,
 } from 'lucide-react';
 import {
   Area,
@@ -43,6 +44,8 @@ import { useTheme } from '../../context/ThemeContext';
 import { Opportunity, StageId } from '../../types';
 import { STAGES } from '../../data/initialData';
 import { DashboardOperationsStrip } from './DashboardOperationsStrip';
+import { ApiDocumentationSection } from './ApiDocumentationSection';
+import { RecentActivity } from './RecentActivity';
 import { RevenueChart } from '../analytics/RevenueChart';
 import { RevenueForecastPanel } from '../analytics/RevenueForecastPanel';
 import { MailAnalyticsPanel } from '../mail/MailAnalyticsPanel';
@@ -384,6 +387,22 @@ export const ExecutiveDashboardView: React.FC = () => {
             >
               <Sparkles size={13} className="text-emerald-400" />
               <span>¿Qué hacer hoy?</span>
+            </button>
+
+            {/* API Documentation Quick Access */}
+            <button
+              type="button"
+              onClick={() => {
+                const el = document.getElementById('clientum-api-docs-section');
+                if (el) {
+                  el.scrollIntoView({ behavior: 'smooth' });
+                  showToast('Navegando a la sección de Documentación de API', 'info');
+                }
+              }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold shadow-2xs hover:shadow transition-all cursor-pointer border border-slate-200 dark:border-slate-700"
+            >
+              <Code2 size={13} className="text-blue-500" />
+              <span>Documentación API</span>
             </button>
           </div>
         </div>
@@ -1006,12 +1025,35 @@ export const ExecutiveDashboardView: React.FC = () => {
           </div>
         </div>
 
+        {/* Recent Activity Chronological Feed (Firestore Data) */}
+        <div className="mt-8">
+          <RecentActivity
+            onSelectRecord={(record, type) => {
+              if (type === 'opportunity') {
+                setSelectedRecord(record);
+                setActiveTab('opportunities');
+              } else if (type === 'company') {
+                setSelectedRecord(record);
+                setActiveTab('companies');
+              } else if (type === 'person') {
+                setSelectedRecord(record);
+                setActiveTab('people');
+              }
+            }}
+          />
+        </div>
+
         {/* Projected Sales & Weighted Pipeline 3-Month Forecast */}
         <RevenueForecastPanel />
 
         {/* Transactional Email Analytics Panel (Recharts 30 days) */}
         <div className="mt-8">
           <MailAnalyticsPanel defaultTimeRange="30d" />
+        </div>
+
+        {/* API Documentation Section */}
+        <div id="clientum-api-docs-section" className="mt-8 scroll-mt-6">
+          <ApiDocumentationSection />
         </div>
 
         {/* Dashboard Operations Strip */}

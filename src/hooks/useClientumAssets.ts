@@ -7,10 +7,10 @@ import { useMemo } from 'react';
 export const useClientumAssets = () => {
   const assets = useMemo(() => ({
     // Principal Branding Asset
-    favicon: '/favicon.svg',
+    favicon: 'https://lh3.googleusercontent.com/a/ACg8ocLSPlzRCibVYMr9JueLEE_Cl1PMZG8TxzZAGpo_Q8dTLpUgnfE=s96-c',
     
     // Secondary Branding Asset
-    logo: '/logo.png',
+    logo: 'https://lh3.googleusercontent.com/a/ACg8ocLSPlzRCibVYMr9JueLEE_Cl1PMZG8TxzZAGpo_Q8dTLpUgnfE=s96-c',
   }), []);
 
   return assets;

@@ -159,6 +159,9 @@ const AdminConsoleDashboardPage = lazy(
 const GoogleWorkspaceDashboardPage = lazy(
   () => import(/* webpackChunkName: "google-workspace-dashboard-page" */ '../dashboard/GoogleWorkspaceDashboardPage').then((m) => ({ default: m.GoogleWorkspaceDashboardPage }))
 );
+const ApiDocumentation = lazy(
+  () => import(/* webpackChunkName: "api-documentation" */ '../dashboard/ApiDocumentation').then((m) => ({ default: m.ApiDocumentation }))
+);
 const DashboardDocsExplorerPage = lazy(
   () => import(/* webpackChunkName: "dashboard-docs-explorer-page" */ '../dashboard/DashboardDocsExplorerPage').then((m) => ({ default: m.DashboardDocsExplorerPage }))
 );
@@ -322,6 +325,11 @@ const MainContent: React.FC = () => {
           {activeTab === 'adminConsole' && <AdminConsoleDashboardPage />}
           {activeTab === 'workspaceIntegrations' && <GoogleWorkspaceDashboardPage />}
           {(activeTab === 'dashboardDocs' || activeTab === 'documentManagement') && <DashboardDocsExplorerPage />}
+          {activeTab === 'apiDocs' && (
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar">
+              <ApiDocumentation />
+            </div>
+          )}
           {activeTab === 'competitorHub' && <CompetitorHubView />}
         </Suspense>
       </main>

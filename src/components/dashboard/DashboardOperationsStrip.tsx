@@ -113,6 +113,7 @@ const suiteModules: Array<{ label: string; tab: ActiveTab }> = [
   { label: 'Sincronización Cloud & Drive', tab: 'workspaceIntegrations' },
   { label: 'Consola de Auditoría', tab: 'adminConsole' },
   { label: 'Documentación de Plataforma', tab: 'dashboardDocs' },
+  { label: 'API Documentation & Webhooks', tab: 'dashboardDocs' },
 ];
 
 export const DashboardOperationsStrip: React.FC<DashboardOperationsStripProps> = ({ onNavigate }) => {

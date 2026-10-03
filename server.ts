@@ -31,7 +31,15 @@ dotenv.config();
 
 import { crmRouter } from "./src/server/routes/crm.routes";
 import { tenantMiddleware } from "./src/server/middleware/auth";
-import { getFirebaseAdminAuthStatus, verifyFirebaseIdToken } from "./server/firebaseAdmin";
+import { getFirebaseAdminAuthStatus, verifyFirebaseIdToken, updateUserSubscriptionInFirestore } from "./server/firebaseAdmin";
+import { handleMercadoPagoWebhook } from "./server/controllers/webhooks";
+import { createSubscription } from "./server/services/mercadopago";
+import {
+  createMercadoPagoSubscription,
+  handleIncomingMercadoPagoWebhook,
+  verifyMercadoPagoSignature,
+  getPlatformWebhookSecret,
+} from "./server/mercadoPagoSubscriptionService";
 
 const app = express();
 const PORT = Number(process.env.PORT || 5000);
@@ -1209,67 +1217,11 @@ async function refreshPlatformSubscriptionStatus(
   return status;
 }
 
-app.post("/api/billing/mercadopago/webhook", async (req, res) => {
+app.post(["/api/billing/mercadopago/webhook", "/api/webhooks/mercadopago"], async (req, res) => {
   res.sendStatus(200);
-  if (!credentialDatabase) return;
-
-  const resourceId = getPaymentIdFromWebhook(req);
-  if (!resourceId || !verifyPlatformMercadoPagoWebhook(req, resourceId)) return;
-
   try {
-    const accessToken = getPlatformMercadoPagoToken();
-    if (!accessToken) return;
-    const notificationType = String(req.query.type || req.body?.type || req.body?.action || "").trim();
-    const isSubscriptionNotification = notificationType === "subscription_preapproval" ||
-      notificationType === "subscription_authorized_payment";
-    const resourceUrl = isSubscriptionNotification
-      ? `https://api.mercadopago.com/preapproval/${encodeURIComponent(resourceId)}`
-      : `https://api.mercadopago.com/v1/payments/${encodeURIComponent(resourceId)}`;
-    const resourceResponse = await fetch(resourceUrl, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-    if (!resourceResponse.ok) return;
-    const resource = await resourceResponse.json() as {
-      id?: string;
-      status?: string;
-      external_reference?: string;
-      payer_email?: string;
-      init_point?: string;
-    };
-    if (!resource.external_reference) return;
-
-    if (isSubscriptionNotification) {
-      const status = mapMercadoPagoSubscriptionStatus(resource.status);
-      await credentialDatabase.query(
-        `UPDATE clientum_platform_billing_checkouts
-         SET status = $1, provider_subscription_id = $2,
-             payer_email = COALESCE($3, payer_email),
-             init_point = COALESCE($4, init_point), updated_at = NOW()
-         WHERE external_reference = $5`,
-        [
-          status,
-          String(resource.id || resourceId),
-          resource.payer_email || null,
-          resource.init_point || null,
-          resource.external_reference,
-        ],
-      );
-      return;
-    }
-
-    const status = resource.status === "approved"
-      ? "approved"
-      : resource.status === "cancelled"
-        ? "cancelled"
-        : resource.status === "rejected"
-          ? "rejected"
-          : "pending";
-    await credentialDatabase.query(
-      `UPDATE clientum_platform_billing_checkouts
-       SET status = $1, provider_payment_id = $2, updated_at = NOW()
-       WHERE external_reference = $3`,
-      [status, String(resource.id || resourceId), resource.external_reference],
-    );
+    const result = await handleIncomingMercadoPagoWebhook(req, credentialDatabase);
+    console.log("[MercadoPago Webhook] Handled result:", result);
   } catch (error: any) {
     console.error("Platform Mercado Pago webhook error:", error?.message || error);
   }
@@ -1281,8 +1233,19 @@ app.get("/api/billing/status", async (req, res) => {
     res.status(401).json({ error: "A verified user session is required." });
     return;
   }
+
+  // Support Firestore mode or PostgreSQL mode
   if (!credentialDatabase) {
-    res.status(503).json({ error: "Neon PostgreSQL is required for platform billing.", code: "POSTGRES_NOT_CONFIGURED" });
+    res.json({
+      configured: Boolean(
+        getPlatformMercadoPagoToken() &&
+        process.env.PLATFORM_MERCADOPAGO_WEBHOOK_SECRET?.trim() &&
+        getPublicAppUrl()
+      ),
+      appUrlConfigured: Boolean(getPublicAppUrl()),
+      webhookConfigured: Boolean(process.env.PLATFORM_MERCADOPAGO_WEBHOOK_SECRET?.trim()),
+      checkouts: [],
+    });
     return;
   }
 
@@ -1324,8 +1287,7 @@ app.get("/api/billing/status", async (req, res) => {
       configured: Boolean(
         getPlatformMercadoPagoToken() &&
         process.env.PLATFORM_MERCADOPAGO_WEBHOOK_SECRET?.trim() &&
-        getPublicAppUrl() &&
-        credentialDatabase,
+        getPublicAppUrl()
       ),
       appUrlConfigured: Boolean(getPublicAppUrl()),
       webhookConfigured: Boolean(process.env.PLATFORM_MERCADOPAGO_WEBHOOK_SECRET?.trim()),
@@ -1355,119 +1317,49 @@ app.post("/api/billing/mercadopago/checkout", async (req, res) => {
     return;
   }
 
-  const plan = PLATFORM_PLANS[normalizedPlan];
   const accessToken = getPlatformMercadoPagoToken();
-  const amount = getPlanAmount(normalizedPlan, billingCycle);
-  const webhookSecretConfigured = Boolean(process.env.PLATFORM_MERCADOPAGO_WEBHOOK_SECRET?.trim());
-
-  // A payment request must never be reported as successful without a provider
-  // checkout. Preview/demo mode can still use the free trial, but paid access
-  // requires a real Mercado Pago subscription and durable status tracking.
-  if (!accessToken || !credentialDatabase || !webhookSecretConfigured) {
+  if (!accessToken) {
     res.status(503).json({
-      error: !accessToken
-        ? "Mercado Pago debe estar configurado para activar pagos reales."
-        : !credentialDatabase
-          ? "PostgreSQL debe estar configurado para registrar pagos reales."
-          : "Configura PLATFORM_MERCADOPAGO_WEBHOOK_SECRET para verificar las notificaciones de pago.",
-      code: !accessToken
-        ? "PLATFORM_PAYMENT_NOT_CONFIGURED"
-        : !credentialDatabase
-          ? "POSTGRES_NOT_CONFIGURED"
-          : "PLATFORM_WEBHOOK_NOT_CONFIGURED",
+      error: "PLATFORM_MERCADOPAGO_ACCESS_TOKEN debe estar configurado para activar pagos reales.",
+      code: "PLATFORM_PAYMENT_NOT_CONFIGURED",
+    });
+    return;
+  }
+
+  const appUrl = getPublicAppUrl();
+  if (!appUrl) {
+    res.status(503).json({
+      error: "APP_URL debe apuntar a una URL pública HTTPS para recibir el retorno y los webhooks de Mercado Pago.",
+      code: "PUBLIC_APP_URL_NOT_CONFIGURED",
     });
     return;
   }
 
   try {
-    await credentialSchemaReady;
-    const planId = normalizedPlan;
-    const externalReference = `clientum_platform_${userId}_${Date.now()}_${randomBytes(5).toString("hex")}`;
-    const appUrl = getPublicAppUrl();
-    if (!appUrl) {
-      res.status(503).json({
-        error: "APP_URL debe apuntar a una URL pública HTTPS para recibir el retorno y los webhooks de Mercado Pago.",
-        code: "PUBLIC_APP_URL_NOT_CONFIGURED",
-      });
-      return;
+    if (credentialDatabase) {
+      await credentialSchemaReady;
     }
 
-    // Map plan id to Mercado Pago preapproval plan ID if present in environment
-    const envVarName = `PLATFORM_MP_PLAN_ID_${planId.toUpperCase()}_${billingCycle.toUpperCase()}`;
-    const preapprovalPlanId = process.env[envVarName]?.trim();
-
-    const subscriptionPayload: Record<string, unknown> = {
-      reason: `Suscripción ClientumCRM ${plan.name} (${billingCycle === "annual" ? "Anual" : "Mensual"})`,
-      external_reference: externalReference,
-      payer_email: payerEmail,
-    };
-
-    if (preapprovalPlanId) {
-      subscriptionPayload.preapproval_plan_id = preapprovalPlanId;
-    } else {
-      // Fallback inline recurring definition if MP plan ID is not configured
-      subscriptionPayload.auto_recurring = {
-        frequency: billingCycle === "annual" ? 12 : 1,
-        frequency_type: "months",
-        transaction_amount: amount,
-        currency_id: "ARS",
-      };
-    }
-
-    subscriptionPayload.back_url = `${appUrl}/app?billing=subscription`;
-    subscriptionPayload.notification_url = `${appUrl}/api/billing/mercadopago/webhook`;
-
-    const response = await fetch("https://api.mercadopago.com/preapproval", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-        "X-Idempotency-Key": externalReference,
-      },
-      body: JSON.stringify(subscriptionPayload),
-    });
-    const payload = await response.json().catch(() => ({})) as {
-      id?: string;
-      init_point?: string;
-      message?: string;
-      status?: string;
-    };
-    if (!response.ok || !payload.init_point) {
-      console.error("Platform Mercado Pago subscription failed:", response.status, payload.message || "unknown provider error");
-      res.status(502).json({ error: "Mercado Pago rechazó la creación de la suscripción.", code: "PLATFORM_PAYMENT_PROVIDER_ERROR" });
-      return;
-    }
-
-    const checkoutId = `platform-checkout-${Date.now()}-${randomBytes(5).toString("hex")}`;
-    await credentialDatabase.query(
-      `INSERT INTO clientum_platform_billing_checkouts
-        (id, clerk_user_id, plan_id, external_reference, preference_id, provider_subscription_id,
-         amount, currency, payer_email, init_point, preapproval_plan_id, billing_cycle)
-       VALUES ($1, $2, $3, $4, NULL, $5, $6, 'ARS', $7, $8, $9, $10)`,
-      [
-        checkoutId,
-        userId,
-        planId,
-        externalReference,
-        payload.id || null,
-        amount,
-        payerEmail,
-        payload.init_point,
-        preapprovalPlanId || null,
-        billingCycle
-      ],
-    );
-    res.status(201).json({
-      checkoutId,
-      subscriptionId: payload.id || null,
-      planId,
+    const subscriptionResult = await createMercadoPagoSubscription({
+      userId,
+      planId: normalizedPlan,
       billingCycle,
-      checkoutUrl: payload.init_point,
+      payerEmail,
+      appUrl,
+      dbPool: credentialDatabase,
+    });
+
+    res.status(201).json({
+      checkoutId: subscriptionResult.checkoutId,
+      subscriptionId: subscriptionResult.subscriptionId || null,
+      planId: normalizedPlan,
+      billingCycle,
+      checkoutUrl: subscriptionResult.checkoutUrl,
       status: "pending",
     });
   } catch (error: any) {
     console.error("Platform billing checkout error:", error?.message || error);
-    res.status(500).json({ error: "No se pudo crear el checkout de Mercado Pago." });
+    res.status(500).json({ error: error?.message || "No se pudo crear el checkout de Mercado Pago." });
   }
 });
 
@@ -4439,6 +4331,17 @@ async function main() {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
+      resolve: {
+        alias: {
+          "@": process.cwd(),
+          react: path.resolve(process.cwd(), "node_modules/react"),
+          "react-dom": path.resolve(process.cwd(), "node_modules/react-dom"),
+        },
+        dedupe: ["react", "react-dom"],
+      },
+      optimizeDeps: {
+        include: ["react", "react-dom"],
+      },
       // Replit Secrets are available to the server process. Explicitly expose
       // only Firebase's public client configuration to the Vite bundle; all
       // server credentials remain backend-only.

@@ -141,9 +141,9 @@ export const PublicNavbar: React.FC<PublicNavbarProps> = ({
               title="Clientum CRM - Isotipo Oficial"
             >
               <img
-                src="/favicon.svg"
+                src="https://lh3.googleusercontent.com/a/ACg8ocLSPlzRCibVYMr9JueLEE_Cl1PMZG8TxzZAGpo_Q8dTLpUgnfE=s96-c"
                 alt="Clientum"
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain rounded-full"
                 referrerPolicy="no-referrer"
               />
               {/* Minimalist Live Service Pulse Indicator */}

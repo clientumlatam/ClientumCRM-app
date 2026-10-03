@@ -12,6 +12,8 @@ export interface ClientumLogoProps {
   onDark?: boolean;
 }
 
+export const CLIENTUM_OFFICIAL_LOGO = 'https://lh3.googleusercontent.com/a/ACg8ocLSPlzRCibVYMr9JueLEE_Cl1PMZG8TxzZAGpo_Q8dTLpUgnfE=s96-c';
+
 export const ClientumLogo: React.FC<ClientumLogoProps> = ({
   className = '',
   alt = 'Clientum',
@@ -63,9 +65,9 @@ export const ClientumLogo: React.FC<ClientumLogoProps> = ({
 
     return (
       <img
-        src="/favicon.svg"
+        src={CLIENTUM_OFFICIAL_LOGO}
         alt={alt}
-        className="w-full h-full object-contain"
+        className="w-full h-full object-contain rounded-full"
         onError={() => setHasError(true)}
         referrerPolicy="no-referrer"
       />

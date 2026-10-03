@@ -190,6 +190,7 @@ export const sidebarConfig: NavSection[] = [
         icon: Settings,
         subItems: [
           { id: 'settings', label: 'Configuración General', icon: Settings },
+          { id: 'apiDocs', label: 'Documentación API & Webhooks', icon: Code2 },
           { id: 'teamManagement', label: 'Equipos & Usuarios', icon: Users },
           { id: 'rbacRoles', label: 'Roles & Permisos (RBAC)', icon: Shield },
           { id: 'integrationSettings', label: 'Integraciones API Hub', icon: Zap },

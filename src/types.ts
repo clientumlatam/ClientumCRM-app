@@ -229,6 +229,7 @@ export type ActiveTab =
   | 'adminConsole'
   | 'workspaceIntegrations'
   | 'dashboardDocs'
+  | 'apiDocs'
   | 'competitorHub'
   | 'reportsAnalytics'
   | 'documentManagement'

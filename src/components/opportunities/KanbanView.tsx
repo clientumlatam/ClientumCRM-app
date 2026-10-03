@@ -725,11 +725,13 @@ export const KanbanView: React.FC = () => {
         </div>
 
         {/* Pipeline Analytics Modal */}
-        <PipelineAnalyticsModal
-          isOpen={isAnalyticsOpen}
-          onClose={() => setIsAnalyticsOpen(false)}
-          opportunities={opportunities}
-        />
+        {isAnalyticsOpen && (
+          <PipelineAnalyticsModal
+            isOpen={isAnalyticsOpen}
+            onClose={() => setIsAnalyticsOpen(false)}
+            opportunities={opportunities}
+          />
+        )}
 
         {/* MULTI-SELECT FILTER SIDEBAR */}
         {isFilterSidebarOpen && (
