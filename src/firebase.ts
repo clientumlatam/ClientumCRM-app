@@ -32,6 +32,8 @@ import {
   deleteDoc,
   writeBatch,
   setLogLevel,
+  persistentLocalCache,
+  persistentMultipleTabManager,
 } from 'firebase/firestore';
 import appletConfig from '../firebase-applet-config.json';
 
@@ -92,6 +94,9 @@ export const db: Firestore = isLiveFirebaseReady
         const firestoreSettings = {
           experimentalAutoDetectLongPolling: true,
           experimentalForceLongPolling: true,
+          localCache: persistentLocalCache({
+            tabManager: persistentMultipleTabManager(),
+          }),
         };
         return firebaseDatabaseId
           ? initializeFirestore(app as FirebaseApp, firestoreSettings, firebaseDatabaseId)

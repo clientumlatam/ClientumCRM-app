@@ -15,6 +15,7 @@ import { CommandPalette } from './components/common/CommandPalette';
 import { RecordDrawer } from './components/common/RecordDrawer';
 import { PrivateEnvironment } from './components/app/PrivateEnvironment';
 import { ThemeSync } from './components/common/ThemeSync';
+import { InstallAppButton } from './components/common/InstallAppButton';
 
 const AppContent: React.FC = () => {
   const { resolvedTheme } = useTheme();
@@ -92,12 +93,15 @@ const AppContent: React.FC = () => {
   }
 
   return (
-    <ProtectedRoute
-      isAuthenticated={isPrivateRoute && isAuthenticated && !isPublicSiteVisible}
-      fallback={publicEnvironment}
-    >
-      {privateEnvironment}
-    </ProtectedRoute>
+    <>
+      <ProtectedRoute
+        isAuthenticated={isPrivateRoute && isAuthenticated && !isPublicSiteVisible}
+        fallback={publicEnvironment}
+      >
+        {privateEnvironment}
+      </ProtectedRoute>
+      <InstallAppButton />
+    </>
   );
 };
 

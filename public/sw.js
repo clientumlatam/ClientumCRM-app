@@ -3,6 +3,7 @@ const CACHE_NAME = 'clientum-crm-v6.2-pwa-brochure';
 const urlsToCache = [
   '/',
   '/index.html',
+  '/manifest.json',
   '/favicon.svg',
   '/og-image.png',
   '/og-image.svg',

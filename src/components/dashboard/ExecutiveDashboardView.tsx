@@ -50,6 +50,7 @@ import { RevenueChart } from '../analytics/RevenueChart';
 import { RevenueForecastPanel } from '../analytics/RevenueForecastPanel';
 import { MailAnalyticsPanel } from '../mail/MailAnalyticsPanel';
 import { QuickCaptureModal } from '../common/QuickCaptureModal';
+import { SyncStatusWidget } from '../common/SyncStatusWidget';
 import { KanbanCard } from '../opportunities/KanbanCard';
 import { WhatsAppQuickActionModal } from '../whatsapp/WhatsAppQuickActionModal';
 
@@ -1054,6 +1055,11 @@ export const ExecutiveDashboardView: React.FC = () => {
         {/* API Documentation Section */}
         <div id="clientum-api-docs-section" className="mt-8 scroll-mt-6">
           <ApiDocumentationSection />
+        </div>
+
+        {/* Database Sync Status & Offline Log */}
+        <div className="mt-8">
+          <SyncStatusWidget />
         </div>
 
         {/* Dashboard Operations Strip */}

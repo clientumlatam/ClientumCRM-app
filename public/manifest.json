@@ -1,0 +1,35 @@
+{
+  "name": "Remix ClientumCRM OS",
+  "short_name": "ClientumCRM",
+  "description": "Modern open-source CRM and sales pipeline platform for Latin American businesses",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "https://lh3.googleusercontent.com/a/ACg8ocLSPlzRCibVYMr9JueLEE_Cl1PMZG8TxzZAGpo_Q8dTLpUgnfE=s96-c",
+      "sizes": "96x96 192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard Ejecutivo",
+      "short_name": "Dashboard",
+      "description": "Ver métricas principales y embudo comercial",
+      "url": "/",
+      "icons": [{ "src": "https://lh3.googleusercontent.com/a/ACg8ocLSPlzRCibVYMr9JueLEE_Cl1PMZG8TxzZAGpo_Q8dTLpUgnfE=s96-c", "sizes": "96x96" }]
+    },
+    {
+      "name": "Contactos & Leads",
+      "short_name": "Contactos",
+      "description": "Gestionar cartera de clientes y personas",
+      "url": "/?tab=people",
+      "icons": [{ "src": "https://lh3.googleusercontent.com/a/ACg8ocLSPlzRCibVYMr9JueLEE_Cl1PMZG8TxzZAGpo_Q8dTLpUgnfE=s96-c", "sizes": "96x96" }]
+    }
+  ],
+  "categories": ["business", "productivity", "finance", "sales"]
+}
